@@ -271,32 +271,29 @@ These signatures are frozen in the delivery graph § 6 (Delta → Charlie contra
 // src/server/liveblocks-lifecycle.test.ts
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-vi.mock('@liveblocks/node', () => {
-  const createRoom = vi.fn()
-  const initializeStorageDocument = vi.fn()
-  const deleteRoom = vi.fn()
-  return {
-    Liveblocks: vi.fn(() => ({
-      createRoom,
-      initializeStorageDocument,
-      deleteRoom,
-    })),
-  }
-})
+// Set env var BEFORE importing the module under test — the singleton
+// checks for it at module load time.
+vi.stubEnv('LIVEBLOCKS_SECRET_KEY', 'sk_test_fake')
 
-// We need to mock the module that creates the singleton so we can control
-// the mock instance. This tests provisionRoom/decommissionRoom logic,
-// not the Liveblocks SDK itself.
-const mockLiveblocks = {
-  createRoom: vi.fn(),
-  initializeStorageDocument: vi.fn(),
-  deleteRoom: vi.fn(),
-}
+// Mock ONLY the external boundary (@liveblocks/node). The Liveblocks
+// constructor returns a mock instance whose methods we control.
+// This means the `liveblocks` singleton exported by src/server/liveblocks.ts
+// will be this mock, and the real provisionRoom/decommissionRoom/roomIdForProject
+// functions will call its methods — testing REAL logic, not a mock of itself.
+const mockCreateRoom = vi.fn()
+const mockInitializeStorageDocument = vi.fn()
+const mockDeleteRoom = vi.fn()
 
-vi.mock('@/server/liveblocks', () => ({
-  liveblocks: mockLiveblocks,
+vi.mock('@liveblocks/node', () => ({
+  Liveblocks: vi.fn(() => ({
+    createRoom: mockCreateRoom,
+    initializeStorageDocument: mockInitializeStorageDocument,
+    deleteRoom: mockDeleteRoom,
+  })),
 }))
 
+// Import the REAL module — NOT a mock. The functions under test are exercised
+// against the mocked Liveblocks SDK instance created above.
 import { provisionRoom, decommissionRoom, roomIdForProject } from '@/server/liveblocks'
 
 describe('roomIdForProject', () => {
@@ -311,8 +308,8 @@ describe('provisionRoom', () => {
   })
 
   it('creates room with correct permissions and seeds empty storage', async () => {
-    mockLiveblocks.createRoom.mockResolvedValue({ id: 'proj_abc' })
-    mockLiveblocks.initializeStorageDocument.mockResolvedValue({})
+    mockCreateRoom.mockResolvedValue({ id: 'proj_abc' })
+    mockInitializeStorageDocument.mockResolvedValue({})
 
     await provisionRoom({
       roomId: 'proj_abc',
@@ -320,13 +317,13 @@ describe('provisionRoom', () => {
       clerkOrgId: 'org_123',
     })
 
-    expect(mockLiveblocks.createRoom).toHaveBeenCalledWith('proj_abc', {
+    expect(mockCreateRoom).toHaveBeenCalledWith('proj_abc', {
       defaultAccesses: [],
       groupsAccesses: { ws_xyz: ['*:write'] },
       organizationId: 'org_123',
     })
 
-    expect(mockLiveblocks.initializeStorageDocument).toHaveBeenCalledWith(
+    expect(mockInitializeStorageDocument).toHaveBeenCalledWith(
       'proj_abc',
       expect.objectContaining({
         liveblocksType: 'LiveObject',
@@ -339,7 +336,7 @@ describe('provisionRoom', () => {
   })
 
   it('throws if createRoom fails so the caller can roll back', async () => {
-    mockLiveblocks.createRoom.mockRejectedValue(new Error('Liveblocks 500'))
+    mockCreateRoom.mockRejectedValue(new Error('Liveblocks 500'))
 
     await expect(
       provisionRoom({
@@ -351,8 +348,8 @@ describe('provisionRoom', () => {
   })
 
   it('throws if initializeStorageDocument fails', async () => {
-    mockLiveblocks.createRoom.mockResolvedValue({ id: 'proj_abc' })
-    mockLiveblocks.initializeStorageDocument.mockRejectedValue(
+    mockCreateRoom.mockResolvedValue({ id: 'proj_abc' })
+    mockInitializeStorageDocument.mockRejectedValue(
       new Error('Storage init failed'),
     )
 
@@ -372,14 +369,14 @@ describe('decommissionRoom', () => {
   })
 
   it('deletes room and resolves', async () => {
-    mockLiveblocks.deleteRoom.mockResolvedValue(undefined)
+    mockDeleteRoom.mockResolvedValue(undefined)
 
     await expect(decommissionRoom('proj_abc')).resolves.toBeUndefined()
-    expect(mockLiveblocks.deleteRoom).toHaveBeenCalledWith('proj_abc')
+    expect(mockDeleteRoom).toHaveBeenCalledWith('proj_abc')
   })
 
   it('logs and resolves on failure — never throws', async () => {
-    mockLiveblocks.deleteRoom.mockRejectedValue(new Error('Network error'))
+    mockDeleteRoom.mockRejectedValue(new Error('Network error'))
 
     // Must NOT throw — best-effort
     await expect(decommissionRoom('proj_abc')).resolves.toBeUndefined()

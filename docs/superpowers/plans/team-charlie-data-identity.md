@@ -269,6 +269,25 @@ export function createProject(workspaceSlug: string, name: string): Promise<Proj
 export function deleteProject(workspaceSlug: string, projectId: string): Promise<void>
 ```
 
+```ts
+// src/server/dal/projects.ts — ADDITION TO FROZEN CONTRACT (plan-fix-time 2026-08-08)
+// Required by Echo E2 for DoD criterion 6 (Liveblocks-outage read-only path).
+// Not in the original delivery graph §6. Added so producer and consumer are byte-identical.
+
+export type ProjectWithSnapshot = {
+  id: string
+  name: string
+  updatedAt: Date
+  liveblocksRoomId: string
+  snapshotElements: unknown[]  // CanvasSnapshot.elements — may be [] if never synced
+}
+
+export function getProjectWithSnapshot(
+  workspaceSlug: string,
+  projectId: string,
+): Promise<ProjectWithSnapshot>
+```
+
 **Authorization rules (binding — implement exactly):**
 
 1. Authorization lives in the DAL and NEVER in the proxy. The proxy does authentication only.
@@ -327,12 +346,10 @@ export function decommissionRoom(_roomId: string): Promise<void> {
   throw new Error('STUB: awaiting Delta D1 — decommissionRoom not implemented')
 }
 
-export function roomIdForProject(projectId: string): string {
-  return `proj_${projectId}`
+export function roomIdForProject(_projectId: string): string {
+  throw new Error('STUB: awaiting Delta D1 — roomIdForProject not implemented')
 }
 ```
-
-Note: `roomIdForProject` is a pure function with no external dependencies, so it returns a real value even in the stub.
 
 - [ ] **Step 3: Create `src/server/dal/workspaces.ts`**
 
@@ -510,6 +527,53 @@ export async function deleteProject(workspaceSlug: string, projectId: string): P
 
   await db.project.delete({ where: { id: project.id } })
 }
+
+/**
+ * Gets a project with its canvas snapshot elements for the read-only outage fallback.
+ * Returns snapshotElements (defaulting to []) for CanvasRoom's fallbackElements prop.
+ *
+ * ADDITION TO FROZEN CONTRACT (plan-fix-time 2026-08-08): This function was not in
+ * the original delivery graph §6 frozen interface. It is required by Echo E2 to satisfy
+ * DoD criterion 6 (Liveblocks-outage read-only path). Added here so that both Charlie
+ * (producer) and Echo (consumer) code against an identical signature.
+ */
+export type ProjectWithSnapshot = {
+  id: string
+  name: string
+  updatedAt: Date
+  liveblocksRoomId: string
+  snapshotElements: unknown[]  // CanvasSnapshot.elements — may be [] if never synced
+}
+
+export async function getProjectWithSnapshot(
+  workspaceSlug: string,
+  projectId: string,
+): Promise<ProjectWithSnapshot> {
+  const workspace = await requireWorkspace(workspaceSlug)
+
+  const project = await db.project.findFirst({
+    where: { id: projectId, workspaceId: workspace.id },
+    select: {
+      id: true,
+      name: true,
+      updatedAt: true,
+      liveblocksRoomId: true,
+      canvas: { select: { elements: true } },
+    },
+  })
+
+  if (!project) {
+    notFound()
+  }
+
+  return {
+    id: project.id,
+    name: project.name,
+    updatedAt: project.updatedAt,
+    liveblocksRoomId: project.liveblocksRoomId,
+    snapshotElements: (project.canvas?.elements as unknown[]) ?? [],
+  }
+}
 ```
 
 - [ ] **Step 5: Create `src/server/dal/index.ts`**
@@ -517,8 +581,8 @@ export async function deleteProject(workspaceSlug: string, projectId: string): P
 ```ts
 export { requireWorkspace, requireWorkspaceByOrgId } from './workspaces'
 export type { WorkspaceRef } from './workspaces'
-export { listProjects, getProject, createProject, deleteProject } from './projects'
-export type { ProjectListItem, ProjectDetail } from './projects'
+export { listProjects, getProject, getProjectWithSnapshot, createProject, deleteProject } from './projects'
+export type { ProjectListItem, ProjectDetail, ProjectWithSnapshot } from './projects'
 export { NotFoundError, UnauthorizedError } from './errors'
 ```
 
@@ -845,6 +909,30 @@ Expected: No errors.
 git add src/server/dal/ src/server/liveblocks-stub.ts
 git commit -m "feat(charlie): C1 DAL with authorization and Liveblocks room lifecycle stub"
 ```
+
+- [ ] **Step 11: Swap import path when Delta D1 merges (Charlie's responsibility)**
+
+When Delta D1 merges into `development` and Charlie rebases:
+
+1. In `src/server/dal/projects.ts`, change the import from:
+   ```ts
+   import { provisionRoom, decommissionRoom, roomIdForProject } from '../liveblocks-stub'
+   ```
+   to:
+   ```ts
+   import { provisionRoom, decommissionRoom, roomIdForProject } from '../liveblocks'
+   ```
+2. Delete `src/server/liveblocks-stub.ts` in the same commit.
+3. Run `pnpm vitest run src/server/dal/__tests__/` — tests must pass with the real module.
+4. Run `pnpm build` — must succeed.
+5. Commit:
+   ```bash
+   git add src/server/dal/projects.ts
+   git rm src/server/liveblocks-stub.ts
+   git commit -m "refactor(charlie): swap liveblocks-stub for real Delta D1 implementation"
+   ```
+
+**NOTE:** This step is explicitly assigned to Charlie because `src/server/dal/projects.ts` is Charlie-owned per §5. Delta merges its D1 code at `src/server/liveblocks.ts`; Charlie then rebases and performs this import-path swap.
 
 ---
 

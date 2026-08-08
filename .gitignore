@@ -12,6 +12,8 @@
 
 # testing
 /coverage
+/playwright-report/
+/test-results/
 
 # next.js
 /.next/
@@ -41,8 +43,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# prisma generated client (Team Charlie commits the real one at C0)
-/src/generated/
+# prisma generated client (committed by Team Charlie at C0)
 
 # SDD scratch workspace (ledgers, briefs, review packages) - not project code
 .superpowers/
