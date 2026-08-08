@@ -1,0 +1,118 @@
+# A1 — CI Pipeline for LiveFlows
+# Gate for every PR into development. All stages blocking, in order.
+# See: .superpowers/sdd/2026-08-08-liveflows-spikes/A1-brief.md
+
+name: CI
+
+on:
+  pull_request:
+    branches: [development, main]
+  push:
+    branches: [development]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      postgres-test:
+        image: postgres:17
+        ports:
+          - 5433:5432
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: liveflows_test
+        options: >-
+          --health-cmd "pg_isready -U test -d liveflows_test"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      # Test database — session-mode plain Postgres from the service container.
+      TEST_DATABASE_URL: postgresql://test:test@localhost:5433/liveflows_test
+      # CI flag — vitest global setup skips docker-compose when this is set.
+      CI: "true"
+      # Dummy values so prisma generate and next build don't fail on missing
+      # env vars. These are NEVER used to connect to a real database or service.
+      # The real secrets live in the GitHub secret store and are never written here.
+      DATABASE_URL: postgresql://unused:unused@localhost:5432/unused
+      DIRECT_URL: postgresql://unused:unused@localhost:5432/unused
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_unused
+      CLERK_SECRET_KEY: sk_test_unused
+      LIVEBLOCKS_SECRET_KEY: sk_test_unused
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      # Create .env.local so prisma.config.ts's process.loadEnvFile() does not
+      # throw. The values are dummies — CI never touches real Supabase.
+      - name: Create CI .env.local
+        run: |
+          cat <<'EOF' > .env.local
+          DATABASE_URL=postgresql://unused:unused@localhost:5432/unused
+          DIRECT_URL=postgresql://test:test@localhost:5433/liveflows_test
+          NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_unused
+          CLERK_SECRET_KEY=sk_test_unused
+          LIVEBLOCKS_SECRET_KEY=sk_test_unused
+          EOF
+
+      # ── Stage 1: Install (frozen lockfile — no mutations, respects minimumReleaseAge) ──
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # ── Stage 2: Lint (Biome) ──
+      - name: Lint
+        run: pnpm lint
+
+      # ── Stage 3: Prisma generate (must run before build; build imports @prisma/client) ──
+      - name: Prisma generate
+        run: pnpm exec prisma generate
+
+      # ── Stage 4: Build (generates .next/types/ needed by tsc) ──
+      - name: Build
+        run: pnpm build
+
+      # ── Stage 5: Type check (requires .next/types/ from build) ──
+      # next build already runs tsc internally, but we run standalone --noEmit
+      # as an explicit gate so type regressions are surfaced clearly.
+      - name: Type check
+        run: pnpm exec tsc --noEmit
+
+      # ── Stage 6: Push schema to test database ──
+      # Timeout: prisma schema engine hangs forever against transaction-mode
+      # poolers. The CI service is session-mode so this should complete fast,
+      # but the timeout prevents burning the runner budget if something goes wrong.
+      - name: Push schema to test database
+        run: pnpm exec prisma db push --skip-generate
+        timeout-minutes: 2
+        env:
+          DATABASE_URL: ${{ env.TEST_DATABASE_URL }}
+          DIRECT_URL: ${{ env.TEST_DATABASE_URL }}
+
+      # ── Stage 7: Unit & integration tests (Vitest) ──
+      - name: Run tests
+        run: pnpm exec vitest --run --passWithNoTests
+
+      # ── Stage 8: Playwright E2E (gated on Foxtrot F0 harness) ──
+      # Uncomment when Team Foxtrot delivers F0:
+      # - name: Install Playwright browsers
+      #   run: pnpm exec playwright install --with-deps chromium
+      # - name: Run Playwright tests
+      #   run: pnpm exec playwright test
