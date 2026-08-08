@@ -87,7 +87,9 @@ These are breaking changes from what a model assumes by default.
 **Next.js 16**
 
 - `proxy.ts`, **not** `middleware.ts`. Renamed; now defaults to the Node.js runtime
-- Proxy is for optimistic redirects only. Authorization lives in the DAL
+- Proxy enforces **authentication** only — is there a session? **Authorization** —
+  may this user touch this resource? — lives in the DAL. `auth.protect()` in the
+  proxy is the former, not the latter
 - Renamed flags, e.g. `skipMiddlewareUrlNormalize` → `skipProxyUrlNormalize`
 
 **Prisma 7**
@@ -136,8 +138,30 @@ These are breaking changes from what a model assumes by default.
 | Yjs, `y-excalidraw` | Liveblocks Storage. Yjs is the documented fallback only if Spike 2 fails |
 | `useEffect` for data fetching | Server Components + DAL |
 
-**Open item:** whether to set `"type": "module"` in `package.json` or
-`moduleFormat = "cjs"` on the Prisma generator. Resolve during Spike 1.
+### Required environment variables
+
+| Variable | Purpose |
+|---|---|
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk client |
+| `CLERK_SECRET_KEY` | Clerk server |
+| `CLERK_WEBHOOK_SIGNING_SECRET` | read automatically by `verifyWebhook()` |
+| `LIVEBLOCKS_SECRET_KEY` | Liveblocks Node SDK, token issuance, REST |
+| `LIVEBLOCKS_WEBHOOK_SECRET` | `storageUpdated` signature verification |
+| `DATABASE_URL` | Supabase **pooler** URL, used at runtime |
+| `DIRECT_DATABASE_URL` | Supabase **direct** URL, used for migrations |
+
+Prisma 7 driver adapters reject `prisma://` and `prisma+postgres://` URLs — both
+values must be direct Postgres connection strings.
+
+Clerk redirect URLs (`NEXT_PUBLIC_CLERK_SIGN_IN_URL` etc.) are only needed if the
+defaults are overridden. 1a uses the defaults.
+
+### PREREQUISITE — blocking
+
+Whether to set `"type": "module"` in `package.json` or `moduleFormat = "cjs"` on
+the Prisma generator is **unresolved**. Spike 1 must decide it. Do not default to
+either option and do not begin implementation until it is resolved — the choice
+affects `next.config.ts` resolution and Biome configuration, not just Prisma.
 
 ---
 
@@ -177,7 +201,7 @@ mirror, not as the live editing channel."
 |---|---|
 | User opens a project | Server Component → DAL → Postgres for project metadata. Client connects to Liveblocks room; Storage hydrates the canvas |
 | User draws | `onChange` (throttled ~100ms) → diff by `version` → write changed elements to `LiveMap` → Liveblocks broadcasts → peers apply via `updateScene` |
-| Mirror refresh | Liveblocks `storageUpdated` (throttled 10s) → our route fetches storage → upserts `CanvasSnapshot` |
+| Mirror refresh | Liveblocks `storageUpdated` (default throttle 60s) → our route fetches storage → upserts `CanvasSnapshot` |
 | User views project list | Server Component → DAL → Postgres only. No Liveblocks call |
 | Liveblocks outage | Canvas renders read-only from `CanvasSnapshot` with a banner. Auth, lists, workspace pages unaffected. No data loss — availability issue, not durability |
 
@@ -195,7 +219,7 @@ src/
       w/[workspaceSlug]/
         page.tsx                         project list  → Postgres
         p/[projectId]/page.tsx           canvas        → Liveblocks
-    session-tasks/choose-organization/   Clerk TaskChooseOrganization
+    session-tasks/choose-organization/page.tsx   Clerk TaskChooseOrganization
     api/
       liveblocks-auth/route.ts           issues Liveblocks ID token
       webhooks/clerk/route.ts            user/org/membership → Postgres
@@ -242,6 +266,9 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  // NOTE: `url` is intentionally absent. Prisma 7 moves connection URLs to
+  // prisma.config.ts. Adding `url = env("DATABASE_URL")` here is a v6 habit
+  // and will conflict with the driver adapter.
 }
 
 model User {
@@ -299,6 +326,14 @@ model CanvasSnapshot {
   elementCount Int      @default(0)            // storage-ceiling early warning
   syncedAt     DateTime @default(now())
 }
+
+model ProcessedWebhook {
+  id         String   @id                      // svix-id header
+  source     String                            // 'clerk' | 'liveblocks'
+  receivedAt DateTime @default(now())
+
+  @@index([receivedAt])                        // for periodic pruning
+}
 ```
 
 | Decision | Reason |
@@ -308,6 +343,24 @@ model CanvasSnapshot {
 | `role` is `String`, not an enum | Clerk allows up to 10 custom roles per instance; an enum needs a migration each time |
 | `CanvasSnapshot` is a separate table | The `elements` blob can be multiple MB and must never load during a list query |
 | `@@index([workspaceId, updatedAt])` | The project list is always "this workspace, most recent first" |
+| `Project.createdById` has **no** relation to `User` | Deliberate. A project must survive its creator being removed from the workspace or deleted in Clerk. Treat it as an audit field, and never join on it |
+| `ProcessedWebhook` is a real table | Idempotency needs to survive process restarts; an in-memory set does not |
+
+`prisma.config.ts` supplies the connection:
+
+```ts
+import { defineConfig } from 'prisma/config'
+import { PrismaPg } from '@prisma/adapter-pg'
+
+export default defineConfig({
+  schema: './prisma/schema.prisma',
+  migrations: { adapter: () => new PrismaPg({ connectionString: process.env.DIRECT_DATABASE_URL! }) },
+  adapter: () => new PrismaPg({ connectionString: process.env.DATABASE_URL! }),
+})
+```
+
+Confirm the exact `defineConfig` shape against the installed `prisma@7.9.1` types —
+the v7 config API is new and the field names above must be verified, not assumed.
 
 ---
 
@@ -319,6 +372,16 @@ Three separate concerns, deliberately not conflated.
 With `Membership required` mode (Clerk's default since 2025-08-22), users without
 an org are routed through the `choose-organization` session task rendered by
 `TaskChooseOrganization`. No custom workspace-picker page is needed.
+
+Hosting that task requires registering the route on the provider, otherwise Clerk
+renders it inside `<SignIn />` and the app never sees it:
+
+```tsx
+<ClerkProvider taskUrls={{ 'choose-organization': '/session-tasks/choose-organization' }}>
+```
+
+`TaskChooseOrganization` throws if rendered outside a `choose-organization` task
+context, so that route must not be linked to or rendered unconditionally.
 
 **Membership state** — Clerk webhook → Postgres. Subscribed events: `user.created`,
 `user.updated`, `user.deleted`, `organization.created`, `organization.updated`,
@@ -382,27 +445,44 @@ our backend. Room permissions are set once at project creation:
 
 ```ts
 await liveblocks.createRoom(roomId, {
-  defaultAccesses: [],                              // deny by default
-  groupsAccesses: { [workspaceId]: ['room:write'] },
+  defaultAccesses: [],                             // deny by default
+  groupsAccesses: { [workspaceId]: ['*:write'] },
+  organizationId: clerkOrgId,                      // hard tenant isolation
 })
 ```
 
+Scopes are `*:write` and `*:read`. Every documented example uses this form; do not
+invent `room:write`.
+
+`organizationId` on the room, matched by `organizationId` on the token, compartment-
+alises every room to one workspace at the Liveblocks layer — a second barrier
+independent of our own checks. It is **immutable after room creation**, which is
+why 1a does not support moving a project between workspaces.
+
 ```ts
 // app/api/liveblocks-auth/route.ts
-const { userId, orgId } = await auth()
-const ws = await requireWorkspaceByOrgId(orgId)
-return liveblocks.identifyUser(
+const { isAuthenticated, userId, orgId } = await auth()
+if (!isAuthenticated || !orgId) return new Response('Unauthorized', { status: 401 })
+
+const ws = await requireWorkspaceByOrgId(orgId)   // queries by clerkOrgId, no slug involved
+const { status, body } = await liveblocks.identifyUser(
   { userId, groupIds: [ws.id], organizationId: orgId },
   { userInfo: { name, avatar } },
 )
+return new Response(body, { status })
 ```
+
+The DAL exposes two entry points, and which one you use depends on whether a slug
+is present in the request:
+
+| Function | Used by | Behaviour |
+|---|---|---|
+| `requireWorkspace(slugFromUrl)` | pages and actions under `/w/[workspaceSlug]` | asserts `orgSlug === slugFromUrl`, then lazy-upserts |
+| `requireWorkspaceByOrgId(orgId)` | route handlers with no slug, e.g. `liveblocks-auth` | lazy-upserts by `clerkOrgId` only |
 
 `defaultAccesses: []` means a room is invisible unless the workspace group grants
 it. Adding a member to the Clerk org grants every project in that workspace with
 no per-room bookkeeping.
-
-Confirm the exact granular scope string (`room:write` vs `*:write`) against the
-Liveblocks docs during implementation — both forms appear.
 
 ---
 
@@ -462,6 +542,51 @@ const pendingRemote = useRef(new Map<string, ExcalidrawElement>())
 Remote edits are delayed by at most one drag gesture. The version ledger merges
 correctly whenever it runs, so deferring changes *when*, never *what*.
 
+### Project and room lifecycle
+
+Ordering matters, and neither system supports a transaction spanning both.
+
+**Creation** — Postgres first, Liveblocks second:
+
+1. `db.project.create(...)` to obtain the cuid
+2. `liveblocks.createRoom('proj_' + id, { defaultAccesses: [], groupsAccesses, organizationId })`
+3. `liveblocks.initializeStorageDocument(roomId, emptyStorage)`
+
+If step 2 or 3 fails, delete the `Project` row and surface the error. A project row
+without a room is a broken project; an orphan room costs nothing and is cleaned up
+by step 4 below never being reached.
+
+`POST /storage` (step 3) is safe here and **only** here, because it disconnects all
+connected users and nobody is connected to a room created microseconds ago. Every
+later server-side write must use `PATCH /storage/json-patch`, which is atomic and
+does not disconnect.
+
+**Deletion** — Liveblocks first, Postgres second:
+
+1. `liveblocks.deleteRoom(liveblocksRoomId)`
+2. `db.project.delete(...)` — cascades `CanvasSnapshot`
+
+If step 1 fails, log and continue to step 2. A stuck deletion is worse than an
+orphan room. Orphan rooms consume plan limits, so log them at warn level with the
+room id so they can be swept later.
+
+Cascade deletes from `Workspace` do **not** delete rooms — Prisma cascades cannot
+call an external API. Deleting a workspace must therefore enumerate its projects
+and delete each room first. This is the one place where a bulk operation needs an
+explicit loop rather than relying on the database.
+
+### Throttling, precisely
+
+| Where | Value | Behaviour |
+|---|---|---|
+| `onChange` → Liveblocks | 100ms | trailing edge, no leading call |
+| `onPointerUpdate` → presence | 50ms | trailing edge |
+| `storageUpdated` webhook | 60s | Liveblocks default; configurable via the Management API but the design must not depend on lowering it |
+
+The `onChange` throttle must fire on the trailing edge so the final position of a
+drag is always transmitted. A leading-edge-only throttle would send the start of a
+gesture and silently drop where it ended.
+
 ### Undo isolation
 
 ```ts
@@ -497,13 +622,6 @@ collaborator-count button via `renderTopRightUI`.
 Local only. Zoom, scroll and selection (`selectedElementIds` lives in `appState`)
 are per-user. Only `viewBackgroundColor` is shared, via `meta`. Sharing more makes
 every user's viewport jump when someone else pans.
-
-### Cold start
-
-At project creation, server-side: create the room, then `POST /storage` to seed an
-empty `LiveMap`. This is safe precisely because nobody is connected yet —
-`POST /storage` disconnects all users. Every later server-side write uses
-`PATCH /storage/json-patch`, which is atomic and does not disconnect.
 
 ---
 
@@ -554,25 +672,50 @@ changed. So: verify, fetch, upsert.
 const event = webhookHandler.verifyRequest({ headers, rawBody })
 if (event.type !== 'storageUpdated') return ok()
 
+// idempotency — survives restarts, unlike an in-memory set
+const svixId = headers.get('svix-id')!
+try {
+  await db.processedWebhook.create({ data: { id: svixId, source: 'liveblocks' } })
+} catch {
+  return ok()                        // unique violation = already handled
+}
+
+// Look up by the indexed column, never by parsing the room id
+const project = await db.project.findUnique({
+  where: { liveblocksRoomId: event.data.roomId },
+  select: { id: true },
+})
+if (!project) return ok()            // room with no project: log and ignore
+
 const doc = await liveblocks.getStorageDocument(event.data.roomId, 'json')
-const elements = Object.values(doc.elements ?? {})
+const elements = Object.values(doc.elements ?? {}) as ExcalidrawElement[]
+const elementCount = elements.filter((e) => !e.isDeleted).length
 
 await db.canvasSnapshot.upsert({
-  where:  { projectId: projectIdFromRoom(event.data.roomId) },
-  update: { elements, appState: doc.meta ?? {}, elementCount: liveCount(elements), syncedAt: new Date() },
-  create: { /* ... */ },
+  where:  { projectId: project.id },
+  update: { elements, appState: doc.meta ?? {}, elementCount, syncedAt: new Date() },
+  create: { projectId: project.id, elements, appState: doc.meta ?? {}, elementCount },
 })
+return ok()
 ```
 
-Set `storageUpdatedThrottleSeconds` to `10`. Lower pays for writes nobody reads;
-higher makes the project list feel stale.
+`elementCount` counts only **live** elements, because the point of the number is to
+warn on real content growth, and the total including soft-deleted ghosts would
+alarm long before storage is actually at risk. Total array length is what pressures
+the storage ceiling, so if a ceiling warning is added later it needs both numbers.
+
+The lookup is by `liveblocksRoomId` — a unique indexed column — rather than slicing
+the `proj_` prefix off the room id. Same result today, but it does not silently
+break if the naming convention ever changes.
+
+`storageUpdated` fires at most once per **60 seconds** by default. It is adjustable
+via `storageUpdatedThrottleSeconds` on the Management API webhook endpoints, but
+1a assumes the 60s default so that nothing depends on a plan-specific setting.
 
 Two properties make this safe. It is **idempotent** — the fetch always returns
 current truth, so a replayed event converges to the same row. And it is
 **lossless on failure** — a dropped webhook leaves the mirror stale while
 Liveblocks still holds the real data. Freshness is lost, never content.
-
-`liveblocksRoomId` is `proj_<projectId>`, so the reverse lookup is a string slice.
 
 ---
 
@@ -587,7 +730,10 @@ Liveblocks still holds the real data. Freshness is lost, never content.
 | Storage nearing ~10MB | `elementCount` threshold → UI warning |
 | Excalidraw throws | Error boundary around the canvas only; the shell survives so the user can navigate away |
 | Bad webhook signature | 400, no processing |
-| Replayed webhook | Deduplicated on `svix-id` |
+| Replayed webhook | `ProcessedWebhook` unique constraint on `svix-id` short-circuits to 200 |
+| Room creation fails during project creation | Delete the `Project` row, surface the error. No half-created projects |
+| Room deletion fails during project deletion | Log at warn with the room id, proceed with the Postgres delete. Orphan rooms are swept manually |
+| Workspace deleted | Enumerate projects and delete each room before the cascade. Prisma cascades cannot call an external API |
 
 ---
 
@@ -605,6 +751,15 @@ Playwright directly). Effort is concentrated where risk is.
 | Undo isolation | Playwright | After a remote edit arrives, local undo must reverse the local action. Proves `CaptureUpdateAction.NEVER` is wired correctly |
 | Pointer gating | Playwright | Remote update during an active drag must not disrupt the drag |
 | Auth flows | Playwright + `@clerk/testing` | Sign-up → org creation → project → canvas |
+
+**Test database.** DAL tests run against a disposable Postgres, not the Supabase
+project. Use a `docker-compose.test.yml` with a plain `postgres:17` container;
+`prisma db push` against it in global test setup, truncate between suites. Never
+point tests at `DATABASE_URL`.
+
+**Liveblocks in tests.** Unit and DAL tests never touch Liveblocks — that is the
+point of keeping `element-sync.ts` pure. Playwright tests use a real Liveblocks
+development project, since mocking a CRDT sync engine would test the mock.
 
 ---
 
@@ -642,16 +797,26 @@ model for a binary CRDT that cannot be queried in SQL.
 | 3 | ~10MB room ceiling vs soft-delete accumulation | Medium | Track `elementCount`; warn in UI; GC deferred |
 | 4 | `json-patch` performance on large documents (docs warn "very large documents may not be suitable") | Medium | Batch MCP writes in 1b; profile during Spike 2 |
 | 5 | Simultaneous-connection limits per plan | Medium | Agents use REST presence, not WebSockets. Confirm connection accounting with Liveblocks |
-| 6 | Mirror is up to 10s stale | Low | Acceptable; show last-synced time |
+| 6 | Mirror is up to 60s stale | Low | Acceptable for list views; show last-synced time. Lowering the throttle needs the Management API |
 | 7 | Liveblocks `organizationId` immutable after room creation | Low | No project transfers between workspaces in 1a |
 
 ---
 
 ## 14. Open questions
 
-1. Exact Liveblocks granular scope string: `room:write` or `*:write`
-2. `"type": "module"` vs Prisma `moduleFormat = "cjs"` — resolve in Spike 1
-3. Whether REST presence consumes a simultaneous-connection slot
+1. **BLOCKING —** `"type": "module"` vs Prisma `moduleFormat = "cjs"`. Spike 1 decides
+2. Exact `defineConfig` field names in `prisma.config.ts` for `prisma@7.9.1` —
+   verify against installed types, do not copy from memory
+3. Whether REST presence (`POST /rooms/{id}/presence`) consumes a simultaneous-
+   connection slot. Matters for 1b, not 1a. Ask Liveblocks support
+
+Resolved during design, recorded so they are not re-litigated:
+
+| Question | Resolution |
+|---|---|
+| Permission scope string | `*:write` / `*:read`. `room:write` is not documented anywhere |
+| `storageUpdated` throttle | 60s default; `storageUpdatedThrottleSeconds` exists on the Management API webhook endpoints but 1a assumes the default |
+| Does Excalidraw render remote cursors natively | Yes — `collaborators` is a first-class `updateScene` parameter |
 
 ---
 
