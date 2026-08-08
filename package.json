@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "biome check",
-    "format": "biome format --write"
+    "format": "biome format --write",
+    "test": "vitest",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@excalidraw/excalidraw": "0.18.1",
@@ -22,6 +24,8 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.2",
+    "@clerk/testing": "2.2.19",
+    "@playwright/test": "1.62.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/pg": "8.21.0",
@@ -30,7 +34,8 @@
     "babel-plugin-react-compiler": "1.0.0",
     "prisma": "7.9.1",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "4.1.10"
   },
   "packageManager": "pnpm@11.20.0"
 }
