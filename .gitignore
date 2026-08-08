@@ -47,3 +47,6 @@ next-env.d.ts
 
 # SDD scratch workspace (ledgers, briefs, review packages) - not project code
 .superpowers/
+
+# E2E auth storage states (generated, contain session tokens)
+e2e/.clerk/
