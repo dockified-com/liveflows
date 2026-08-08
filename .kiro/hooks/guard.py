@@ -189,6 +189,26 @@ def check_write(tool_input: dict, cwd: str) -> None:
             "node_modules/next/dist/docs/ first."
         )
 
+    # Rule 1b — the ROOT CAUSE: prisma.config.ts feeding the schema engine the
+    # pooled URL. Blocking only the hanging command is too late; the bad config is
+    # what makes every later schema-engine command hang.
+    if base in ("prisma.config.ts", "prisma.config.mts", "prisma.config.js") and content:
+        ds = re.search(r"datasource\s*:\s*\{(.*?)\}", content, re.S)
+        region = ds.group(1) if ds else content
+        if "DATABASE_URL" in region and "DIRECT_URL" not in region:
+            block(
+                "prisma.config.ts is pointing the Prisma SCHEMA ENGINE at DATABASE_URL.\n\n"
+                "DATABASE_URL is the Supabase TRANSACTION pooler (port 6543, "
+                "pgbouncer=true). The schema engine requires a SESSION-mode connection. "
+                "Against the transaction pooler it does not error — it HANGS FOREVER, with "
+                "no output and no timeout. This exact config already cost this project a "
+                "26-minute silent stall during gate G0.\n\n"
+                "Use DIRECT_URL here (port 5432, session mode):\n"
+                "    datasource: { url: process.env.DIRECT_URL ?? '' }\n\n"
+                "DATABASE_URL is for the RUNTIME client only, passed to the driver adapter "
+                "in the PrismaClient constructor — that is src/server/db.ts, not this file."
+            )
+
     # Rule 4 — unpinned dependency ranges
     if base == "package.json" and content:
         loose = re.findall(r'"([^"]+)"\s*:\s*"([\^~][^"]+)"', content)
