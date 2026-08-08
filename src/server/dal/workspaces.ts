@@ -1,25 +1,61 @@
-/**
- * Workspace authorization boundary — stub for team/delta compilation.
- * Real implementation lives on team/charlie (C1 DAL, commit a15a95f).
- * Will be replaced when branches merge.
- */
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 import { db } from "../db";
+import { UnauthorizedError } from "./errors";
 
-export interface WorkspaceRef {
-  id: string;
-  slug: string;
+export type WorkspaceRef = { id: string; slug: string };
+
+/**
+ * Asserts session, asserts orgSlug === slugFromUrl, lazy-upserts.
+ * Redirects on failure — redirect() throws, nothing after it runs.
+ */
+export async function requireWorkspace(
+  slugFromUrl: string,
+): Promise<WorkspaceRef> {
+  const { isAuthenticated, orgId, orgSlug } = await auth();
+
+  if (!isAuthenticated || !orgId) {
+    redirect("/sign-in");
+  }
+
+  // The session is the authority. The URL slug is only a label.
+  if (orgSlug !== slugFromUrl) {
+    redirect(`/w/${orgSlug}`);
+  }
+
+  // At this point orgSlug === slugFromUrl and is guaranteed non-null
+  const slug = orgSlug as string;
+
+  // Lazy upsert — never block onboarding on webhook delivery
+  const workspace = await db.workspace.upsert({
+    where: { clerkOrgId: orgId },
+    update: {},
+    create: { clerkOrgId: orgId, name: slug, slug },
+    select: { id: true, slug: true },
+  });
+
+  return workspace;
 }
 
 /**
- * Returns the workspace associated with the given Clerk orgId.
- * Throws if not found — callers rely on this to enforce workspace-scoping.
+ * For route handlers with no slug in the path (e.g., liveblocks-auth).
+ * Throws UnauthorizedError on failure.
  */
 export async function requireWorkspaceByOrgId(
   orgId: string,
 ): Promise<WorkspaceRef> {
-  const workspace = await db.workspace.findUniqueOrThrow({
+  const { isAuthenticated, orgId: sessionOrgId } = await auth();
+
+  if (!isAuthenticated || !sessionOrgId || sessionOrgId !== orgId) {
+    throw new UnauthorizedError();
+  }
+
+  const workspace = await db.workspace.upsert({
     where: { clerkOrgId: orgId },
+    update: {},
+    create: { clerkOrgId: orgId, name: orgId, slug: orgId },
     select: { id: true, slug: true },
   });
+
   return workspace;
 }
