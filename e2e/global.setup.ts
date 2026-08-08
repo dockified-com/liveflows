@@ -7,8 +7,8 @@
  * This file must be referenced in playwright.config.ts via the `globalSetup` property.
  * See F0-report.md for the handoff requirement to Team Alpha.
  */
-import { clerkSetup } from '@clerk/testing/playwright'
+import { clerkSetup } from "@clerk/testing/playwright";
 
 export default async function globalSetup() {
-  await clerkSetup()
+  await clerkSetup();
 }

@@ -2,6 +2,9 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./e2e",
+  // Handoff from Team Foxtrot (F0): clerkSetup() must run once per run, not once
+  // per worker. Without this every spec has to repeat it in test.beforeAll().
+  globalSetup: "./e2e/global.setup.ts",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,

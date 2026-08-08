@@ -10,8 +10,9 @@
  *   // or import specific helpers:
  *   import { test, expect, assertNotStubbed, blockLiveblocks } from '../fixtures'
  */
-import { test as base, expect } from '@playwright/test'
-import { setupClerkTestingToken } from '@clerk/testing/playwright'
+
+import { setupClerkTestingToken } from "@clerk/testing/playwright";
+import { test as base, expect } from "@playwright/test";
 
 /**
  * Extended test fixture that injects Clerk testing token into the page.
@@ -24,14 +25,17 @@ export const test = base.extend<{ clerkPage: typeof base }>({
    */
   page: async ({ page }, use) => {
     // Inject the Clerk testing token into every page
-    await setupClerkTestingToken({ page })
-    await use(page)
+    await setupClerkTestingToken({ page });
+    await use(page);
   },
-})
+});
 
-export { expect }
+export { expect };
 
 // Re-export helpers for convenient imports
-export { assertNotStubbed } from './helpers/assert-not-stubbed'
-export { blockLiveblocks, unblockLiveblocks } from './helpers/liveblocks-network'
-export { signInAsUser, storagePathFor } from './helpers/clerk-auth'
+export { assertNotStubbed } from "./helpers/assert-not-stubbed";
+export { signInAsUser, storagePathFor } from "./helpers/clerk-auth";
+export {
+  blockLiveblocks,
+  unblockLiveblocks,
+} from "./helpers/liveblocks-network";

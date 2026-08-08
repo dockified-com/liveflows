@@ -8,10 +8,10 @@
  * Note: Liveblocks is NOT mocked in E2E — these helpers simulate network outages,
  * not API behavior changes.
  */
-import { type BrowserContext } from '@playwright/test'
+import type { BrowserContext } from "@playwright/test";
 
-const LIVEBLOCKS_PATTERN = /.*\.liveblocks\.io/
-const LIVEBLOCKS_API_PATTERN = /.*api\.liveblocks\.io/
+const LIVEBLOCKS_PATTERN = /.*\.liveblocks\.io/;
+const LIVEBLOCKS_API_PATTERN = /.*api\.liveblocks\.io/;
 
 /**
  * Blocks ALL network requests to Liveblocks domains (WebSocket + REST).
@@ -19,11 +19,11 @@ const LIVEBLOCKS_API_PATTERN = /.*api\.liveblocks\.io/
  */
 export async function blockLiveblocks(context: BrowserContext): Promise<void> {
   await context.route(LIVEBLOCKS_PATTERN, (route) => {
-    return route.abort('connectionrefused')
-  })
+    return route.abort("connectionrefused");
+  });
   await context.route(LIVEBLOCKS_API_PATTERN, (route) => {
-    return route.abort('connectionrefused')
-  })
+    return route.abort("connectionrefused");
+  });
 }
 
 /**
@@ -32,6 +32,8 @@ export async function blockLiveblocks(context: BrowserContext): Promise<void> {
  * WARNING: This removes ALL context-level route handlers.
  * If your test has other routes registered, unroute them individually instead.
  */
-export async function unblockLiveblocks(context: BrowserContext): Promise<void> {
-  await context.unrouteAll({ behavior: 'ignoreErrors' })
+export async function unblockLiveblocks(
+  context: BrowserContext,
+): Promise<void> {
+  await context.unrouteAll({ behavior: "ignoreErrors" });
 }
