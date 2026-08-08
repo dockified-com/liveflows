@@ -1,0 +1,13 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model SpikeProbe {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+}

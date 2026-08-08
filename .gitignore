@@ -41,5 +41,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# prisma generated client (Team Charlie commits the real one at C0)
+/src/generated/
+
 # SDD scratch workspace (ledgers, briefs, review packages) - not project code
 .superpowers/
