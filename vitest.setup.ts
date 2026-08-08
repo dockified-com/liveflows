@@ -1,1 +1,1 @@
-// Shared unit-test setup. Kept minimal on purpose.
+import "@testing-library/jest-dom/vitest";
