@@ -1,0 +1,231 @@
+"use client";
+
+import type { ExcalidrawElement } from "@excalidraw/excalidraw/element/types";
+import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
+import { createClient, LiveMap, LiveObject } from "@liveblocks/client";
+import { createRoomContext } from "@liveblocks/react";
+import dynamic from "next/dynamic";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { collectLocalChanges, mergeIncoming } from "./element-sync";
+
+// --- Liveblocks client & room context ---
+
+const client = createClient({
+  authEndpoint: "/spike/api/liveblocks-auth",
+});
+
+/**
+ * Frozen storage shape (shared with the server side):
+ *   { elements: LiveMap<string, LiveObject<ExcalidrawElement>>, meta: LiveObject<{ viewBackgroundColor: string }> }
+ */
+const { RoomProvider, useMutation, useStorage, useOthers, useStatus } =
+  createRoomContext(client);
+
+// --- Dynamic Excalidraw import (SSR-unsafe: touches window at module scope) ---
+
+const Excalidraw = dynamic(
+  async () => (await import("@excalidraw/excalidraw")).Excalidraw,
+  { ssr: false, loading: () => <p>Loading canvas…</p> },
+);
+
+// CaptureUpdateAction.NEVER — imported as string to avoid SSR module-scope crash
+const CAPTURE_NEVER = "NEVER" as const;
+
+// --- Throttle interval for onChange (ms) ---
+const THROTTLE_MS = 100;
+
+// --- Inner Canvas component ---
+
+function Canvas({
+  fallbackElements,
+}: {
+  fallbackElements?: readonly ExcalidrawElement[];
+}) {
+  const [api, setApi] = useState<ExcalidrawImperativeAPI | null>(null);
+  const ledger = useRef(new Map<string, number>());
+  const pointerDown = useRef(false);
+  const pending = useRef<ExcalidrawElement[] | null>(null);
+  const status = useStatus();
+  const others = useOthers();
+
+  // Read elements from Liveblocks storage as a plain array snapshot
+  // biome-ignore lint/suspicious/noExplicitAny: Liveblocks loose storage typing
+  const remoteElements = useStorage((root: any) => {
+    const map = root.elements;
+    if (!map) return null;
+    const result: ExcalidrawElement[] = [];
+    for (const [, liveObj] of map.entries()) {
+      result.push(liveObj.toImmutable());
+    }
+    return result;
+  });
+
+  // Push local changes into Liveblocks storage
+  // biome-ignore lint/suspicious/noExplicitAny: Liveblocks loose storage typing
+  const push = useMutation(({ storage }: any, changed: ExcalidrawElement[]) => {
+    let map = storage.get("elements");
+    if (!map) {
+      map = new LiveMap();
+      storage.set("elements", map);
+    }
+    for (const el of changed) {
+      const existing = map.get(el.id);
+      if (existing) {
+        // biome-ignore lint/suspicious/noExplicitAny: LiveObject update typing
+        existing.update(el as any);
+      } else {
+        // biome-ignore lint/suspicious/noExplicitAny: LiveObject constructor typing
+        map.set(el.id, new LiveObject(el as any));
+      }
+    }
+  }, []);
+
+  /**
+   * Apply remote elements to the scene.
+   * CRITICAL: records to ledger BEFORE updateScene so the resulting onChange
+   * finds nothing to echo back (echo suppression).
+   */
+  const applyRemote = useCallback(
+    (incoming: ExcalidrawElement[]) => {
+      if (!api) return;
+      const local =
+        api.getSceneElementsIncludingDeleted() as ExcalidrawElement[];
+      const merged = mergeIncoming(local, incoming);
+      // Record BEFORE applying so the resulting onChange sends nothing back
+      for (const el of merged) ledger.current.set(el.id, el.version);
+      api.updateScene({
+        elements: merged,
+        captureUpdate: CAPTURE_NEVER,
+        // biome-ignore lint/suspicious/noExplicitAny: captureUpdate not in Excalidraw's public updateScene types
+      } as any);
+    },
+    [api],
+  );
+
+  // Apply remote updates, gated by pointer state (mechanic #2)
+  useEffect(() => {
+    if (!remoteElements || !api) return;
+    const incoming = remoteElements as unknown as ExcalidrawElement[];
+    if (incoming.length === 0) return;
+
+    if (pointerDown.current) {
+      pending.current = incoming;
+      return;
+    }
+    applyRemote(incoming);
+  }, [remoteElements, api, applyRemote]);
+
+  // Apply fallback elements on initial load (when no remote elements exist yet)
+  useEffect(() => {
+    if (!api || !fallbackElements || fallbackElements.length === 0) return;
+    if (remoteElements && remoteElements.length > 0) return;
+    api.updateScene({
+      elements: fallbackElements as ExcalidrawElement[],
+      captureUpdate: CAPTURE_NEVER,
+      // biome-ignore lint/suspicious/noExplicitAny: captureUpdate not in Excalidraw's public updateScene types
+    } as any);
+  }, [api, fallbackElements, remoteElements]);
+
+  // Pointer gate: buffer remote updates during drags (mechanic #2)
+  useEffect(() => {
+    const down = () => {
+      pointerDown.current = true;
+    };
+    const up = () => {
+      pointerDown.current = false;
+      if (pending.current) {
+        applyRemote(pending.current);
+        pending.current = null;
+      }
+    };
+    window.addEventListener("pointerdown", down);
+    window.addEventListener("pointerup", up);
+    return () => {
+      window.removeEventListener("pointerdown", down);
+      window.removeEventListener("pointerup", up);
+    };
+  }, [applyRemote]);
+
+  // Throttled onChange → push local changes (mechanic #1)
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const onChange = useCallback(
+    (elements: readonly ExcalidrawElement[]) => {
+      if (timer.current) return;
+      timer.current = setTimeout(() => {
+        timer.current = null;
+        const changed = collectLocalChanges(elements, ledger.current);
+        if (changed.length === 0) return;
+        for (const el of changed) ledger.current.set(el.id, el.version);
+        push(changed);
+      }, THROTTLE_MS);
+    },
+    [push],
+  );
+
+  // Expose API for Playwright test handles — inside useEffect, not during render
+  useEffect(() => {
+    if (api) {
+      (
+        window as unknown as { __canvasApi?: ExcalidrawImperativeAPI }
+      ).__canvasApi = api;
+    }
+    return () => {
+      (
+        window as unknown as { __canvasApi?: ExcalidrawImperativeAPI }
+      ).__canvasApi = undefined;
+    };
+  }, [api]);
+
+  return (
+    <div style={{ height: "100vh", width: "100vw" }}>
+      <div
+        style={{
+          position: "absolute",
+          zIndex: 10,
+          top: 4,
+          left: 4,
+          background: "#fff",
+          padding: "2px 6px",
+          fontSize: 12,
+        }}
+      >
+        <span data-testid="status">{status}</span> · others: {others.length}
+      </div>
+      <Excalidraw
+        excalidrawAPI={(instance) => setApi(instance)}
+        onChange={onChange}
+      />
+    </div>
+  );
+}
+
+// --- Exported CanvasRoom component ---
+
+export interface CanvasRoomProps {
+  roomId: string;
+  fallbackElements?: readonly ExcalidrawElement[];
+}
+
+/**
+ * CanvasRoom — the collaborative canvas component.
+ *
+ * Renders a full-viewport Excalidraw canvas connected to a Liveblocks room.
+ * Storage shape: { elements: LiveMap, meta: LiveObject<{ viewBackgroundColor }> }
+ *
+ * Only viewBackgroundColor is shared. Everything else in appState
+ * (zoom, scroll, selection) is per-user.
+ */
+export function CanvasRoom({ roomId, fallbackElements }: CanvasRoomProps) {
+  return (
+    <RoomProvider
+      id={roomId}
+      initialPresence={{ cursor: null }}
+      initialStorage={{
+        elements: new LiveMap(),
+        meta: new LiveObject({ viewBackgroundColor: "#ffffff" }),
+      }}
+    >
+      <Canvas fallbackElements={fallbackElements} />
+    </RoomProvider>
+  );
+}
