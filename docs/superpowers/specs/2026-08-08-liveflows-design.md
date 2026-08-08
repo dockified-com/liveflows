@@ -148,7 +148,7 @@ These are breaking changes from what a model assumes by default.
 | `LIVEBLOCKS_SECRET_KEY` | Liveblocks Node SDK, token issuance, REST |
 | `LIVEBLOCKS_WEBHOOK_SECRET` | `storageUpdated` signature verification |
 | `DATABASE_URL` | Supabase **pooler** URL, used at runtime |
-| `DIRECT_DATABASE_URL` | Supabase **direct** URL, used for migrations |
+| `DIRECT_URL` | Supabase **direct** URL, used for migrations |
 
 Prisma 7 driver adapters reject `prisma://` and `prisma+postgres://` URLs — both
 values must be direct Postgres connection strings.
@@ -354,7 +354,7 @@ import { PrismaPg } from '@prisma/adapter-pg'
 
 export default defineConfig({
   schema: './prisma/schema.prisma',
-  migrations: { adapter: () => new PrismaPg({ connectionString: process.env.DIRECT_DATABASE_URL! }) },
+  migrations: { adapter: () => new PrismaPg({ connectionString: process.env.DIRECT_URL! }) },
   adapter: () => new PrismaPg({ connectionString: process.env.DATABASE_URL! }),
 })
 ```

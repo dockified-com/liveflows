@@ -461,7 +461,7 @@ at `DATABASE_URL`.
 
 - Separate Clerk **development** instance, separate Liveblocks **dev** project,
   separate Supabase project. No shared credentials with production, ever
-- Migrations run via `prisma migrate deploy` against `DIRECT_DATABASE_URL`
+- Migrations run via `prisma migrate deploy` against `DIRECT_URL`
 - Clerk and Liveblocks webhook endpoints registered against the staging URL
 - Entry criteria: `A1` green and `F1` passing
 
@@ -480,7 +480,7 @@ Production configuration:
 - Liveblocks **production** project; secret key in the platform secret store,
   never in the repo
 - Supabase production project, pooler URL for `DATABASE_URL`, direct URL for
-  `DIRECT_DATABASE_URL`
+  `DIRECT_URL`
 - Webhook endpoints re-registered against the production domain, with fresh
   signing secrets
 

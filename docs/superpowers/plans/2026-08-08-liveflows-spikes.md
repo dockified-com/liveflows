@@ -10,6 +10,26 @@
 
 **Source spec:** `docs/superpowers/specs/2026-08-08-liveflows-design.md`
 
+## Credentials status
+
+Verified present in `.env.local` as of 2026-08-08:
+
+| Variable | Status |
+|---|---|
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | set (`pk_`) |
+| `CLERK_SECRET_KEY` | set (`sk_`) |
+| `LIVEBLOCKS_SECRET_KEY` | set (`sk_`) |
+| `DATABASE_URL` | set — `postgresql://`, pooler host, port 6543 |
+| `DIRECT_URL` | set — `postgresql://`, pooler host, port 5432 |
+| `CLERK_WEBHOOK_SIGNING_SECRET` | empty by design — endpoint does not exist until Wave 2 |
+| `LIVEBLOCKS_WEBHOOK_SECRET` | empty by design — endpoint does not exist until Wave 5 |
+
+The variable is `DIRECT_URL`, not `DIRECT_DATABASE_URL` — this follows Prisma's
+`directUrl` and Supabase's own Prisma guide.
+
+Neither Task 2 nor Task 3 strictly requires credentials, but Task 3 Step 6a now
+exercises both connection strings because they are available.
+
 ## Global Constraints
 
 - Package manager is `pnpm`. Never `npm` or `yarn`.
@@ -304,7 +324,36 @@ pnpm build
 
 Expected: `✓ Compiled successfully`. A resolution failure here is the real test — `prisma generate` succeeding proves nothing about whether Next.js can import the output.
 
-- [ ] **Step 7: If Step 5 or 6 failed, try each remedy in isolation**
+- [ ] **Step 6a: Verify both connection strings actually work**
+
+Credentials are already in `.env.local`, so this is testable now rather than
+deferred. It catches the two most common Supabase-plus-Prisma mistakes before any
+schema work depends on them.
+
+```bash
+pnpm prisma db execute --stdin <<< "SELECT 1;"
+```
+
+Expected: succeeds. This exercises `DATABASE_URL` through the adapter.
+
+Then confirm migrations can use the session-mode port:
+
+```bash
+pnpm prisma migrate dev --name init --create-only
+```
+
+Expected: creates a migration file without applying it. If this fails with a
+prepared-statement or pooler error, `DIRECT_URL` is pointing at port 6543 rather
+than 5432 — migrations need session mode.
+
+Delete the generated migration afterwards; Team Charlie creates the real one from
+the full schema:
+
+```bash
+rm -rf prisma/migrations
+```
+
+- [ ] **Step 7: If Step 5, 6 or 6a failed, try each remedy in isolation**
 
 Try remedy A first, and only if it fails try remedy B. Testing them one at a time is what makes the finding usable.
 
@@ -535,15 +584,16 @@ Spend at most one hour. Record anything surprising in the findings file under a
 `### Prior art` subheading, and note explicitly if nothing useful was found — a
 negative result is worth recording so nobody repeats the search.
 
-- [ ] **Step 7: Create a Liveblocks dev project and set the secret**
+- [ ] **Step 7: Confirm the Liveblocks secret is present**
 
-Create a development project at https://liveblocks.io/dashboard, then:
+Already provisioned in `.env.local` — this step is a check, not a setup task.
 
 ```bash
-echo 'LIVEBLOCKS_SECRET_KEY=sk_dev_xxx' >> .env.local
+grep -c '^LIVEBLOCKS_SECRET_KEY=sk_' .env.local
 ```
 
-Confirm `.env*` is already gitignored — it is, per the scaffold's `.gitignore`. Never commit this value.
+Expected: `1`. Never print the value. `.env*` is gitignored except `.env.example`;
+confirm with `git check-ignore .env.local` if in doubt.
 
 - [ ] **Step 8: Create an unauthenticated auth endpoint — spike only**
 
