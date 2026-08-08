@@ -66,7 +66,7 @@ Echo renders `<CanvasRoom roomId=... fallbackElements=... />` and passes nothing
 
 ## Underspecified / Self-Contradictory Items Found
 
-1. **`fallbackElements` source:** The DAL contract in §6 exposes `getProject()` returning `ProjectDetail` which has `liveblocksRoomId` but NOT `CanvasSnapshot.elements`. There is no `getCanvasSnapshot(workspaceSlug, projectId): Promise<unknown[]>` in the frozen interface. Echo needs the snapshot elements to pass as `fallbackElements`. **Resolution assumed:** A `getCanvasSnapshot` function must exist or `getProject` must be extended. This plan assumes a `getProjectWithSnapshot` DAL function is needed — flagged for Charlie to add. Until resolved, Echo stubs it.
+1. **`fallbackElements` source:** ~~The DAL contract in §6 exposes `getProject()` returning `ProjectDetail` which has `liveblocksRoomId` but NOT `CanvasSnapshot.elements`. There is no `getCanvasSnapshot(workspaceSlug, projectId): Promise<unknown[]>` in the frozen interface.~~ **RESOLVED (plan-fix-time 2026-08-08):** `getProjectWithSnapshot` has been added to Charlie's C1 as an addition to the frozen contract. Echo stubs it locally at `src/stubs/dal-snapshot.ts` until Charlie C1 merges.
 2. **`LayoutProps<"/">` type:** The existing `src/app/layout.tsx` uses `LayoutProps<"/">` which appears to be a Next.js 16 generated type (from `.next/types`). This is new and not in training data — the plan uses it as-is since the scaffolded project already demonstrates the pattern.
 
 ---
@@ -78,7 +78,6 @@ Echo renders `<CanvasRoom roomId=... fallbackElements=... />` and passes nothing
 **Files:**
 - Modify: `src/app/layout.tsx` (root layout — apply ClerkProvider from Charlie C2 handoff)
 - Create: `src/app/(app)/layout.tsx` (authenticated app shell with nav + org switcher)
-- Create: `src/app/session-tasks/choose-organization/page.tsx` (Clerk TaskChooseOrganization)
 - Create: `src/components/app-nav.tsx` (nav bar client component)
 - Create: `src/stores/ui.ts` (global UI state — sidebar open, modal)
 - Create: `src/app/(app)/layout.test.tsx` (component test)
@@ -87,8 +86,11 @@ Echo renders `<CanvasRoom roomId=... fallbackElements=... />` and passes nothing
 
 **Interfaces:**
 - Consumes: Charlie C2 handoff — exact `<ClerkProvider>` JSX to wrap root layout
-- Consumes: `@clerk/nextjs` — `ClerkProvider`, `OrganizationSwitcher`, `UserButton`, `Show`, `SignInButton`, `TaskChooseOrganization`
+- Consumes: Charlie C2 — `src/app/session-tasks/choose-organization/page.tsx` (created by Charlie; Echo does NOT create this file)
+- Consumes: `@clerk/nextjs` — `ClerkProvider`, `OrganizationSwitcher`, `UserButton`, `Show`, `SignInButton`
 - Produces: authenticated app shell layout that all `(app)` routes render inside
+
+> **Deliberate ruling (plan-fix-time):** `src/app/session-tasks/` falls outside both `src/app/(app)/**` (Echo) and `src/app/(auth)/**` (Charlie) as declared in the ownership map §5. Assigned to Charlie because session-task pages are Clerk auth infrastructure created as part of C2. Echo consumes the page but does not create it.
 
 ---
 
@@ -340,23 +342,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 }
 ```
 
-- [ ] **Step 9: Create the session-tasks choose-organization page**
+- [ ] **Step 9: Verify choose-organization page exists from Charlie C2**
 
-This page hosts Clerk's `TaskChooseOrganization` component. It renders only when a user has a pending `choose-organization` session task (e.g., new signup without an org). It must NOT be linked to or rendered unconditionally — `TaskChooseOrganization` throws if rendered outside a task context.
-
-Create `src/app/session-tasks/choose-organization/page.tsx`:
-
-```tsx
-import { TaskChooseOrganization } from '@clerk/nextjs'
-
-export default function ChooseOrganizationPage() {
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <TaskChooseOrganization />
-    </div>
-  )
-}
-```
+`src/app/session-tasks/choose-organization/page.tsx` is created by Charlie C2 and consumed by Echo. Do NOT create it here. After Charlie C2 merges, verify the file exists and renders `TaskChooseOrganization` in the expected centered layout.
 
 - [ ] **Step 10: Write test for the app layout rendering structure**
 
@@ -398,10 +386,9 @@ Expected: Build succeeds with no type errors related to Echo files
 
 ```bash
 git add src/app/layout.tsx src/app/\(app\)/layout.tsx src/app/\(app\)/layout.test.tsx \
-  src/app/session-tasks/choose-organization/page.tsx \
   src/components/app-nav.tsx src/components/app-nav.test.tsx \
   src/stores/ui.ts src/stores/ui.test.ts
-git commit -m "feat(echo): E0 app shell — nav, org switcher, ClerkProvider, session tasks"
+git commit -m "feat(echo): E0 app shell — nav, org switcher, ClerkProvider"
 ```
 
 ---
@@ -434,15 +421,27 @@ git commit -m "feat(echo): E0 app shell — nav, org switcher, ClerkProvider, se
 
 - [ ] **Step 1: Create throwing DAL stubs**
 
-Create `src/stubs/dal.ts`. These stubs exist ONLY until Charlie's C1 merges. They throw — never return fake data.
+Create `src/stubs/dal.ts`. These stubs exist ONLY until Charlie's C1 merges. They throw — never return fake data. Types are defined inline (not imported from Charlie's paths) to avoid writing files at `src/server/dal/` which is exclusively Charlie-owned per §5.
 
 ```ts
 // TEMPORARY STUBS — delete in the same commit that wires real DAL imports.
 // These exist so Echo's code compiles and type-checks against the frozen interface.
 // They MUST throw — a stub returning fake data produces green tests that prove nothing.
+//
+// Types are defined locally here — Echo MUST NOT create files at src/server/dal/*
+// because that path is exclusively owned by Charlie (delivery graph §5).
+// When Charlie merges C1, change imports from '@/stubs/dal' to '@/server/dal/workspaces'
+// and '@/server/dal/projects', then delete this file in the same commit.
 
-import type { WorkspaceRef } from '@/server/dal/workspaces'
-import type { ProjectListItem, ProjectDetail } from '@/server/dal/projects'
+export type WorkspaceRef = { id: string; slug: string }
+
+export type ProjectListItem = {
+  id: string
+  name: string
+  updatedAt: Date
+}
+
+export type ProjectDetail = ProjectListItem & { liveblocksRoomId: string }
 
 export function requireWorkspace(_slugFromUrl: string): Promise<WorkspaceRef> {
   throw new Error('STUB: awaiting Charlie C1 — requireWorkspace')
@@ -469,51 +468,7 @@ export function deleteProject(_workspaceSlug: string, _projectId: string): Promi
 }
 ```
 
-Also create the type files so imports resolve. Create `src/server/dal/workspaces.ts`:
-
-```ts
-// Type-only stub — real implementation provided by Charlie C1
-export type WorkspaceRef = { id: string; slug: string }
-
-export function requireWorkspace(_slugFromUrl: string): Promise<WorkspaceRef> {
-  throw new Error('STUB: awaiting Charlie C1')
-}
-
-export function requireWorkspaceByOrgId(_orgId: string): Promise<WorkspaceRef> {
-  throw new Error('STUB: awaiting Charlie C1')
-}
-```
-
-Create `src/server/dal/projects.ts`:
-
-```ts
-// Type-only stub — real implementation provided by Charlie C1
-export type ProjectListItem = {
-  id: string
-  name: string
-  updatedAt: Date
-}
-
-export type ProjectDetail = ProjectListItem & { liveblocksRoomId: string }
-
-export function listProjects(_workspaceSlug: string): Promise<ProjectListItem[]> {
-  throw new Error('STUB: awaiting Charlie C1')
-}
-
-export function getProject(_workspaceSlug: string, _projectId: string): Promise<ProjectDetail> {
-  throw new Error('STUB: awaiting Charlie C1')
-}
-
-export function createProject(_workspaceSlug: string, _name: string): Promise<ProjectDetail> {
-  throw new Error('STUB: awaiting Charlie C1')
-}
-
-export function deleteProject(_workspaceSlug: string, _projectId: string): Promise<void> {
-  throw new Error('STUB: awaiting Charlie C1')
-}
-```
-
-**IMPORTANT:** These stub files live at the real paths so imports work without path aliases that change later. When Charlie merges C1, these files are REPLACED wholesale — not patched. Delete the stubs in the same commit.
+**IMPORTANT:** Echo MUST NOT create files at `src/server/dal/workspaces.ts` or `src/server/dal/projects.ts` — those paths are exclusively owned by Charlie (delivery graph §5). Writing stubs there guarantees a merge conflict when Charlie's C1 lands. Echo imports from `@/stubs/dal` until Charlie C1 merges, then switches imports to `@/server/dal/workspaces` and `@/server/dal/projects` and deletes `src/stubs/dal.ts` in the same commit.
 
 - [ ] **Step 2: Create the ProjectList presentational component**
 
@@ -1085,7 +1040,7 @@ Expected: Build succeeds. The stubs throw at runtime but the types check at comp
 - [ ] **Step 17: Commit**
 
 ```bash
-git add src/stubs/ src/server/dal/workspaces.ts src/server/dal/projects.ts \
+git add src/stubs/ \
   src/components/project-list.tsx src/components/project-list.test.tsx \
   src/components/create-project-modal.tsx src/components/create-project-modal.test.tsx \
   src/components/delete-project-dialog.tsx src/components/delete-project-dialog.test.tsx \
@@ -1120,7 +1075,7 @@ When Charlie merges C1 into `development` and Echo rebases:
 **Interfaces:**
 - Consumes: `requireWorkspace(slugFromUrl)` from `src/server/dal/workspaces.ts`
 - Consumes: `getProject(workspaceSlug, projectId)` from `src/server/dal/projects.ts`
-- Consumes: `getProjectWithSnapshot(workspaceSlug, projectId)` from `src/server/dal/projects.ts` — **NOTE: this function is NOT in the frozen §6 contract. Flagged as underspecified. Echo needs it to provide `fallbackElements` for the outage story. Charlie must add it or extend `getProject`.**
+- Consumes: `getProjectWithSnapshot(workspaceSlug, projectId)` from `src/server/dal/projects.ts` — **RESOLVED (plan-fix-time 2026-08-08): Added to Charlie C1 as an addition to the frozen contract. Signature is byte-identical between producer (Charlie) and consumer (Echo).**
 - Consumes: `CanvasRoom` from `src/features/canvas/canvas-room.tsx` (Bravo B3)
 - Produces: Canvas page that renders read/write via Liveblocks (normal) or read-only from Postgres mirror (outage)
 
@@ -1154,9 +1109,9 @@ export function CanvasRoom(_props: {
 Create `src/stubs/dal-snapshot.ts`:
 
 ```ts
-// TEMPORARY STUB — delete when Charlie adds getProjectWithSnapshot to the DAL.
-// This function is UNDERSPECIFIED in the delivery graph §6 interface contract.
-// Echo needs CanvasSnapshot.elements to pass as fallbackElements for the outage story.
+// TEMPORARY STUB — delete when Charlie's C1 merges with getProjectWithSnapshot.
+// RESOLVED (plan-fix-time 2026-08-08): This function has been added to Charlie's C1
+// as an addition to the frozen contract. Signature below is byte-identical to Charlie's.
 
 export type ProjectWithSnapshot = {
   id: string
@@ -1170,14 +1125,11 @@ export function getProjectWithSnapshot(
   _workspaceSlug: string,
   _projectId: string,
 ): Promise<ProjectWithSnapshot> {
-  throw new Error('STUB: awaiting Charlie — getProjectWithSnapshot not in frozen §6 contract')
+  throw new Error('STUB: awaiting Charlie — getProjectWithSnapshot')
 }
 ```
 
-**ACTION REQUIRED:** Coordinate with Charlie to add `getProjectWithSnapshot` to the DAL. The function must:
-1. Assert membership (same as `getProject`)
-2. JOIN `CanvasSnapshot` on `projectId`
-3. Return `elements` (defaulting to `[]` if no snapshot exists yet)
+**RESOLVED (plan-fix-time 2026-08-08):** `getProjectWithSnapshot` has been added to Charlie's C1 task as an addition to the frozen contract. The signature above is byte-identical to Charlie's producer signature. This is NOT in the original delivery graph §6 — it is an addition made at plan-fix time to satisfy DoD criterion 6 (Liveblocks-outage read-only path).
 
 - [ ] **Step 3: Create the canvas page (Server Component)**
 

@@ -21,7 +21,7 @@
 
 ---
 
-## Task 1: A0 — Repo Tooling (Biome, Vitest, Playwright)
+## Task 0: A0 — Repo Tooling (Biome, Vitest, Playwright)
 
 **Files:**
 - Modify: `package.json` (add devDependencies and scripts)
@@ -265,7 +265,7 @@ git commit -m "feat(alpha): A0 repo tooling — Biome, Vitest, Playwright, test 
 
 ---
 
-## Task 2: A1 — CI Pipeline
+## Task 1: A1 — CI Pipeline
 
 **Files:**
 - Create: `.github/workflows/ci.yml`
@@ -402,7 +402,7 @@ git commit -m "feat(alpha): A1 CI pipeline — all stages blocking, test Postgre
 
 ---
 
-## Task 3: A2 — Staging Environment & Deploy
+## Task 2: A2 — Staging Environment & Deploy
 
 **Files:**
 - Create: `.github/workflows/deploy-staging.yml`
@@ -578,7 +578,7 @@ git commit -m "feat(alpha): A2 staging deploy workflow and runbook"
 
 ---
 
-## Task 4: A3 — Production Deploy & Observability
+## Task 3: A3 — Production Deploy & Observability
 
 **Files:**
 - Create: `.github/workflows/deploy-production.yml`
