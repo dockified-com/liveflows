@@ -8,3 +8,5 @@ minimumReleaseAgeExclude:
   - '@clerk/backend@3.16.1'
   - '@clerk/shared@4.27.1'
   - '@clerk/testing@2.2.19'
+  - '@clerk/nextjs@7.7.1'
+  - '@clerk/react@6.13.1'
