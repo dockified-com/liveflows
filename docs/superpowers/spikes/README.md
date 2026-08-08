@@ -5,7 +5,7 @@ See `docs/superpowers/specs/2026-08-08-liveflows-design.md` section 12.
 
 | Spike | Question | Status |
 |---|---|---|
-| 1 | Does React Compiler break Excalidraw? | not started |
+| 1 | Does React Compiler break Excalidraw? | **PARTIAL — build verified, runtime pending** |
 | 1 | `"type": "module"` or Prisma `moduleFormat = "cjs"`? | **NEITHER** |
 | 2 | Does the Excalidraw ↔ Liveblocks Storage round-trip work? | not started |
 
@@ -42,3 +42,57 @@ PrismaConfig {
 - `pnpm build` — ✓ Compiled successfully
 - `pnpm lint` — ✓ (11 files checked, no errors)
 - `pnpm prisma db execute --file prisma/probe.sql` — ✓ Script executed successfully
+
+## Spike 1 — React Compiler
+
+**Question:** Does Excalidraw 0.18.1 render correctly under the React Compiler (`reactCompiler: true` in `next.config.ts`)?
+
+**Risk:** Excalidraw's internal `mutateElement` function mutates element objects in-place. The React Compiler assumes inputs are immutable and memoises accordingly. If incompatible, the failure mode is SILENT — stale/frozen renders, not thrown errors.
+
+### Verified ✓
+
+| Check | Command | Result |
+|-------|---------|--------|
+| TypeScript compilation | `pnpm tsc --noEmit` | ✓ Pass (0 errors) |
+| Production build | `pnpm build` | ✓ Compiled successfully (Next.js 16.3.0 Turbopack) |
+| Static page generation | `pnpm build` | ✓ `/spike/canvas` generated as static page |
+| Import path resolution | `@excalidraw/excalidraw/types` | ✓ Resolves to `dist/types/excalidraw/types.d.ts` |
+| CSS import | `@excalidraw/excalidraw/index.css` | ✓ Resolves via package exports |
+
+### Unverified — Pending F0 Automation Harness
+
+The following runtime checks require a browser environment. A Playwright spec has been written at `src/spike/canvas-compiler.spec.ts` but CANNOT be executed in this environment (Playwright not installed, and adding it would conflict with Team Alpha's concurrent `package.json` edits). These checks await Team Foxtrot's F0 harness.
+
+| # | Check | Failure mode if broken |
+|---|-------|----------------------|
+| 1 | Draw rectangle, ellipse, arrow | Shapes not appearing or appearing then vanishing |
+| 2 | Drag shape; bound arrow follows | Arrow stays frozen at original endpoint |
+| 3 | Select-all then drag | Some shapes revert position after mouseup |
+| 4 | 6× undo then 6× redo | State not fully restored (stale memoised scene) |
+| 5 | Change stroke colour | Colour visually reverts after re-render |
+| 6 | onChange counter increments during drag | Counter stuck or only fires once (memoised callback) |
+
+### Escape Hatch (if runtime checks fail)
+
+If any of the above checks fail, apply `"use no memo"` inside the component body:
+
+```tsx
+export default function SpikeCanvas() {
+  'use no memo'
+  // ...rest unchanged
+}
+```
+
+Then re-run all six checks. This **discriminates** the failure:
+- **Fixed by `"use no memo"`** → The React Compiler's memoisation is incompatible with Excalidraw's mutation pattern. Scope the opt-out to this component only.
+- **NOT fixed by `"use no memo"`** → The problem is in Excalidraw itself (or a different interaction). The compiler is exonerated.
+
+### Files Created
+
+- `src/spike/excalidraw-canvas.tsx` — Client-only `<Excalidraw>` wrapper with `window.__spikeApi` escape hatch and `onChange` counter
+- `src/app/spike/canvas/page.tsx` — Next.js page route mounting the wrapper
+- `src/spike/canvas-compiler.spec.ts` — Playwright spec automating the 6 runtime checks (not runnable until F0 harness)
+
+### Conclusion
+
+Build and type-check pass cleanly with `reactCompiler: true`. No compile-time conflict exists. Runtime behaviour is UNVERIFIED — the compiler's silent failure mode (stale memoisation) can only be detected by exercising the canvas interactively. The Playwright spec provides the executable test plan for this verification.
