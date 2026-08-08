@@ -26,7 +26,7 @@ Implemented the Excalidraw canvas spike component exactly per B0-brief.md Steps 
 | Check | Command | Result |
 |-------|---------|--------|
 | Production build | `pnpm build` | ✓ Compiled successfully (Next.js 16.3.0 Turbopack) |
-| TypeScript types | `pnpm tsc --noEmit` | ✓ 0 errors |
+| TypeScript types | `pnpm tsc --noEmit` | ✓ 0 errors (no output — clean exit) |
 | Route generated | `pnpm build` output | ✓ `/spike/canvas` listed as static route |
 | Import path `@excalidraw/excalidraw/types` | File exists at `dist/types/excalidraw/types.d.ts` | ✓ |
 | CSS import `@excalidraw/excalidraw/index.css` | File exists at `dist/prod/index.css` | ✓ |
@@ -42,6 +42,12 @@ $ next build
 
 Route (app)
 ├ ○ /spike/canvas
+```
+
+TypeScript standalone check:
+```
+$ pnpm exec tsc --noEmit
+(exit 0, no output — 0 errors)
 ```
 
 ## Unverified and Why

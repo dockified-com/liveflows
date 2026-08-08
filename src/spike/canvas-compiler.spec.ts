@@ -1,6 +1,4 @@
-// @ts-nocheck — Playwright is not installed in this worktree.
-// This spec is the executable artifact for Team Foxtrot's F0 harness.
-// Remove this directive once @playwright/test is available.
+
 /**
  * Playwright E2E spec: Excalidraw rendering under the React Compiler.
  *
@@ -48,17 +46,10 @@ async function getChangeCount(page: Page): Promise<number> {
 
 /**
  * Select a tool from the Excalidraw toolbar.
- * Excalidraw uses data-testid attributes for tool buttons.
+ * Uses keyboard shortcuts for reliability — Excalidraw's toolbar buttons have
+ * overlapping DOM layers that intercept pointer events.
  */
 async function selectTool(page: Page, tool: string) {
-  // Excalidraw toolbar buttons have specific class names / aria labels
-  // The toolbox uses role="radio" with specific data-testid values
-  const toolButton = page.locator(`[data-testid="toolbar-${tool}"]`)
-  if (await toolButton.isVisible()) {
-    await toolButton.click()
-    return
-  }
-  // Fallback: use keyboard shortcuts
   const shortcuts: Record<string, string> = {
     rectangle: 'r',
     ellipse: 'o',
@@ -67,6 +58,10 @@ async function selectTool(page: Page, tool: string) {
   }
   if (shortcuts[tool]) {
     await page.keyboard.press(shortcuts[tool])
+  } else {
+    // Fallback for tools without a shortcut: force-click the toolbar button
+    const toolButton = page.locator(`[data-testid="toolbar-${tool}"]`)
+    await toolButton.click({ force: true })
   }
 }
 
@@ -77,7 +72,7 @@ async function drawShape(
   endX: number,
   endY: number,
 ) {
-  const canvas = page.locator('.excalidraw__canvas')
+  const canvas = page.locator('.excalidraw__canvas.interactive')
   const box = await canvas.boundingBox()
   if (!box) throw new Error('Canvas not found')
 
@@ -94,7 +89,7 @@ async function dragElement(
   toX: number,
   toY: number,
 ) {
-  const canvas = page.locator('.excalidraw__canvas')
+  const canvas = page.locator('.excalidraw__canvas.interactive')
   const box = await canvas.boundingBox()
   if (!box) throw new Error('Canvas not found')
 
@@ -160,15 +155,18 @@ test.describe('Excalidraw + React Compiler spike', () => {
     await drawShape(page, 200, 140, 350, 140)
 
     const beforeElements = await getSceneElements(page)
+    // Guard: must have drawn 3 elements (rectangle, ellipse, arrow)
+    expect(beforeElements.length).toBeGreaterThanOrEqual(3)
     const arrowBefore = beforeElements.find((el: any) => el.type === 'arrow')
+    expect(arrowBefore).toBeDefined()
     const arrowPointsBefore = arrowBefore.points
 
     // Select the rectangle and drag it
     await selectTool(page, 'selection')
     // Click center of rectangle to select it
     await page.mouse.click(
-      (await page.locator('.excalidraw__canvas').boundingBox())!.x + 150,
-      (await page.locator('.excalidraw__canvas').boundingBox())!.y + 140,
+      (await page.locator('.excalidraw__canvas.interactive').boundingBox())!.x + 150,
+      (await page.locator('.excalidraw__canvas.interactive').boundingBox())!.y + 140,
     )
 
     // Drag rectangle down by 50px
@@ -198,6 +196,9 @@ test.describe('Excalidraw + React Compiler spike', () => {
     await drawShape(page, 300, 100, 400, 180)
 
     const beforeElements = await getSceneElements(page)
+
+    // Guard: the drawing helpers must have produced elements
+    expect(beforeElements.length).toBeGreaterThanOrEqual(2)
 
     // Select all (Cmd+A on macOS, Ctrl+A on others)
     await page.keyboard.press('Meta+a')
@@ -257,12 +258,14 @@ test.describe('Excalidraw + React Compiler spike', () => {
 
     // Select it
     await selectTool(page, 'selection')
-    const canvas = page.locator('.excalidraw__canvas')
+    const canvas = page.locator('.excalidraw__canvas.interactive')
     const box = await canvas.boundingBox()
     await page.mouse.click(box!.x + 175, box!.y + 150)
 
     const beforeElements = await getSceneElements(page)
+    expect(beforeElements.length).toBeGreaterThanOrEqual(1)
     const rectBefore = beforeElements.find((el: any) => el.type === 'rectangle')
+    expect(rectBefore).toBeDefined()
     const originalColor = rectBefore.strokeColor
 
     // Click the stroke color picker in the properties panel
@@ -305,7 +308,7 @@ test.describe('Excalidraw + React Compiler spike', () => {
 
     // Select it
     await selectTool(page, 'selection')
-    const canvas = page.locator('.excalidraw__canvas')
+    const canvas = page.locator('.excalidraw__canvas.interactive')
     const box = await canvas.boundingBox()
     await page.mouse.click(box!.x + 175, box!.y + 150)
 
