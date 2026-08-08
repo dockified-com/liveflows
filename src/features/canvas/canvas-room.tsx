@@ -11,7 +11,15 @@ import { collectLocalChanges, mergeIncoming } from "./element-sync";
 // --- Liveblocks client & room context ---
 
 const client = createClient({
-  authEndpoint: "/spike/api/liveblocks-auth",
+  // The production auth endpoint. It issues a Liveblocks ID token carrying the
+  // user's id, the workspace id as a group, and the Clerk org id. Room access
+  // is then resolved by Liveblocks against the room's own groupsAccesses, which
+  // provisionRoom sets to { [workspaceId]: ["*:write"] }.
+  //
+  // Pointing this at the spike endpoint under /spike/api/ yields websocket
+  // close code 4001 "You have no access to this room", because that path is
+  // not the route that grants workspace group access.
+  authEndpoint: "/api/liveblocks-auth",
 });
 
 /**
