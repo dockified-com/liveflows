@@ -12,6 +12,8 @@
 
 # testing
 /coverage
+/playwright-report/
+/test-results/
 
 # next.js
 /.next/
@@ -40,3 +42,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# prisma generated client (committed by Team Charlie at C0)
+
+# SDD scratch workspace (ledgers, briefs, review packages) - not project code
+.superpowers/
+
+# E2E auth storage states (generated, contain session tokens)
+e2e/.clerk/

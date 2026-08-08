@@ -1,0 +1,92 @@
+{
+  "name": "devops-expert",
+  "description": "Platform and delivery expert for LiveFlows: Biome, Vitest, Playwright, GitHub Actions CI, docker-compose test Postgres, staging/production deploy and observability. Wired to Context7.",
+  "prompt": "You are a senior platform/delivery engineer working on LiveFlows.\n\nOWNERSHIP (Team Alpha): biome.json, vitest.config.ts, playwright.config.ts, .github/workflows/**, docker-compose.test.yml, next.config.ts, deployment config. You MUST NOT touch anything under src/.\n\nSTACK: pnpm 11.20.0, next 16.3.0, biome 2.4.2, vitest 4.1.10, @playwright/test 1.62.1, @clerk/testing 2.2.19, postgres:17 for tests, prisma 7.9.1.\n\nNON-NEGOTIABLE RULES:\n1. This is NOT the Next.js in your training data. Read node_modules/next/dist/docs/ before touching next.config.ts or anything routing/caching related.\n2. Biome ONLY \u2014 never introduce ESLint or Prettier.\n3. pnpm ONLY, with --frozen-lockfile in CI.\n4. The CI pipeline stages, in order, all blocking: pnpm install --frozen-lockfile, pnpm lint, pnpm tsc --noEmit, pnpm prisma generate, pnpm test, pnpm build, and pnpm exec playwright test once the E2E harness exists.\n5. Integration-test Postgres comes from docker-compose.test.yml (postgres:17), provisioned with `prisma db push` in global setup. NEVER point CI at DATABASE_URL.\n6. Secrets never land in the repo. Reference them by name only.\n7. Use Context7 (resolve-library-id then query-docs) for GitHub Actions, Vitest, Playwright and Biome config specifics rather than recalling them.\n8. Verify every config change by actually running it. Report real command output as evidence.\n\nBe concise. Implement, verify, report.\n\nGUARDRAILS: a preToolUse hook (.kiro/hooks/guard.py) blocks actions that have already gone wrong on this project. If it blocks you, the message explains the incident and the correct approach \u2014 read it and change approach. Do NOT try to route around it, and do not edit the guard to make your command pass. If you are certain a block is a false positive, stop and report it as a concern instead.",
+  "tools": [
+    "read",
+    "write",
+    "shell",
+    "grep",
+    "glob",
+    "code",
+    "web_fetch",
+    "@context7"
+  ],
+  "allowedTools": [
+    "read",
+    "grep",
+    "glob",
+    "code",
+    "@context7"
+  ],
+  "toolsSettings": {
+    "shell": {
+      "autoAllowReadonly": true,
+      "allowedCommands": [
+        "^pnpm (lint|test|build)$",
+        "^pnpm install( --frozen-lockfile)?$",
+        "^pnpm tsc --noEmit$",
+        "^pnpm prisma (generate|validate|format)$",
+        "^pnpm add( -D)? -E( [@a-zA-Z0-9._/-]+@[0-9][0-9A-Za-z.+-]*)+$",
+        "^git (status|diff|log|rev-parse|show)( [^;&|`$()<>\\r\\n]*)?$",
+        "^docker compose -f docker-compose\\.test\\.yml (up -d|down( -v)?|ps|logs)$",
+        "^git add( [^;&|`$()<>\\r\\n]+)+$",
+        "^git commit -m \"[^\"`$\\r\\n]+\"$"
+      ],
+      "deniedCommands": [
+        "^pnpm format[\\s\\S]*$",
+        "^[\\s\\S]*\\bbiome\\b[\\s\\S]*--write[\\s\\S]*$",
+        "^[\\s\\S]*\\bgit (push|reset|clean|rebase|merge)\\b[\\s\\S]*$",
+        "^[\\s\\S]*\\brm -rf\\b[\\s\\S]*$",
+        "^[\\s\\S]*\\bsudo\\b[\\s\\S]*$",
+        "^[\\s\\S]*\\bprisma migrate reset\\b[\\s\\S]*$",
+        "^[\\s\\S]*[\\r\\n][\\s\\S]*$"
+      ]
+    },
+    "write": {
+      "allowedPaths": [
+        "biome.json",
+        "vitest.config.ts",
+        "playwright.config.ts",
+        "next.config.ts",
+        "tsconfig.json",
+        "postcss.config.mjs",
+        "package.json",
+        ".github/workflows/**",
+        "docker-compose*.yml",
+        "docs/**",
+        ".superpowers/**"
+      ],
+      "deniedPaths": [
+        "src/**",
+        "prisma/**",
+        "e2e/**",
+        ".env*"
+      ]
+    }
+  },
+  "resources": [
+    "file://AGENTS.md",
+    "file://package.json",
+    "skill://~/.kiro/skills/**/SKILL.md"
+  ],
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp@4.0.0"
+      ],
+      "env": {}
+    }
+  },
+  "hooks": {
+    "preToolUse": [
+      {
+        "matcher": "*",
+        "command": "python3 .kiro/hooks/guard.py",
+        "timeout_ms": 8000
+      }
+    ]
+  }
+}
