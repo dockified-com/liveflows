@@ -5,7 +5,7 @@ import {
   decommissionRoom,
   provisionRoom,
   roomIdForProject,
-} from "../liveblocks-stub";
+} from "../liveblocks";
 import { requireWorkspace } from "./workspaces";
 
 export type ProjectListItem = {

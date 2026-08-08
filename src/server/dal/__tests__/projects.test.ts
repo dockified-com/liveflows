@@ -29,8 +29,8 @@ vi.mock("../../db", () => ({
   },
 }));
 
-// Mock liveblocks-stub
-vi.mock("../../liveblocks-stub", () => ({
+// Mock liveblocks
+vi.mock("../../liveblocks", () => ({
   provisionRoom: vi.fn(),
   decommissionRoom: vi.fn(),
   roomIdForProject: vi.fn((id: string) => `room_${id}`),
@@ -38,7 +38,7 @@ vi.mock("../../liveblocks-stub", () => ({
 
 import { auth } from "@clerk/nextjs/server";
 import { db } from "../../db";
-import { decommissionRoom, provisionRoom } from "../../liveblocks-stub";
+import { decommissionRoom, provisionRoom } from "../../liveblocks";
 import {
   createProject,
   deleteProject,
