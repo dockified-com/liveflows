@@ -1,3 +1,7 @@
 allowBuilds:
+  '@prisma/engines': true
+  prisma: true
   sharp: false
   unrs-resolver: false
+minimumReleaseAgeExclude:
+  - '@types/pg@8.21.0'
