@@ -45,8 +45,11 @@ next-env.d.ts
 
 # prisma generated client (committed by Team Charlie at C0)
 
-# SDD scratch workspace (ledgers, briefs, review packages) - not project code
-.superpowers/
 
 # E2E auth storage states (generated, contain session tokens)
 e2e/.clerk/
+
+# test output
+playwright-report/
+test-results/
+tsconfig.tsbuildinfo
