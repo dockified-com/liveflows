@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>LiveFlows — Project view: file tree + tabs + split (light SaaS)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* Same palette/tokens as workspace-shell.html and canvas-page.html for consistency. */
+  :root{
+    --ink:#1e293b; --ink-soft:#64748b; --ink-faint:#94a3b8; --line:#e2e8f0; --bg:#f8fafc; --bg-2:#f1f5f9;
+    --accent:#2563eb; --accent-soft:#eff6ff; --accent-hover:#1d4ed8;
+    --success:#16a34a; --success-soft:#f0fdf4; --warn:#d97706; --warn-soft:#fffbeb;
+    --card:#ffffff; --shadow:0 1px 2px rgba(15,23,42,.04), 0 1px 3px rgba(15,23,42,.06);
+    --radius:12px; --radius-sm:8px; --mono:'Geist Mono', monospace; --sans:'Geist', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:13.5px;-webkit-font-smoothing:antialiased;}
+  .shell{display:grid;grid-template-columns:72px 240px 1fr;height:100vh;}
+
+  /* Icon rail (same as workspace-shell.html) */
+  .rail{background:var(--card);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:4px;}
+  .rail-logo{width:32px;height:32px;border-radius:8px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;margin-bottom:16px;}
+  .rail-item{width:52px;height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border-radius:var(--radius-sm);color:var(--ink-faint);cursor:pointer;font-size:10.5px;}
+  .rail-item .ic{font-size:18px;}
+  .rail-item.active{color:var(--accent);background:var(--accent-soft);}
+  .rail-spacer{flex:1;}
+
+  /* File tree sidebar (replaces the workspace nav sidebar when inside a project) */
+  .filetree{background:var(--card);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:16px 12px;overflow:auto;}
+  .ft-back{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-faint);margin-bottom:14px;cursor:pointer;}
+  .ft-back:hover{color:var(--ink-soft);}
+  .ft-project{font-weight:600;font-size:14px;margin-bottom:12px;padding:0 2px;display:flex;align-items:center;gap:8px;}
+  .ft-project .proj-dot{width:8px;height:8px;border-radius:50%;background:var(--success);flex-shrink:0;}
+  .ft-new{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-faint);padding:6px 8px;border-radius:var(--radius-sm);cursor:pointer;margin-bottom:8px;}
+  .ft-new:hover{background:var(--bg-2);color:var(--ink-soft);}
+
+  .ft-node{display:flex;align-items:center;gap:6px;padding:5px 8px;border-radius:var(--radius-sm);font-size:13px;color:var(--ink-soft);cursor:pointer;}
+  .ft-node:hover{background:var(--bg-2);}
+  .ft-node.open-tab{background:var(--accent-soft);color:var(--accent);font-weight:500;}
+  .ft-node.dragging{opacity:.4;}
+  .ft-folder{font-weight:500;color:var(--ink);}
+  .ft-caret{width:12px;font-size:9px;color:var(--ink-faint);}
+  .ft-icon{width:15px;text-align:center;font-size:12.5px;}
+  .ft-icon.doc{color:#6366f1;}
+  .ft-icon.canvas{color:var(--accent);}
+  .ft-children{margin-left:20px;display:flex;flex-direction:column;gap:1px;}
+
+  /* Main area */
+  .main{display:flex;flex-direction:column;overflow:hidden;}
+
+  /* Tab bar */
+  .tabbar{display:flex;align-items:stretch;background:var(--bg-2);border-bottom:1px solid var(--line);flex-shrink:0;height:40px;padding-left:4px;}
+  .tab{display:flex;align-items:center;gap:8px;padding:0 12px;font-size:12.5px;color:var(--ink-soft);border-right:1px solid var(--line);cursor:grab;position:relative;max-width:200px;background:var(--bg-2);}
+  .tab.active{background:var(--card);color:var(--ink);font-weight:500;}
+  .tab.active::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--accent);}
+  .tab.dragging{opacity:.4;}
+  .tab-icon{font-size:12px;flex-shrink:0;}
+  .tab-icon.doc{color:#6366f1;}
+  .tab-icon.canvas{color:var(--accent);}
+  .tab-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .tab-close{width:16px;height:16px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:var(--ink-faint);font-size:11px;flex-shrink:0;}
+  .tab-close:hover{background:var(--line);color:var(--ink);}
+  .tab-add{width:36px;display:flex;align-items:center;justify-content:center;color:var(--ink-faint);cursor:pointer;flex-shrink:0;}
+  .tab-add:hover{color:var(--ink-soft);}
+  .tabbar-spacer{flex:1;position:relative;}
+  .tabbar-spacer.drag-active::before{
+    content:"Drop here to add a tab";
+    position:absolute;inset:4px 8px;border:2px dashed var(--accent);border-radius:6px;
+    background:rgba(37,99,235,.08);color:var(--accent);font-size:11px;
+    display:flex;align-items:center;justify-content:center;font-weight:500;
+  }
+  .tabbar-actions{display:flex;align-items:center;gap:4px;padding:0 10px;}
+  .split-btn{width:28px;height:28px;margin-top:6px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--ink-faint);cursor:pointer;font-size:13px;}
+  .split-btn:hover{background:var(--line);color:var(--ink-soft);}
+
+  /* Split view: two panes side by side */
+  .split-view{flex:1;display:flex;overflow:hidden;position:relative;}
+  .pane{flex:1;display:flex;flex-direction:column;min-width:0;border-right:1px solid var(--line);position:relative;}
+  .pane:last-child{border-right:none;}
+  .pane-header{height:32px;flex-shrink:0;display:flex;align-items:center;padding:0 12px;gap:6px;font-size:11.5px;color:var(--ink-faint);background:var(--bg);border-bottom:1px solid var(--line);}
+  .pane-body{flex:1;position:relative;overflow:auto;}
+
+  /* Drag-to-split drop zones (macOS window-snap style). Hidden until a tab
+     drag is active over this pane; JS toggles .drag-active on the pane and
+     shows/highlights the zone under the pointer. */
+  .drop-zones{position:absolute;inset:0;z-index:20;display:none;pointer-events:none;}
+  .pane.drag-active .drop-zones{display:block;}
+  .drop-zone{position:absolute;background:rgba(37,99,235,.08);border:2px dashed transparent;transition:background .1s, border-color .1s;}
+  .drop-zone.hot{background:rgba(37,99,235,.18);border-color:var(--accent);}
+  .zone-left{left:0;top:0;bottom:0;width:50%;}
+  .zone-right{right:0;top:0;bottom:0;width:50%;}
+  .zone-top{left:0;top:0;right:0;height:50%;}
+  .zone-bottom{left:0;bottom:0;right:0;height:50%;}
+  .zone-center{left:15%;top:15%;right:15%;bottom:15%;border-radius:8px;}
+
+  /* Document pane content */
+  .doc-body{padding:32px 40px;max-width:640px;}
+  .doc-title{font-size:26px;font-weight:700;margin:0 0 6px;}
+  .doc-meta{font-size:12px;color:var(--ink-faint);margin-bottom:24px;}
+  .doc-text p{font-size:14.5px;line-height:1.7;color:var(--ink);margin:0 0 14px;}
+  .doc-text h2{font-size:17px;font-weight:600;margin:24px 0 10px;}
+  .doc-text ul{padding-left:20px;margin:0 0 14px;}
+  .doc-text li{font-size:14.5px;line-height:1.7;margin-bottom:4px;}
+
+  /* Canvas pane content (placeholder only, per canvas-page.html) */
+  .canvas-body{position:absolute;inset:0;background-image:radial-gradient(circle, #e2e8f0 1px, transparent 1px);background-size:18px 18px;background-color:#fff;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;}
+  .canvas-note{font-size:11.5px;font-family:var(--mono);color:var(--ink-faint);background:var(--card);border:1px solid var(--line);border-radius:var(--radius-sm);padding:6px 12px;}
+  .sync-pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--success);font-weight:500;}
+  .sync-dot{width:5px;height:5px;border-radius:50%;background:var(--success);}
+  .presence{display:flex;}
+  .presence-avatar{width:18px;height:18px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);margin-left:-6px;display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff;font-weight:600;}
+  .presence-avatar:first-child{margin-left:0;}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="rail">
+    <div class="rail-logo">LF</div>
+    <div class="rail-item"><span class="ic">⌂</span>Home</div>
+    <div class="rail-item active"><span class="ic">▤</span>Projects</div>
+    <div class="rail-spacer"></div>
+    <div class="rail-item"><span class="ic">⚙</span>Settings</div>
+  </div>
+
+  <div class="filetree" id="filetree">
+    <div class="ft-back">← Projects</div>
+    <div class="ft-project"><span class="proj-dot"></span>Checkout redesign</div>
+    <div class="ft-new">+ New file / folder</div>
+
+    <div class="ft-node ft-folder"><span class="ft-caret">▾</span><span class="ft-icon">📁</span>diagrams</div>
+    <div class="ft-children">
+      <div class="ft-node open-tab" draggable="true" data-file="architecture" data-type="canvas"><span class="ft-icon canvas">▢</span>architecture.canvas</div>
+      <div class="ft-node" draggable="true" data-file="user-flow" data-type="canvas"><span class="ft-icon canvas">▢</span>user-flow.canvas</div>
+      <div class="ft-node open-tab" draggable="true" data-file="backend" data-type="canvas"><span class="ft-icon canvas">▢</span>backend.canvas</div>
+    </div>
+
+    <div class="ft-node ft-folder"><span class="ft-caret">▾</span><span class="ft-icon">📁</span>notes</div>
+    <div class="ft-children">
+      <div class="ft-node open-tab" draggable="true" data-file="decisions" data-type="doc"><span class="ft-icon doc">▤</span>decisions.doc</div>
+      <div class="ft-node" draggable="true" data-file="meeting-notes" data-type="doc"><span class="ft-icon doc">▤</span>meeting-notes.doc</div>
+    </div>
+
+    <div class="ft-node" draggable="true" data-file="readme" data-type="doc"><span class="ft-icon doc">▤</span>README.doc</div>
+  </div>
+
+  <div class="main">
+    <div class="tabbar" id="tabbar">
+      <div class="tab" draggable="true" data-tab="decisions"><span class="tab-icon doc">▤</span><span class="tab-name">decisions.doc</span><span class="tab-close">×</span></div>
+      <div class="tab active" draggable="true" data-tab="architecture"><span class="tab-icon canvas">▢</span><span class="tab-name">architecture.canvas</span><span class="tab-close">×</span></div>
+      <div class="tab" draggable="true" data-tab="backend"><span class="tab-icon canvas">▢</span><span class="tab-name">backend.canvas</span><span class="tab-close">×</span></div>
+      <div class="tab-add">+</div>
+      <div class="tabbar-spacer" id="tabbarSpacer"></div>
+      <div class="tabbar-actions">
+        <div class="split-btn" title="Split right">⬓</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--ink-faint);padding:4px 12px;background:#fffbeb;border-bottom:1px solid #fde68a;">
+      <b>Click</b> a file in the tree to open it as a new tab (never replaces an existing one). <b>Drag</b> a file from the tree — or drag an existing tab — onto a pane's edge to split, onto its center to replace, or onto the empty tab bar area to just add it as a new tab (Notion-style). Try dragging <b>user-flow.canvas</b> from the tree onto the tab bar.
+    </div>
+
+    <div class="split-view" id="splitView">
+      <div class="pane" data-pane="1">
+        <div class="pane-header">
+          <span class="tab-icon canvas">▢</span> architecture.canvas
+          <div style="flex:1"></div>
+          <span class="sync-pill"><span class="sync-dot"></span>Synced</span>
+          <div class="presence" style="margin-left:8px;">
+            <div class="presence-avatar">D</div>
+            <div class="presence-avatar">M</div>
+          </div>
+        </div>
+        <div class="pane-body">
+          <div class="canvas-body">
+            <div class="canvas-note">@excalidraw/excalidraw renders here — untouched canvas chrome</div>
+          </div>
+        </div>
+        <div class="drop-zones">
+          <div class="drop-zone zone-left" data-zone="left"></div>
+          <div class="drop-zone zone-right" data-zone="right"></div>
+          <div class="drop-zone zone-top" data-zone="top"></div>
+          <div class="drop-zone zone-bottom" data-zone="bottom"></div>
+          <div class="drop-zone zone-center" data-zone="center"></div>
+        </div>
+      </div>
+
+      <div class="pane" data-pane="2">
+        <div class="pane-header">
+          <span class="tab-icon doc">▤</span> decisions.doc
+          <div style="flex:1"></div>
+          <span class="sync-pill"><span class="sync-dot"></span>Saved</span>
+        </div>
+        <div class="pane-body">
+          <div class="doc-body">
+            <h1 class="doc-title">Architecture decisions</h1>
+            <div class="doc-meta">Edited 4m ago by Dara K.</div>
+            <div class="doc-text">
+              <p>We're splitting checkout into three services: cart, payment, and fulfillment. This keeps the payment path auditable on its own without dragging in cart logic.</p>
+              <h2>Why not one service</h2>
+              <ul>
+                <li>Payment needs a stricter deploy cadence than cart</li>
+                <li>Fulfillment has a completely different scaling profile</li>
+              </ul>
+              <p>See <b>architecture.canvas</b> in this project for the diagram this describes. This document is independently edited — it is not generated from or synced to the canvas.</p>
+            </div>
+          </div>
+        </div>
+        <div class="drop-zones">
+          <div class="drop-zone zone-left" data-zone="left"></div>
+          <div class="drop-zone zone-right" data-zone="right"></div>
+          <div class="drop-zone zone-top" data-zone="top"></div>
+          <div class="drop-zone zone-bottom" data-zone="bottom"></div>
+          <div class="drop-zone zone-center" data-zone="center"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Demo-only interaction logic for the wireframe:
+  //  - Click a tree file  -> opens a new tab (never replaces an existing tab)
+  //  - Drag a tab OR a tree file onto a pane's edge -> new split in that direction
+  //  - Drag onto a pane's center                    -> replaces that pane's file
+  //  - Drag onto the empty tab bar area              -> adds a new tab (Notion-style),
+  //                                                      no split, no replace
+  let dragged = null; // { name, type, source: 'tab' | 'tree' }
+
+  function wireDragSource(el, getInfo) {
+    el.addEventListener('dragstart', e => {
+      dragged = getInfo();
+      el.classList.add('dragging');
+      e.dataTransfer.setData('text/plain', dragged.name);
+    });
+    el.addEventListener('dragend', () => {
+      el.classList.remove('dragging');
+      document.querySelectorAll('.pane').forEach(p => p.classList.remove('drag-active'));
+      document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('hot'));
+      document.getElementById('tabbarSpacer').classList.remove('drag-active');
+    });
+  }
+
+  document.querySelectorAll('.tab[draggable="true"]').forEach(tab => {
+    wireDragSource(tab, () => ({
+      name: tab.querySelector('.tab-name').textContent,
+      type: tab.querySelector('.tab-icon').classList.contains('doc') ? 'doc' : 'canvas',
+      source: 'tab',
+    }));
+  });
+
+  document.querySelectorAll('.ft-node[draggable="true"]').forEach(node => {
+    wireDragSource(node, () => ({
+      name: node.dataset.file + (node.dataset.type === 'doc' ? '.doc' : '.canvas'),
+      type: node.dataset.type,
+      source: 'tree',
+    }));
+    // Plain click (no drag) opens a new tab, never replacing an existing one.
+    node.addEventListener('click', () => {
+      alert('Opened "' + node.dataset.file + '.' + node.dataset.type + '" as a NEW tab.\n\nExisting tabs are untouched -- clicking a file never replaces or closes another tab.');
+    });
+  });
+
+  document.querySelectorAll('.pane').forEach(pane => {
+    pane.addEventListener('dragover', e => {
+      e.preventDefault();
+      pane.classList.add('drag-active');
+    });
+    pane.addEventListener('dragleave', e => {
+      if (!pane.contains(e.relatedTarget)) pane.classList.remove('drag-active');
+    });
+  });
+
+  document.querySelectorAll('.drop-zone').forEach(zone => {
+    zone.style.pointerEvents = 'auto';
+    zone.addEventListener('dragover', e => {
+      e.preventDefault();
+      document.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('hot'));
+      zone.classList.add('hot');
+    });
+    zone.addEventListener('drop', e => {
+      e.preventDefault();
+      const zoneKind = zone.dataset.zone;
+      const paneNum = zone.closest('.pane').dataset.pane;
+      const name = dragged ? dragged.name : 'file';
+      alert(
+        'Dropped "' + name + '" on the ' + zoneKind + ' zone of pane ' + paneNum + '.\n\n' +
+        (zoneKind === 'center'
+          ? 'In the real app: this file replaces the current single view in this pane.'
+          : 'In the real app: this file opens a NEW split (' + zoneKind + ' of this pane), same as dragging a window to a MacBook screen edge to tile it.')
+      );
+    });
+  });
+
+  const tabbarSpacer = document.getElementById('tabbarSpacer');
+  tabbarSpacer.addEventListener('dragover', e => {
+    e.preventDefault();
+    tabbarSpacer.classList.add('drag-active');
+  });
+  tabbarSpacer.addEventListener('dragleave', () => tabbarSpacer.classList.remove('drag-active'));
+  tabbarSpacer.addEventListener('drop', e => {
+    e.preventDefault();
+    tabbarSpacer.classList.remove('drag-active');
+    const name = dragged ? dragged.name : 'file';
+    alert('Dropped "' + name + '" on the tab bar.\n\nIn the real app: this just adds a new tab (Notion-style) -- no split, no replace, no layout change.');
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>LiveFlows — Final direction: Light SaaS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{ --ink:#1e293b; --ink-soft:#64748b; --line:#e2e8f0; --bg:#f8fafc; --accent:#2563eb; --mono:'Geist Mono', monospace; --sans:'Geist', sans-serif; }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--ink);padding:32px;}
+  h1{font-size:20px;margin:0 0 4px;}
+  .sub{color:var(--ink-soft);font-size:13.5px;margin-bottom:8px;max-width:900px;line-height:1.5;}
+  .basis{font-size:11.5px;color:var(--ink-soft);font-family:var(--mono);margin-bottom:24px;background:#fff;border:1px solid var(--line);padding:8px 12px;border-radius:6px;display:inline-block;}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .card{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;}
+  .card h2{font-size:13.5px;margin:0;padding:10px 14px;border-bottom:1px solid var(--line);font-family:var(--mono);}
+  .card p{font-size:12px;color:var(--ink-soft);margin:0;padding:10px 14px;line-height:1.5;}
+  iframe{width:100%;height:480px;border:none;display:block;}
+  .open{display:inline-block;margin:0 14px 12px;font-size:12px;color:var(--accent);text-decoration:none;font-weight:500;}
+</style>
+</head>
+<body>
+  <h1>LiveFlows — Final Direction: Light SaaS</h1>
+  <div class="sub">Rebuilt from the user's own inspiration reference (docs/inspiration/), a clean light-mode diagramming SaaS. Component/property-panel diagramming from the reference was dropped — confirmed via excalidraw.com/plus that LiveFlows should keep its canvas as plain freeform Excalidraw, matching Excalidraw+'s own workspace → collection → canvas shape. This replaces both the purple round and the green/black round.</div>
+  <div class="basis">Palette basis: ui-ux-pro-max --domain color "clean professional SaaS dashboard light mode blue accent" (SaaS General result: #2563EB / #F8FAFC / #FFFFFF cards) · style basis: --domain style "clean light SaaS dashboard soft cards whitespace" (Bento Box Grid: rounded-xl, soft shadow, hover scale)</div>
+  <div class="grid">
+    <div class="card">
+      <h2>Workspace shell — project list</h2>
+      <iframe src="workspace-shell.html"></iframe>
+      <p>Icon rail + workspace sidebar + white project cards with soft shadow and hover lift. Blue accent used only for the primary action and active nav state, matching the reference's restraint.</p>
+      <a class="open" href="workspace-shell.html" target="_blank">Open full size →</a>
+    </div>
+    <div class="card">
+      <h2>Canvas page</h2>
+      <iframe src="canvas-page.html"></iframe>
+      <p>Minimal chrome around the canvas: breadcrumb, sync status pill, presence avatars, share button. The canvas area itself is a placeholder — the real Excalidraw package's own toolbar and rendering stay untouched, per the design doc's rule.</p>
+      <a class="open" href="canvas-page.html" target="_blank">Open full size →</a>
+    </div>
+  </div>
+
+  <h1 style="margin-top:40px;">Inside a project: files, folders, tabs, split view</h1>
+  <div class="sub">Feature N in the scope (needs a decision, /architect not yet run). VS Code model: tabs are open files, not view modes. Each file is exactly one type — document or canvas — never both. Two tabs can sit in a split view and stay independently editable; no shared or AI-generated content between them (the Eraser.io hybrid pattern in docs/inspiration/document-diagram-screen-inspiration.png was explicitly rejected).</div>
+  <div class="grid" style="grid-template-columns:1fr;">
+    <div class="card">
+      <h2>Project view — file tree + tabs + split</h2>
+      <iframe src="project-file-tabs.html" style="height:600px;"></iframe>
+      <p>Left: file tree scoped to the open project (folders, canvas files, document files, distinct icons). Top: tab bar for open files, a split button on the right. Body: two independently-synced panes — a canvas file and a document file, side by side, each with its own sync status.</p>
+      <a class="open" href="project-file-tabs.html" target="_blank">Open full size →</a>
+    </div>
+  </div>
+</body>
+</html>

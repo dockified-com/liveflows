@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>LiveFlows — Workspace Shell (light SaaS)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* ui-ux-pro-max: --domain color "clean professional SaaS dashboard light mode blue accent"
+     Result 2 (SaaS General): primary #2563EB, bg #F8FAFC, card #FFFFFF, border #E2E8F0
+     --domain style "clean light SaaS dashboard soft cards whitespace"
+     Result 1 (Bento Box Grid): rounded-xl cards, soft shadow, hover scale 1.02
+     Matches user-provided inspiration screenshots (docs/inspiration/). */
+  :root{
+    --ink:#1e293b; --ink-soft:#64748b; --ink-faint:#94a3b8; --line:#e2e8f0; --bg:#f8fafc; --bg-2:#f1f5f9;
+    --accent:#2563eb; --accent-soft:#eff6ff; --accent-hover:#1d4ed8;
+    --success:#16a34a; --success-soft:#f0fdf4; --warn:#d97706; --warn-soft:#fffbeb;
+    --card:#ffffff; --shadow:0 1px 2px rgba(15,23,42,.04), 0 1px 3px rgba(15,23,42,.06);
+    --radius:12px; --radius-sm:8px; --mono:'Geist Mono', monospace; --sans:'Geist', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:14px;-webkit-font-smoothing:antialiased;}
+  .shell{display:grid;grid-template-columns:72px 240px 1fr;height:100vh;}
+
+  /* Icon rail */
+  .rail{background:var(--card);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:4px;}
+  .rail-logo{width:32px;height:32px;border-radius:8px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;margin-bottom:16px;}
+  .rail-item{width:52px;height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border-radius:var(--radius-sm);color:var(--ink-faint);cursor:pointer;font-size:10.5px;}
+  .rail-item .ic{font-size:18px;}
+  .rail-item.active{color:var(--accent);background:var(--accent-soft);}
+  .rail-item:hover:not(.active){background:var(--bg-2);color:var(--ink-soft);}
+  .rail-spacer{flex:1;}
+
+  /* Workspace/project sidebar */
+  .sidebar{background:var(--card);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:20px 14px;}
+  .ws-switch{display:flex;align-items:center;gap:10px;padding:8px 8px;border-radius:var(--radius-sm);cursor:pointer;margin-bottom:16px;}
+  .ws-switch:hover{background:var(--bg-2);}
+  .ws-dot{width:28px;height:28px;border-radius:7px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12.5px;}
+  .ws-name{font-weight:600;font-size:13.5px;}
+  .ws-caret{margin-left:auto;color:var(--ink-faint);font-size:11px;}
+  .sec-label{font-size:11px;font-weight:600;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.04em;padding:0 8px;margin:12px 0 6px;}
+  .nav-item{display:flex;align-items:center;gap:9px;padding:8px 8px;border-radius:var(--radius-sm);color:var(--ink-soft);font-size:13.5px;cursor:pointer;}
+  .nav-item.active{background:var(--accent-soft);color:var(--accent);font-weight:500;}
+  .nav-item:hover:not(.active){background:var(--bg-2);}
+  .sidebar-spacer{flex:1;}
+  .user-row{display:flex;align-items:center;gap:10px;padding:10px 8px;border-top:1px solid var(--line);margin-top:12px;}
+  .avatar{width:30px;height:30px;border-radius:50%;background:var(--bg-2);border:1px solid var(--line);flex-shrink:0;}
+  .user-name{font-size:13px;font-weight:500;}
+  .user-role{font-size:11px;color:var(--ink-faint);}
+
+  /* Main */
+  .main{display:flex;flex-direction:column;overflow:hidden;}
+  .topbar{height:64px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 28px;gap:14px;flex-shrink:0;background:var(--card);}
+  .crumb{font-size:13.5px;color:var(--ink-faint);display:flex;align-items:center;gap:6px;}
+  .crumb b{color:var(--ink);font-weight:600;}
+  .crumb .sep{color:var(--ink-faint);}
+  .topbar .spacer{flex:1;}
+  .btn{font-family:var(--sans);font-size:13.5px;font-weight:500;padding:8px 16px;border-radius:var(--radius-sm);border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 1px 2px rgba(37,99,235,.2);}
+  .btn.primary:hover{background:var(--accent-hover);}
+  .icon-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--card);display:flex;align-items:center;justify-content:center;color:var(--ink-soft);cursor:pointer;}
+
+  .content{padding:28px;overflow:auto;flex:1;}
+  .page-head{margin-bottom:24px;}
+  .page-title{font-size:24px;font-weight:700;margin:0 0 4px;}
+  .page-sub{font-size:14px;color:var(--ink-faint);margin:0;}
+
+  .proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;}
+  .proj-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);cursor:pointer;transition:transform .15s ease, box-shadow .15s ease;}
+  .proj-card:hover{transform:scale(1.02);box-shadow:0 4px 12px rgba(15,23,42,.08);}
+  .proj-card-head{display:flex;align-items:flex-start;gap:12px;}
+  .proj-icon{width:38px;height:38px;border-radius:9px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+  .proj-name{font-weight:600;font-size:15px;margin:0 0 2px;}
+  .proj-meta{font-size:12px;color:var(--ink-faint);}
+  .proj-card-foot{display:flex;align-items:center;justify-content:space-between;margin-top:16px;}
+  .status-pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:4px 9px;border-radius:99px;background:var(--success-soft);color:var(--success);font-weight:500;}
+  .status-dot{width:6px;height:6px;border-radius:50%;background:var(--success);}
+  .presence{display:flex;}
+  .presence-avatar{width:22px;height:22px;border-radius:50%;background:var(--accent);border:2px solid var(--card);margin-left:-6px;display:flex;align-items:center;justify-content:center;font-size:9.5px;color:#fff;font-weight:600;}
+  .presence-avatar:first-child{margin-left:0;}
+
+  /* New-project card */
+  .proj-card.new{display:flex;flex-direction:column;align-items:center;justify-content:center;border:1.5px dashed var(--line);box-shadow:none;color:var(--ink-faint);gap:8px;min-height:120px;}
+  .proj-card.new:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft);transform:none;}
+  .proj-card.new .plus{font-size:22px;}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="rail">
+    <div class="rail-logo">LF</div>
+    <div class="rail-item"><span class="ic">⌂</span>Home</div>
+    <div class="rail-item active"><span class="ic">▤</span>Projects</div>
+    <div class="rail-spacer"></div>
+    <div class="rail-item"><span class="ic">🔔</span>Alerts</div>
+    <div class="rail-item"><span class="ic">⚙</span>Settings</div>
+  </div>
+
+  <div class="sidebar">
+    <div class="ws-switch">
+      <div class="ws-dot">A</div>
+      <div class="ws-name">acme-eng</div>
+      <div class="ws-caret">▾</div>
+    </div>
+    <div class="sec-label">Workspace</div>
+    <div class="nav-item active"><span>▤</span> All projects</div>
+    <div class="nav-item"><span>★</span> Starred</div>
+    <div class="nav-item"><span>◈</span> Members</div>
+    <div class="sec-label">Recent</div>
+    <div class="nav-item"><span>▢</span> Checkout redesign</div>
+    <div class="nav-item"><span>▢</span> Auth service v2</div>
+    <div class="sidebar-spacer"></div>
+    <div class="user-row">
+      <div class="avatar"></div>
+      <div>
+        <div class="user-name">Dara K.</div>
+        <div class="user-role">Admin</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="crumb">Workspace <span class="sep">›</span> <b>acme-eng</b></div>
+      <div class="spacer"></div>
+      <div class="icon-btn">🔔</div>
+      <button class="btn primary">+ New project</button>
+    </div>
+    <div class="content">
+      <div class="page-head">
+        <h1 class="page-title">Projects</h1>
+        <p class="page-sub">7 projects · shared with 4 teammates</p>
+      </div>
+
+      <div class="proj-grid">
+        <div class="proj-card">
+          <div class="proj-card-head">
+            <div class="proj-icon">▢</div>
+            <div>
+              <div class="proj-name">Checkout redesign</div>
+              <div class="proj-meta">Updated 2m ago</div>
+            </div>
+          </div>
+          <div class="proj-card-foot">
+            <div class="status-pill"><span class="status-dot"></span>Synced</div>
+            <div class="presence">
+              <div class="presence-avatar">D</div>
+              <div class="presence-avatar">M</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="proj-card">
+          <div class="proj-card-head">
+            <div class="proj-icon">▢</div>
+            <div>
+              <div class="proj-name">Auth service v2</div>
+              <div class="proj-meta">Updated 8m ago</div>
+            </div>
+          </div>
+          <div class="proj-card-foot">
+            <div class="status-pill"><span class="status-dot"></span>Synced</div>
+            <div class="presence">
+              <div class="presence-avatar">D</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="proj-card">
+          <div class="proj-card-head">
+            <div class="proj-icon">▢</div>
+            <div>
+              <div class="proj-name">Notification pipeline</div>
+              <div class="proj-meta">Updated 1h ago</div>
+            </div>
+          </div>
+          <div class="proj-card-foot">
+            <div class="status-pill"><span class="status-dot"></span>Synced</div>
+            <div class="presence">
+              <div class="presence-avatar">M</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="proj-card">
+          <div class="proj-card-head">
+            <div class="proj-icon">▢</div>
+            <div>
+              <div class="proj-name">Billing migration</div>
+              <div class="proj-meta">Updated 3h ago</div>
+            </div>
+          </div>
+          <div class="proj-card-foot">
+            <div class="status-pill"><span class="status-dot"></span>Synced</div>
+            <div class="presence">
+              <div class="presence-avatar">D</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="proj-card new">
+          <div class="plus">+</div>
+          <div>New project</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
