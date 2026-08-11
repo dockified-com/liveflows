@@ -3,8 +3,28 @@ import * as childProcess from 'child_process';
 import { captureGitState, captureGitDiff } from '../git-state';
 
 vi.mock('child_process', () => {
+  const execFileMock = vi.fn();
+  
+  const customPromisify = (cmd: any, args: any, options: any) => {
+    return new Promise((resolve, reject) => {
+      execFileMock(cmd, args, options, (err: any, stdout: any, stderr: any) => {
+        if (err) {
+          err.stdout = stdout;
+          err.stderr = stderr;
+          reject(err);
+        } else {
+          resolve({ stdout, stderr });
+        }
+      });
+    });
+  };
+  
+  Object.defineProperty(execFileMock, Symbol.for('nodejs.util.promisify.custom'), {
+    value: customPromisify,
+  });
+
   return {
-    execFile: vi.fn(),
+    execFile: execFileMock,
   };
 });
 
@@ -25,7 +45,7 @@ describe('git-state', () => {
       });
 
       const result = await captureGitState('/test/dir');
-      expect(result).toEqual({ hash: 'abcdef1234567890', status: 'M some-file.ts' });
+      expect(result).toEqual({ hash: 'abcdef1234567890', status: ' M some-file.ts' });
     });
 
     it('returns null on failure (e.g. not a repo)', async () => {
