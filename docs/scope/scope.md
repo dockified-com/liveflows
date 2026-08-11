@@ -23,12 +23,12 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | G | Liveblocks room lifecycle | MVP 1a | existing |
 | H | Canvas realtime reconciliation | MVP 1a | existing |
 | I | Liveblocks auth token issuance | MVP 1a | existing |
-| J | Canvas mirror (storageUpdated webhook) | MVP 1a | in-progress |
-| K | Liveblocks outage read-only fallback | MVP 1a | planned |
-| L | Storage-ceiling warning UI | MVP 1a | planned |
-| M | Landing / marketing page | MVP 1a | planned |
-| N | Multi-file projects (files, folders, tabs, split view) | MVP 1a | in-progress |
-| 1 | MCP server (agent read/draw access) | MVP 1b | planned |
+| J | Canvas mirror (storageUpdated webhook) | MVP 1a | done |
+| K | Liveblocks outage read-only fallback | MVP 1a | done |
+| L | Storage-ceiling warning UI | MVP 1a | done |
+| M | Landing / marketing page | MVP 1a | done |
+| N | Multi-file projects (files, folders, tabs, split view) | MVP 1a | done |
+| 1 | MCP server (agent read/draw access) | MVP 1b | done |
 | 2 | In-app AI chat / copilot | MVP 2 | planned |
 | 3 | Images on canvas | Deferred | planned |
 | 4 | Project thumbnails | Deferred | planned |
@@ -80,30 +80,34 @@ code in `src/features/canvas/element-sync.ts`, `src/features/canvas/canvas-room.
 Issues a Liveblocks ID token scoped to the caller's workspace group and `organizationId`, so room access always matches Clerk org membership.
 code in `src/app/api/liveblocks-auth/route.ts`
 
-### J. Canvas mirror (storageUpdated webhook) · in-progress
+### J. Canvas mirror (storageUpdated webhook) · done
 Verify, fetch storage, upsert `CanvasSnapshot`; idempotent via `ProcessedWebhook`, looked up by the indexed `liveblocksRoomId` column.
 **Done when:** a replayed `storageUpdated` event converges to the same row, a room-with-no-project event is logged and ignored, and `elementCount` only counts live (non-deleted) elements.
-- [ ] Confirm `appState`/`viewBackgroundColor` schema mismatch against the design doc and reconcile: `/develop canvas mirror`
-- [ ] Verify it: `/check verify canvas mirror`
-- [ ] Test it: `/test canvas mirror`
-code in `src/app/api/webhooks/liveblocks/route.ts` (confirm path exists; not seen in the current source scan)
+- [x] Confirm `appState`/`viewBackgroundColor` schema mismatch against the design doc and reconcile: `/develop canvas mirror`
+- [x] Verify it: `/check verify canvas mirror`
+- [x] Test it: `/test canvas mirror`
+code in `src/app/api/webhooks/liveblocks/route.ts`
 
-### K. Liveblocks outage read-only fallback · planned
+### K. Liveblocks outage read-only fallback · done
 When Liveblocks is unreachable, the canvas renders read-only from `CanvasSnapshot` with a banner; auth, lists, and workspace pages stay unaffected.
 **Done when:** a simulated Liveblocks outage still lets a user view the last-synced canvas and navigate the rest of the app normally.
-- [ ] Design it (spec): `/architect liveblocks outage read-only fallback`
+- [x] Design it (spec): `/architect liveblocks outage read-only fallback`
+- [x] Build it: `/develop liveblocks outage read-only fallback`
+- [x] Verify it: `/check verify liveblocks outage read-only fallback`
 
-### L. Storage-ceiling warning UI · planned
+### L. Storage-ceiling warning UI · done
 Surface `CanvasSnapshot.elementCount` in the UI as an early warning before the ~10MB per-room Liveblocks storage ceiling.
 **Done when:** a project nearing the ceiling shows a visible warning; garbage collection stays out of scope (monitored, not solved).
-- [ ] Design it (spec): `/architect storage-ceiling warning UI`
+- [x] Design it (spec): `/architect storage-ceiling warning UI`
+- [x] Build it: `/develop storage-ceiling warning UI`
+- [x] Verify it: `/check verify storage-ceiling warning UI`
 
-### M. Landing / marketing page · planned
+### M. Landing / marketing page · done
 The public `/` route: what LiveFlows is, sign-in/sign-up entry points. No product functionality.
 **Done when:** an unauthenticated visitor understands the product and can reach sign-in or sign-up.
-- [ ] Build it: `/develop landing page`
+- [x] Build it: `/develop landing page`
 
-### N. Multi-file projects (files, folders, tabs, split view) · in-progress
+### N. Multi-file projects (files, folders, tabs, split view) · done
 A project becomes a container, Drive-style: folders and files inside it, not a single canvas. Each file has exactly one type, `document` or `canvas` — no hybrid file that is both at once. Files open as tabs across the top (VS Code model: a tab is an open file, not a view mode), and two tabs can sit side by side in a split view so a document and a canvas, or two canvases, are visible and independently editable at once.
 Explicitly rejected: a single file that is simultaneously a document and a canvas with a synced or AI-generated relationship between them (the pattern seen in the Eraser.io inspiration screenshot, `docs/inspiration/document-diagram-screen-inspiration.png`). That ambiguity, plus the AI-generation feature it implies, is cut, not deferred.
 **Document editor decided:** Tiptap (MIT core) via `@liveblocks/react-tiptap`, own toolbar UI, not BlockNote's pre-built UI. Reuses the existing Liveblocks vendor, no second realtime backend. See `## Stack` in `AGENTS.md`.
