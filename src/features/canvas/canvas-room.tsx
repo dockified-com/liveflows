@@ -199,9 +199,30 @@ function Canvas({
       >
         <span data-testid="status">{status}</span> · others: {others.length}
       </div>
+      {status === "disconnected" && (
+        <div
+          data-testid="outage-banner"
+          style={{
+            position: "fixed",
+            zIndex: 100,
+            top: 0,
+            left: 0,
+            right: 0,
+            background: "#dc2626",
+            color: "#fff",
+            padding: "8px 16px",
+            fontSize: 14,
+            fontWeight: 500,
+            textAlign: "center",
+          }}
+        >
+          Liveblocks is unreachable. The canvas is in read-only mode.
+        </div>
+      )}
       <Excalidraw
         excalidrawAPI={(instance) => setApi(instance)}
         onChange={onChange}
+        viewModeEnabled={status === "disconnected"}
       />
     </div>
   );
