@@ -125,7 +125,7 @@ export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeo
 export const CanvasSnapshotScalarFieldEnum = {
   projectId: 'projectId',
   elements: 'elements',
-  viewBackgroundColor: 'viewBackgroundColor',
+  appState: 'appState',
   elementCount: 'elementCount',
   syncedAt: 'syncedAt'
 } as const

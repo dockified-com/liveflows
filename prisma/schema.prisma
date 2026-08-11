@@ -58,7 +58,7 @@ model CanvasSnapshot {
   projectId    String   @id
   project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   elements     Json     @default("[]")
-  viewBackgroundColor String @default("#ffffff")
+  appState     Json     @default("{}")
   elementCount Int      @default(0)
   syncedAt     DateTime @default(now())
 }

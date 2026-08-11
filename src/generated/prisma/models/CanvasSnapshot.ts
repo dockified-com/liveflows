@@ -36,14 +36,12 @@ export type CanvasSnapshotSumAggregateOutputType = {
 
 export type CanvasSnapshotMinAggregateOutputType = {
   projectId: string | null
-  viewBackgroundColor: string | null
   elementCount: number | null
   syncedAt: Date | null
 }
 
 export type CanvasSnapshotMaxAggregateOutputType = {
   projectId: string | null
-  viewBackgroundColor: string | null
   elementCount: number | null
   syncedAt: Date | null
 }
@@ -51,7 +49,7 @@ export type CanvasSnapshotMaxAggregateOutputType = {
 export type CanvasSnapshotCountAggregateOutputType = {
   projectId: number
   elements: number
-  viewBackgroundColor: number
+  appState: number
   elementCount: number
   syncedAt: number
   _all: number
@@ -68,14 +66,12 @@ export type CanvasSnapshotSumAggregateInputType = {
 
 export type CanvasSnapshotMinAggregateInputType = {
   projectId?: true
-  viewBackgroundColor?: true
   elementCount?: true
   syncedAt?: true
 }
 
 export type CanvasSnapshotMaxAggregateInputType = {
   projectId?: true
-  viewBackgroundColor?: true
   elementCount?: true
   syncedAt?: true
 }
@@ -83,7 +79,7 @@ export type CanvasSnapshotMaxAggregateInputType = {
 export type CanvasSnapshotCountAggregateInputType = {
   projectId?: true
   elements?: true
-  viewBackgroundColor?: true
+  appState?: true
   elementCount?: true
   syncedAt?: true
   _all?: true
@@ -178,7 +174,7 @@ export type CanvasSnapshotGroupByArgs<ExtArgs extends runtime.Types.Extensions.I
 export type CanvasSnapshotGroupByOutputType = {
   projectId: string
   elements: runtime.JsonValue
-  viewBackgroundColor: string
+  appState: runtime.JsonValue
   elementCount: number
   syncedAt: Date
   _count: CanvasSnapshotCountAggregateOutputType | null
@@ -209,7 +205,7 @@ export type CanvasSnapshotWhereInput = {
   NOT?: Prisma.CanvasSnapshotWhereInput | Prisma.CanvasSnapshotWhereInput[]
   projectId?: Prisma.StringFilter<"CanvasSnapshot"> | string
   elements?: Prisma.JsonFilter<"CanvasSnapshot">
-  viewBackgroundColor?: Prisma.StringFilter<"CanvasSnapshot"> | string
+  appState?: Prisma.JsonFilter<"CanvasSnapshot">
   elementCount?: Prisma.IntFilter<"CanvasSnapshot"> | number
   syncedAt?: Prisma.DateTimeFilter<"CanvasSnapshot"> | Date | string
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
@@ -218,7 +214,7 @@ export type CanvasSnapshotWhereInput = {
 export type CanvasSnapshotOrderByWithRelationInput = {
   projectId?: Prisma.SortOrder
   elements?: Prisma.SortOrder
-  viewBackgroundColor?: Prisma.SortOrder
+  appState?: Prisma.SortOrder
   elementCount?: Prisma.SortOrder
   syncedAt?: Prisma.SortOrder
   project?: Prisma.ProjectOrderByWithRelationInput
@@ -230,7 +226,7 @@ export type CanvasSnapshotWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.CanvasSnapshotWhereInput[]
   NOT?: Prisma.CanvasSnapshotWhereInput | Prisma.CanvasSnapshotWhereInput[]
   elements?: Prisma.JsonFilter<"CanvasSnapshot">
-  viewBackgroundColor?: Prisma.StringFilter<"CanvasSnapshot"> | string
+  appState?: Prisma.JsonFilter<"CanvasSnapshot">
   elementCount?: Prisma.IntFilter<"CanvasSnapshot"> | number
   syncedAt?: Prisma.DateTimeFilter<"CanvasSnapshot"> | Date | string
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
@@ -239,7 +235,7 @@ export type CanvasSnapshotWhereUniqueInput = Prisma.AtLeast<{
 export type CanvasSnapshotOrderByWithAggregationInput = {
   projectId?: Prisma.SortOrder
   elements?: Prisma.SortOrder
-  viewBackgroundColor?: Prisma.SortOrder
+  appState?: Prisma.SortOrder
   elementCount?: Prisma.SortOrder
   syncedAt?: Prisma.SortOrder
   _count?: Prisma.CanvasSnapshotCountOrderByAggregateInput
@@ -255,14 +251,14 @@ export type CanvasSnapshotScalarWhereWithAggregatesInput = {
   NOT?: Prisma.CanvasSnapshotScalarWhereWithAggregatesInput | Prisma.CanvasSnapshotScalarWhereWithAggregatesInput[]
   projectId?: Prisma.StringWithAggregatesFilter<"CanvasSnapshot"> | string
   elements?: Prisma.JsonWithAggregatesFilter<"CanvasSnapshot">
-  viewBackgroundColor?: Prisma.StringWithAggregatesFilter<"CanvasSnapshot"> | string
+  appState?: Prisma.JsonWithAggregatesFilter<"CanvasSnapshot">
   elementCount?: Prisma.IntWithAggregatesFilter<"CanvasSnapshot"> | number
   syncedAt?: Prisma.DateTimeWithAggregatesFilter<"CanvasSnapshot"> | Date | string
 }
 
 export type CanvasSnapshotCreateInput = {
   elements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  viewBackgroundColor?: string
+  appState?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   elementCount?: number
   syncedAt?: Date | string
   project: Prisma.ProjectCreateNestedOneWithoutCanvasInput
@@ -271,14 +267,14 @@ export type CanvasSnapshotCreateInput = {
 export type CanvasSnapshotUncheckedCreateInput = {
   projectId: string
   elements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  viewBackgroundColor?: string
+  appState?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   elementCount?: number
   syncedAt?: Date | string
 }
 
 export type CanvasSnapshotUpdateInput = {
   elements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  viewBackgroundColor?: Prisma.StringFieldUpdateOperationsInput | string
+  appState?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   elementCount?: Prisma.IntFieldUpdateOperationsInput | number
   syncedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   project?: Prisma.ProjectUpdateOneRequiredWithoutCanvasNestedInput
@@ -287,7 +283,7 @@ export type CanvasSnapshotUpdateInput = {
 export type CanvasSnapshotUncheckedUpdateInput = {
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   elements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  viewBackgroundColor?: Prisma.StringFieldUpdateOperationsInput | string
+  appState?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   elementCount?: Prisma.IntFieldUpdateOperationsInput | number
   syncedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -295,14 +291,14 @@ export type CanvasSnapshotUncheckedUpdateInput = {
 export type CanvasSnapshotCreateManyInput = {
   projectId: string
   elements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  viewBackgroundColor?: string
+  appState?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   elementCount?: number
   syncedAt?: Date | string
 }
 
 export type CanvasSnapshotUpdateManyMutationInput = {
   elements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  viewBackgroundColor?: Prisma.StringFieldUpdateOperationsInput | string
+  appState?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   elementCount?: Prisma.IntFieldUpdateOperationsInput | number
   syncedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -310,7 +306,7 @@ export type CanvasSnapshotUpdateManyMutationInput = {
 export type CanvasSnapshotUncheckedUpdateManyInput = {
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   elements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  viewBackgroundColor?: Prisma.StringFieldUpdateOperationsInput | string
+  appState?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   elementCount?: Prisma.IntFieldUpdateOperationsInput | number
   syncedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -323,7 +319,7 @@ export type CanvasSnapshotNullableScalarRelationFilter = {
 export type CanvasSnapshotCountOrderByAggregateInput = {
   projectId?: Prisma.SortOrder
   elements?: Prisma.SortOrder
-  viewBackgroundColor?: Prisma.SortOrder
+  appState?: Prisma.SortOrder
   elementCount?: Prisma.SortOrder
   syncedAt?: Prisma.SortOrder
 }
@@ -334,14 +330,12 @@ export type CanvasSnapshotAvgOrderByAggregateInput = {
 
 export type CanvasSnapshotMaxOrderByAggregateInput = {
   projectId?: Prisma.SortOrder
-  viewBackgroundColor?: Prisma.SortOrder
   elementCount?: Prisma.SortOrder
   syncedAt?: Prisma.SortOrder
 }
 
 export type CanvasSnapshotMinOrderByAggregateInput = {
   projectId?: Prisma.SortOrder
-  viewBackgroundColor?: Prisma.SortOrder
   elementCount?: Prisma.SortOrder
   syncedAt?: Prisma.SortOrder
 }
@@ -392,14 +386,14 @@ export type IntFieldUpdateOperationsInput = {
 
 export type CanvasSnapshotCreateWithoutProjectInput = {
   elements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  viewBackgroundColor?: string
+  appState?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   elementCount?: number
   syncedAt?: Date | string
 }
 
 export type CanvasSnapshotUncheckedCreateWithoutProjectInput = {
   elements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  viewBackgroundColor?: string
+  appState?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   elementCount?: number
   syncedAt?: Date | string
 }
@@ -422,14 +416,14 @@ export type CanvasSnapshotUpdateToOneWithWhereWithoutProjectInput = {
 
 export type CanvasSnapshotUpdateWithoutProjectInput = {
   elements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  viewBackgroundColor?: Prisma.StringFieldUpdateOperationsInput | string
+  appState?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   elementCount?: Prisma.IntFieldUpdateOperationsInput | number
   syncedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CanvasSnapshotUncheckedUpdateWithoutProjectInput = {
   elements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  viewBackgroundColor?: Prisma.StringFieldUpdateOperationsInput | string
+  appState?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   elementCount?: Prisma.IntFieldUpdateOperationsInput | number
   syncedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -439,7 +433,7 @@ export type CanvasSnapshotUncheckedUpdateWithoutProjectInput = {
 export type CanvasSnapshotSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   projectId?: boolean
   elements?: boolean
-  viewBackgroundColor?: boolean
+  appState?: boolean
   elementCount?: boolean
   syncedAt?: boolean
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
@@ -448,7 +442,7 @@ export type CanvasSnapshotSelect<ExtArgs extends runtime.Types.Extensions.Intern
 export type CanvasSnapshotSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   projectId?: boolean
   elements?: boolean
-  viewBackgroundColor?: boolean
+  appState?: boolean
   elementCount?: boolean
   syncedAt?: boolean
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
@@ -457,7 +451,7 @@ export type CanvasSnapshotSelectCreateManyAndReturn<ExtArgs extends runtime.Type
 export type CanvasSnapshotSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   projectId?: boolean
   elements?: boolean
-  viewBackgroundColor?: boolean
+  appState?: boolean
   elementCount?: boolean
   syncedAt?: boolean
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
@@ -466,12 +460,12 @@ export type CanvasSnapshotSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
 export type CanvasSnapshotSelectScalar = {
   projectId?: boolean
   elements?: boolean
-  viewBackgroundColor?: boolean
+  appState?: boolean
   elementCount?: boolean
   syncedAt?: boolean
 }
 
-export type CanvasSnapshotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"projectId" | "elements" | "viewBackgroundColor" | "elementCount" | "syncedAt", ExtArgs["result"]["canvasSnapshot"]>
+export type CanvasSnapshotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"projectId" | "elements" | "appState" | "elementCount" | "syncedAt", ExtArgs["result"]["canvasSnapshot"]>
 export type CanvasSnapshotInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
 }
@@ -490,7 +484,7 @@ export type $CanvasSnapshotPayload<ExtArgs extends runtime.Types.Extensions.Inte
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     projectId: string
     elements: runtime.JsonValue
-    viewBackgroundColor: string
+    appState: runtime.JsonValue
     elementCount: number
     syncedAt: Date
   }, ExtArgs["result"]["canvasSnapshot"]>
@@ -919,7 +913,7 @@ export interface Prisma__CanvasSnapshotClient<T, Null = never, ExtArgs extends r
 export interface CanvasSnapshotFieldRefs {
   readonly projectId: Prisma.FieldRef<"CanvasSnapshot", 'String'>
   readonly elements: Prisma.FieldRef<"CanvasSnapshot", 'Json'>
-  readonly viewBackgroundColor: Prisma.FieldRef<"CanvasSnapshot", 'String'>
+  readonly appState: Prisma.FieldRef<"CanvasSnapshot", 'Json'>
   readonly elementCount: Prisma.FieldRef<"CanvasSnapshot", 'Int'>
   readonly syncedAt: Prisma.FieldRef<"CanvasSnapshot", 'DateTime'>
 }
