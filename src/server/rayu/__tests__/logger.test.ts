@@ -1,7 +1,7 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { type LogEntry, appendLog } from "../logger";
+import { appendLog, type LogEntry } from "../logger";
 
 vi.mock("node:fs/promises");
 
@@ -35,7 +35,7 @@ describe("logger", () => {
     expect(fs.appendFile).toHaveBeenCalledWith(
       logPath,
       JSON.stringify(mockEntry) + "\n",
-      "utf-8"
+      "utf-8",
     );
   });
 
@@ -52,7 +52,7 @@ describe("logger", () => {
     expect(fs.appendFile).toHaveBeenCalledWith(
       logPath,
       JSON.stringify(mockEntry) + "\n",
-      "utf-8"
+      "utf-8",
     );
   });
 
@@ -68,7 +68,7 @@ describe("logger", () => {
     expect(fs.appendFile).toHaveBeenCalledWith(
       logPath,
       JSON.stringify(mockEntry) + "\n",
-      "utf-8"
+      "utf-8",
     );
   });
 
@@ -78,7 +78,9 @@ describe("logger", () => {
 
     await appendLog(mockEntry, workspaceDir);
 
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("Failed to stat log file"));
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Failed to stat log file"),
+    );
     expect(fs.appendFile).not.toHaveBeenCalled();
 
     consoleSpy.mockRestore();

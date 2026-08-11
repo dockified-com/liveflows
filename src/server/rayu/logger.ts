@@ -28,7 +28,9 @@ export async function appendLog(
     }
   } catch (error: any) {
     if (error.code !== "ENOENT") {
-      console.error(`[Task_Dispatcher] Failed to stat log file: ${error.message}`);
+      console.error(
+        `[Task_Dispatcher] Failed to stat log file: ${error.message}`,
+      );
       return; // Fail-open: don't block execution
     }
   }
@@ -38,7 +40,9 @@ export async function appendLog(
     await fs.mkdir(logDir, { recursive: true });
   } catch (error: any) {
     if (error.code !== "EEXIST") {
-      console.error(`[Task_Dispatcher] Failed to create log directory: ${error.message}`);
+      console.error(
+        `[Task_Dispatcher] Failed to create log directory: ${error.message}`,
+      );
       return;
     }
   }

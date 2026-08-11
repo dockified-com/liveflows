@@ -1,5 +1,6 @@
-import { describe, it, expect, vi } from "vitest";
-import { enqueueTask, _getQueueForTest } from "../queue";
+import { describe, expect, it, vi } from "vitest";
+import { _getQueueForTest, enqueueTask } from "../queue";
+
 describe("enqueueTask", () => {
   it("executes tasks sequentially", async () => {
     const order: number[] = [];
@@ -9,15 +10,15 @@ describe("enqueueTask", () => {
           setTimeout(() => {
             order.push(1);
             resolve();
-          }, 10)
-        )
+          }, 10),
+        ),
     );
     const task2 = vi.fn().mockImplementation(
       () =>
         new Promise<void>((resolve) => {
           order.push(2);
           resolve();
-        })
+        }),
     );
 
     const p1 = enqueueTask("workspace-1", task1);
@@ -36,9 +37,9 @@ describe("enqueueTask", () => {
 
     const p1 = enqueueTask("workspace-error", task1);
     const p1Expect = expect(p1).rejects.toThrow("Task 1 failed");
-    
+
     const p2 = enqueueTask("workspace-error", task2);
-    
+
     await p1Expect;
     await expect(p2).resolves.toBe("Task 2 success");
   });
@@ -50,7 +51,7 @@ describe("enqueueTask", () => {
         setTimeout(() => {
           order.push(num);
           resolve();
-        }, delayMs)
+        }, delayMs),
       );
 
     const p1 = enqueueTask("workspace-concurrent", createTask(1, 15));
@@ -64,17 +65,17 @@ describe("enqueueTask", () => {
 
   it("cleans up the queue map when empty", async () => {
     const taskFn = () => Promise.resolve("done");
-    
+
     expect(_getQueueForTest().size).toBe(0);
-    
+
     const p1 = enqueueTask("workspace-cleanup", taskFn);
     expect(_getQueueForTest().size).toBe(1);
-    
+
     await p1;
-    
+
     // Allow finally block to execute
-    await new Promise(resolve => setTimeout(resolve, 0));
-    
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
     expect(_getQueueForTest().size).toBe(0);
   });
 });

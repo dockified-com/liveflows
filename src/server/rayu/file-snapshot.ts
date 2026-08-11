@@ -7,15 +7,15 @@ export interface FileEntry {
   mtimeMs: number;
 }
 
-const DEFAULT_EXCLUDES = [
-  "node_modules",
-  ".next",
-  ".git"
-];
+const DEFAULT_EXCLUDES = ["node_modules", ".next", ".git"];
 
-function isExcluded(filePath: string, rootDir: string, ignoreRegexes: RegExp[]): boolean {
+function isExcluded(
+  filePath: string,
+  rootDir: string,
+  ignoreRegexes: RegExp[],
+): boolean {
   const relPath = path.relative(rootDir, filePath).split(path.sep).join("/");
-  
+
   const segments = relPath.split("/");
   if (segments.some((seg) => DEFAULT_EXCLUDES.includes(seg))) return true;
 
@@ -30,32 +30,38 @@ function isExcluded(filePath: string, rootDir: string, ignoreRegexes: RegExp[]):
 }
 
 /** Takes a snapshot of file paths + mtimes under workspace (non-recursive gitignore-aware) */
-export async function takeSnapshot(workspaceDir: string): Promise<Map<string, number>> {
+export async function takeSnapshot(
+  workspaceDir: string,
+): Promise<Map<string, number>> {
   const snapshot = new Map<string, number>();
-  let ignoreRegexes: RegExp[] = [];
+  const ignoreRegexes: RegExp[] = [];
 
   try {
-    const gitignoreContent = await fs.readFile(path.join(workspaceDir, ".gitignore"), "utf8");
+    const gitignoreContent = await fs.readFile(
+      path.join(workspaceDir, ".gitignore"),
+      "utf8",
+    );
     const patterns = gitignoreContent.split(/\r?\n/);
-    
+
     for (const pattern of patterns) {
       const trimmed = pattern.trim();
-      if (!trimmed || trimmed.startsWith("#") || trimmed.startsWith("!")) continue;
-      
+      if (!trimmed || trimmed.startsWith("#") || trimmed.startsWith("!"))
+        continue;
+
       const isAnchored = trimmed.startsWith("/");
       const isDirOnly = trimmed.endsWith("/");
       let cleanPattern = trimmed;
       if (isAnchored) cleanPattern = cleanPattern.slice(1);
       if (isDirOnly) cleanPattern = cleanPattern.slice(0, -1);
-      
-      let regexStr = cleanPattern
+
+      const regexStr = cleanPattern
         .replace(/[.+^${}()|[\]\\]/g, "\\$&")
         .replace(/\*/g, ".*")
         .replace(/\?/g, ".");
-        
+
       const prefix = isAnchored ? "^" : "(^|/)";
       const suffix = "(/|$)";
-      
+
       try {
         ignoreRegexes.push(new RegExp(prefix + regexStr + suffix));
       } catch {
@@ -76,7 +82,7 @@ export async function takeSnapshot(workspaceDir: string): Promise<Map<string, nu
 
     for (const entry of entries) {
       const fullPath = path.join(dir, entry.name);
-      
+
       if (isExcluded(fullPath, workspaceDir, ignoreRegexes)) {
         continue;
       }
@@ -86,7 +92,10 @@ export async function takeSnapshot(workspaceDir: string): Promise<Map<string, nu
       } else if (entry.isFile()) {
         try {
           const stats = await fs.stat(fullPath);
-          const relPath = path.relative(workspaceDir, fullPath).split(path.sep).join("/");
+          const relPath = path
+            .relative(workspaceDir, fullPath)
+            .split(path.sep)
+            .join("/");
           snapshot.set(relPath, stats.mtimeMs);
         } catch {
           // File might have been deleted, ignore
@@ -102,7 +111,7 @@ export async function takeSnapshot(workspaceDir: string): Promise<Map<string, nu
 /** Compares before/after snapshots to determine created and modified files */
 export function diffSnapshots(
   before: Map<string, number>,
-  after: Map<string, number>
+  after: Map<string, number>,
 ): FileChange[] {
   const changes: FileChange[] = [];
 
@@ -122,7 +131,7 @@ export function diffSnapshots(
 /** Checks which changed files are outside the permitted list */
 export function findUnauthorized(
   changes: FileChange[],
-  permitted: string[]
+  permitted: string[],
 ): string[] {
   const permittedSet = new Set(permitted);
   const unauthorized = new Set<string>();

@@ -1,9 +1,13 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import * as fc from "fast-check";
 import * as fs from "node:fs/promises";
-import * as path from "node:path";
 import * as os from "node:os";
-import { takeSnapshot, diffSnapshots, findUnauthorized } from "../file-snapshot";
+import * as path from "node:path";
+import * as fc from "fast-check";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import {
+  diffSnapshots,
+  findUnauthorized,
+  takeSnapshot,
+} from "../file-snapshot";
 import type { FileChange } from "../types";
 
 describe("File Snapshot Module", () => {
@@ -20,14 +24,18 @@ describe("File Snapshot Module", () => {
             const changes = diffSnapshots(before, after);
 
             // Verify "created"
-            const created = changes.filter((c) => c.type === "created").map((c) => c.path);
+            const created = changes
+              .filter((c) => c.type === "created")
+              .map((c) => c.path);
             for (const path of created) {
               expect(after.has(path)).toBe(true);
               expect(before.has(path)).toBe(false);
             }
 
             // Verify "modified"
-            const modified = changes.filter((c) => c.type === "modified").map((c) => c.path);
+            const modified = changes
+              .filter((c) => c.type === "modified")
+              .map((c) => c.path);
             for (const path of modified) {
               expect(after.has(path)).toBe(true);
               expect(before.has(path)).toBe(true);
@@ -47,9 +55,9 @@ describe("File Snapshot Module", () => {
             for (const change of changes) {
               expect(after.has(change.path)).toBe(true);
             }
-          }
+          },
         ),
-        { numRuns: 100 }
+        { numRuns: 100 },
       );
     });
 
@@ -80,8 +88,10 @@ describe("File Snapshot Module", () => {
           fc.array(
             fc.record({
               path: fc.string(),
-              type: fc.constantFrom("created", "modified") as fc.Arbitrary<"created" | "modified">,
-            })
+              type: fc.constantFrom("created", "modified") as fc.Arbitrary<
+                "created" | "modified"
+              >,
+            }),
           ),
           fc.array(fc.string()),
           (changesArr, permittedArr) => {
@@ -92,14 +102,14 @@ describe("File Snapshot Module", () => {
 
             const permittedSet = new Set(permitted);
             const expectedUnauthorized = new Set(
-              changes.map((c) => c.path).filter((p) => !permittedSet.has(p))
+              changes.map((c) => c.path).filter((p) => !permittedSet.has(p)),
             );
 
             expect(new Set(unauthorized)).toEqual(expectedUnauthorized);
             expect(unauthorized.length).toBe(expectedUnauthorized.size); // no duplicates
-          }
+          },
         ),
-        { numRuns: 100 }
+        { numRuns: 100 },
       );
     });
 
@@ -139,7 +149,7 @@ describe("File Snapshot Module", () => {
       await fs.writeFile(path.join(tempDir, ".git/config"), "");
 
       const snapshot = await takeSnapshot(tempDir);
-      
+
       expect(snapshot.has("src/index.ts")).toBe(true);
       expect(snapshot.has("package.json")).toBe(true);
       expect(snapshot.has("node_modules/dep.js")).toBe(false);
@@ -147,15 +157,18 @@ describe("File Snapshot Module", () => {
     });
 
     it("should exclude files matching .gitignore patterns", async () => {
-      await fs.writeFile(path.join(tempDir, ".gitignore"), "ignored.txt\nbuild/");
+      await fs.writeFile(
+        path.join(tempDir, ".gitignore"),
+        "ignored.txt\nbuild/",
+      );
       await fs.writeFile(path.join(tempDir, "file.txt"), "");
       await fs.writeFile(path.join(tempDir, "ignored.txt"), "");
-      
+
       await fs.mkdir(path.join(tempDir, "build"));
       await fs.writeFile(path.join(tempDir, "build/out.js"), "");
 
       const snapshot = await takeSnapshot(tempDir);
-      
+
       expect(snapshot.has("file.txt")).toBe(true);
       expect(snapshot.has(".gitignore")).toBe(true);
       expect(snapshot.has("ignored.txt")).toBe(false);
@@ -168,25 +181,28 @@ describe("File Snapshot Module", () => {
       await fs.writeFile(path.join(tempDir, "foo/node_modules/file.js"), "");
 
       const snapshot = await takeSnapshot(tempDir);
-      
+
       expect(snapshot.has("foo/node_modules/file.js")).toBe(false);
     });
 
     it("should handle leading slash patterns correctly", async () => {
-      await fs.writeFile(path.join(tempDir, ".gitignore"), "/dist/\n/file.txt\n!/not_ignored.txt");
+      await fs.writeFile(
+        path.join(tempDir, ".gitignore"),
+        "/dist/\n/file.txt\n!/not_ignored.txt",
+      );
       await fs.writeFile(path.join(tempDir, "file.txt"), ""); // ignored
       await fs.writeFile(path.join(tempDir, "not_ignored.txt"), ""); // not ignored because of !
-      
+
       await fs.mkdir(path.join(tempDir, "dist"));
       await fs.writeFile(path.join(tempDir, "dist/out.js"), ""); // ignored
-      
+
       await fs.mkdir(path.join(tempDir, "foo"));
       await fs.writeFile(path.join(tempDir, "foo/file.txt"), ""); // NOT ignored (pattern is /file.txt)
       await fs.mkdir(path.join(tempDir, "foo/dist"));
       await fs.writeFile(path.join(tempDir, "foo/dist/out.js"), ""); // NOT ignored (pattern is /dist/)
 
       const snapshot = await takeSnapshot(tempDir);
-      
+
       expect(snapshot.has("file.txt")).toBe(false);
       expect(snapshot.has("dist/out.js")).toBe(false);
       expect(snapshot.has("not_ignored.txt")).toBe(true);

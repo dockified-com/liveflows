@@ -2,7 +2,7 @@ const activeTasks = new Map<string, Promise<any>>();
 
 export function enqueueTask<T>(
   workspaceId: string,
-  taskFn: () => Promise<T>
+  taskFn: () => Promise<T>,
 ): Promise<T> {
   const previousTask = activeTasks.get(workspaceId) ?? Promise.resolve();
 
@@ -12,12 +12,14 @@ export function enqueueTask<T>(
 
   activeTasks.set(workspaceId, nextTask);
 
-  nextTask.finally(() => {
-    // Clean up if we are the last task in the queue for this workspace
-    if (activeTasks.get(workspaceId) === nextTask) {
-      activeTasks.delete(workspaceId);
-    }
-  }).catch(() => {});
+  nextTask
+    .finally(() => {
+      // Clean up if we are the last task in the queue for this workspace
+      if (activeTasks.get(workspaceId) === nextTask) {
+        activeTasks.delete(workspaceId);
+      }
+    })
+    .catch(() => {});
 
   return nextTask;
 }

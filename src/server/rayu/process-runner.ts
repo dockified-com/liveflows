@@ -1,5 +1,5 @@
-import { spawn } from 'child_process';
-import type { ChildProcess } from 'child_process';
+import type { ChildProcess } from "child_process";
+import { spawn } from "child_process";
 
 export interface RunOptions {
   binaryPath: string;
@@ -21,16 +21,21 @@ export interface RunResult {
   unkillable: boolean;
 }
 
-export function truncateOutput(content: Buffer, maxBytes: number): { text: string, truncated: boolean } {
+export function truncateOutput(
+  content: Buffer,
+  maxBytes: number,
+): { text: string; truncated: boolean } {
   if (content.length <= maxBytes) {
-    return { text: content.toString('utf8'), truncated: false };
+    return { text: content.toString("utf8"), truncated: false };
   }
   const marker = `[TRUNCATED] Original size: ${content.length} bytes\n`;
   const keptBytes = content.subarray(content.length - maxBytes);
-  return { text: marker + keptBytes.toString('utf8'), truncated: true };
+  return { text: marker + keptBytes.toString("utf8"), truncated: true };
 }
 
-export function classifyFailure(exitCode: number): "retriable" | "non-retriable" | null {
+export function classifyFailure(
+  exitCode: number,
+): "retriable" | "non-retriable" | null {
   if (exitCode === 0) return null;
   if (exitCode === 126 || exitCode === 127) return "non-retriable";
   return "retriable";
@@ -41,7 +46,7 @@ export class DispatchError extends Error {
   constructor(code: string, message: string) {
     super(message);
     this.code = code;
-    this.name = 'DispatchError';
+    this.name = "DispatchError";
   }
 }
 
@@ -51,7 +56,7 @@ export function runProcess(options: RunOptions): Promise<RunResult> {
     let durationMs = 0;
     const stdoutChunks: Buffer[] = [];
     const stderrChunks: Buffer[] = [];
-    
+
     let timedOut = false;
     let unkillable = false;
     let resolved = false;
@@ -61,8 +66,10 @@ export function runProcess(options: RunOptions): Promise<RunResult> {
     const startupTimeoutTimer = setTimeout(() => {
       if (!resolved) {
         resolved = true;
-        if (child) child.kill('SIGKILL');
-        reject(new DispatchError('STARTUP_TIMEOUT', 'Process startup timed out'));
+        if (child) child.kill("SIGKILL");
+        reject(
+          new DispatchError("STARTUP_TIMEOUT", "Process startup timed out"),
+        );
       }
     }, 10000);
 
@@ -70,12 +77,14 @@ export function runProcess(options: RunOptions): Promise<RunResult> {
       child = spawn(options.binaryPath, options.cliFlags, {
         cwd: options.workingDir,
         env: options.env,
-        stdio: ['pipe', 'pipe', 'pipe']
+        stdio: ["pipe", "pipe", "pipe"],
       });
     } catch (e: any) {
       clearTimeout(startupTimeoutTimer);
       resolved = true;
-      reject(new DispatchError('BINARY_NOT_FOUND', `Failed to spawn: ${e.message}`));
+      reject(
+        new DispatchError("BINARY_NOT_FOUND", `Failed to spawn: ${e.message}`),
+      );
       return;
     }
 
@@ -90,32 +99,42 @@ export function runProcess(options: RunOptions): Promise<RunResult> {
       clearTimeout(unkillableTimer);
     };
 
-    child.on('spawn', () => {
+    child.on("spawn", () => {
       clearTimeout(startupTimeoutTimer);
-      
+
       timeoutTimer = setTimeout(() => {
         timedOut = true;
-        child.kill('SIGTERM');
-        
+        child.kill("SIGTERM");
+
         sigkillTimer = setTimeout(() => {
-          child.kill('SIGKILL');
-          
+          child.kill("SIGKILL");
+
           unkillableTimer = setTimeout(() => {
             unkillable = true;
             if (!resolved) {
               resolved = true;
-              reject(new DispatchError('PROCESS_UNKILLABLE', 'Process could not be killed'));
+              reject(
+                new DispatchError(
+                  "PROCESS_UNKILLABLE",
+                  "Process could not be killed",
+                ),
+              );
             }
           }, 5000);
         }, 5000);
       }, options.timeoutMs);
 
-      child!.stdin?.on('error', (e: any) => {
+      child!.stdin?.on("error", (e: any) => {
         cleanupTimers();
         if (!resolved) {
           resolved = true;
-          child!.kill('SIGKILL');
-          reject(new DispatchError('STDIN_WRITE_FAILED', `Failed to write stdin: ${e.message}`));
+          child!.kill("SIGKILL");
+          reject(
+            new DispatchError(
+              "STDIN_WRITE_FAILED",
+              `Failed to write stdin: ${e.message}`,
+            ),
+          );
         }
       });
 
@@ -128,20 +147,30 @@ export function runProcess(options: RunOptions): Promise<RunResult> {
         cleanupTimers();
         if (!resolved) {
           resolved = true;
-          child!.kill('SIGKILL');
-          reject(new DispatchError('STDIN_WRITE_FAILED', `Failed to write stdin: ${e.message}`));
+          child!.kill("SIGKILL");
+          reject(
+            new DispatchError(
+              "STDIN_WRITE_FAILED",
+              `Failed to write stdin: ${e.message}`,
+            ),
+          );
         }
       }
     });
 
-    child.on('error', (err: any) => {
+    child.on("error", (err: any) => {
       cleanupTimers();
       if (!resolved) {
         resolved = true;
-        if (err.code === 'ENOENT') {
-          reject(new DispatchError('BINARY_NOT_FOUND', `Binary not found: ${options.binaryPath}`));
+        if (err.code === "ENOENT") {
+          reject(
+            new DispatchError(
+              "BINARY_NOT_FOUND",
+              `Binary not found: ${options.binaryPath}`,
+            ),
+          );
         } else {
-          reject(new DispatchError('SPAWN_ERROR', err.message));
+          reject(new DispatchError("SPAWN_ERROR", err.message));
         }
       }
     });
@@ -149,32 +178,38 @@ export function runProcess(options: RunOptions): Promise<RunResult> {
     let stdoutSize = 0;
     let stderrSize = 0;
     const threshold = 16384;
-    child!.stdout?.on('data', (chunk) => {
+    child!.stdout?.on("data", (chunk) => {
       stdoutChunks.push(chunk);
       stdoutSize += chunk.length;
-      while (stdoutSize - stdoutChunks[0].length >= options.maxOutputBytes + threshold) {
+      while (
+        stdoutSize - stdoutChunks[0].length >=
+        options.maxOutputBytes + threshold
+      ) {
         stdoutSize -= stdoutChunks[0].length;
         stdoutChunks.shift();
       }
     });
 
-    child!.stderr?.on('data', (chunk) => {
+    child!.stderr?.on("data", (chunk) => {
       stderrChunks.push(chunk);
       stderrSize += chunk.length;
-      while (stderrSize - stderrChunks[0].length >= options.maxOutputBytes + threshold) {
+      while (
+        stderrSize - stderrChunks[0].length >=
+        options.maxOutputBytes + threshold
+      ) {
         stderrSize -= stderrChunks[0].length;
         stderrChunks.shift();
       }
     });
 
-    child!.on('close', (code, signal) => {
+    child!.on("close", (code, signal) => {
       cleanupTimers();
       if (resolved) return;
       resolved = true;
       durationMs = Date.now() - startTime;
-      
+
       let exitCode = code ?? (signal ? -1 : 0);
-      if (signal === 'SIGTERM' || signal === 'SIGKILL') {
+      if (signal === "SIGTERM" || signal === "SIGKILL") {
         exitCode = -1;
       }
 
@@ -191,10 +226,10 @@ export function runProcess(options: RunOptions): Promise<RunResult> {
         durationMs,
         truncated: {
           stdout: out.truncated,
-          stderr: err.truncated
+          stderr: err.truncated,
         },
         timedOut,
-        unkillable
+        unkillable,
       });
     });
   });
