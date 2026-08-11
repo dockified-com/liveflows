@@ -7,28 +7,41 @@ export async function createFileAction(
   workspaceSlug: string,
   projectId: string,
   folderId: string | null,
+  prevState: { error?: string } | null,
   formData: FormData,
 ) {
   const name = formData.get("name");
   const type = formData.get("type");
   
-  if (typeof name !== "string" || !name) return;
-  if (type !== "canvas" && type !== "document") return;
+  if (typeof name !== "string" || !name) return { error: "Name is required" };
+  if (type !== "canvas" && type !== "document") return { error: "Invalid file type" };
 
-  await createFile(workspaceSlug, projectId, folderId, name, type);
-  revalidatePath(`/w/${workspaceSlug}/p/${projectId}`);
+  try {
+    await createFile(workspaceSlug, projectId, folderId, name, type);
+    revalidatePath(`/w/${workspaceSlug}/p/${projectId}`);
+    return { error: undefined }; // success
+  } catch (error: any) {
+    return { error: error.message || "Failed to create file" };
+  }
 }
 
 export async function createFolderAction(
   workspaceSlug: string,
   projectId: string,
   parentId: string | null,
+  prevState: { error?: string } | null,
   formData: FormData,
 ) {
   const name = formData.get("name");
   
-  if (typeof name !== "string" || !name) return;
+  if (typeof name !== "string" || !name) return { error: "Name is required" };
 
-  await createFolder(workspaceSlug, projectId, parentId, name);
-  revalidatePath(`/w/${workspaceSlug}/p/${projectId}`);
+  try {
+    await createFolder(workspaceSlug, projectId, parentId, name);
+    revalidatePath(`/w/${workspaceSlug}/p/${projectId}`);
+    return { error: undefined }; // success
+  } catch (error: any) {
+    return { error: error.message || "Failed to create folder" };
+  }
 }
+

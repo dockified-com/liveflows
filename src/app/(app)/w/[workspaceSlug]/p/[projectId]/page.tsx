@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getProject, listProjectContents } from "@/server/dal";
-import { createFileAction, createFolderAction } from "./actions";
+import { CreateFileForm, CreateFolderForm } from "./create-forms";
 
 export default async function ProjectPage({
   params,
@@ -62,50 +62,20 @@ export default async function ProjectPage({
         <section className="space-y-6">
           <div className="p-4 border rounded bg-gray-50">
             <h3 className="font-medium mb-2">Create File</h3>
-            <form
-              action={createFileAction.bind(null, workspaceSlug, projectId, null)}
-              className="flex flex-col gap-3"
-            >
-              <input
-                name="name"
-                type="text"
-                required
-                placeholder="File name"
-                className="rounded border px-3 py-2"
-              />
-              <select name="type" className="rounded border px-3 py-2">
-                <option value="canvas">Canvas</option>
-                <option value="document">Document</option>
-              </select>
-              <button
-                type="submit"
-                className="bg-blue-600 text-white rounded px-4 py-2 hover:bg-blue-700"
-              >
-                Create File
-              </button>
-            </form>
+            <CreateFileForm 
+              workspaceSlug={workspaceSlug}
+              projectId={projectId}
+              folderId={null}
+            />
           </div>
 
           <div className="p-4 border rounded bg-gray-50">
             <h3 className="font-medium mb-2">Create Folder</h3>
-            <form
-              action={createFolderAction.bind(null, workspaceSlug, projectId, null)}
-              className="flex flex-col gap-3"
-            >
-              <input
-                name="name"
-                type="text"
-                required
-                placeholder="Folder name"
-                className="rounded border px-3 py-2"
-              />
-              <button
-                type="submit"
-                className="bg-blue-600 text-white rounded px-4 py-2 hover:bg-blue-700"
-              >
-                Create Folder
-              </button>
-            </form>
+            <CreateFolderForm
+              workspaceSlug={workspaceSlug}
+              projectId={projectId}
+              parentId={null}
+            />
           </div>
         </section>
       </div>
