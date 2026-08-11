@@ -4,8 +4,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // --- Mock functions must be created via vi.hoisted() so they are available
 // inside the hoisted vi.mock factories. ---
 
-const { _status } = vi.hoisted(() => ({
+const { _status, _storageElements } = vi.hoisted(() => ({
   _status: { value: "connected" as string },
+  _storageElements: { value: [] as unknown[] },
 }));
 
 vi.mock("@liveblocks/client", () => {
@@ -22,7 +23,20 @@ vi.mock("@liveblocks/react", () => ({
   createRoomContext: vi.fn(() => ({
     RoomProvider: ({ children }: { children: React.ReactNode }) => children,
     useMutation: vi.fn(() => vi.fn()),
-    useStorage: vi.fn(() => []),
+    useStorage: vi.fn((selector: (root: unknown) => unknown) => {
+      if (typeof selector === "function") {
+        return selector({
+          elements: {
+            entries: () =>
+              _storageElements.value.map((el, i) => [
+                String(i),
+                { toImmutable: () => el },
+              ]),
+          },
+        });
+      }
+      return _storageElements.value;
+    }),
     useOthers: vi.fn(() => []),
     useStatus: vi.fn(() => _status.value),
   })),
@@ -47,6 +61,7 @@ describe("CanvasRoom fallback", () => {
   beforeEach(() => {
     cleanup();
     _status.value = "connected";
+    _storageElements.value = [];
   });
 
   it("renders the outage banner when status is disconnected", () => {
@@ -87,5 +102,41 @@ describe("CanvasRoom fallback", () => {
     );
     const excalidraw = container.querySelector('[data-testid="excalidraw"]');
     expect(excalidraw).toHaveAttribute("data-view-mode", "false");
+  });
+
+  it("does not render storage warning when elementCount <= 3000", () => {
+    _storageElements.value = new Array(3000).fill({ id: "1" });
+    const { container } = render(
+      <CanvasRoom roomId="test-room" fallbackElements={[]} />,
+    );
+    expect(
+      container.querySelector('[data-testid="storage-warning"]'),
+    ).not.toBeInTheDocument();
+  });
+
+  it("renders storage warning when elementCount > 3000", () => {
+    _storageElements.value = new Array(3001).fill({ id: "1" });
+    const { container } = render(
+      <CanvasRoom roomId="test-room" fallbackElements={[]} />,
+    );
+    const warning = container.querySelector('[data-testid="storage-warning"]');
+    expect(warning).toBeInTheDocument();
+    expect(warning).toHaveAttribute("data-severity", "warning");
+    expect(warning).toHaveTextContent(
+      "Warning: Canvas is getting large. Consider starting a new project soon.",
+    );
+  });
+
+  it("renders critical storage warning when elementCount > 5000", () => {
+    _storageElements.value = new Array(5001).fill({ id: "1" });
+    const { container } = render(
+      <CanvasRoom roomId="test-room" fallbackElements={[]} />,
+    );
+    const warning = container.querySelector('[data-testid="storage-warning"]');
+    expect(warning).toBeInTheDocument();
+    expect(warning).toHaveAttribute("data-severity", "critical");
+    expect(warning).toHaveTextContent(
+      "Warning: Canvas is getting large. Consider starting a new project soon.",
+    );
   });
 });

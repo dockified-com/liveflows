@@ -6,6 +6,7 @@ import { createClient, LiveMap, LiveObject } from "@liveblocks/client";
 import { createRoomContext } from "@liveblocks/react";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useUiStore } from "@/stores/ui";
 import { collectLocalChanges, mergeIncoming } from "./element-sync";
 
 // --- Liveblocks client & room context ---
@@ -55,6 +56,7 @@ function Canvas({
   const pending = useRef<ExcalidrawElement[] | null>(null);
   const status = useStatus();
   const others = useOthers();
+  const setElementCount = useUiStore((s) => s.setElementCount);
 
   // Read elements from Liveblocks storage as a plain array snapshot
   // biome-ignore lint/suspicious/noExplicitAny: Liveblocks loose storage typing
@@ -67,6 +69,12 @@ function Canvas({
     }
     return result;
   });
+
+  const elementCount = remoteElements?.length ?? fallbackElements?.length ?? 0;
+
+  useEffect(() => {
+    setElementCount(elementCount);
+  }, [elementCount, setElementCount]);
 
   // Push local changes into Liveblocks storage
   // biome-ignore lint/suspicious/noExplicitAny: Liveblocks loose storage typing
@@ -195,9 +203,45 @@ function Canvas({
           background: "#fff",
           padding: "2px 6px",
           fontSize: 12,
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
         }}
       >
-        <span data-testid="status">{status}</span> · others: {others.length}
+        <span>
+          <span data-testid="status">{status}</span> · others: {others.length}
+        </span>
+        {elementCount > 5000 ? (
+          <span
+            data-testid="storage-warning"
+            data-severity="critical"
+            style={{
+              color: "#b91c1c",
+              fontWeight: 600,
+              background: "#fee2e2",
+              padding: "1px 6px",
+              borderRadius: 4,
+            }}
+          >
+            Warning: Canvas is getting large. Consider starting a new project
+            soon.
+          </span>
+        ) : elementCount > 3000 ? (
+          <span
+            data-testid="storage-warning"
+            data-severity="warning"
+            style={{
+              color: "#b45309",
+              fontWeight: 500,
+              background: "#fef3c7",
+              padding: "1px 6px",
+              borderRadius: 4,
+            }}
+          >
+            Warning: Canvas is getting large. Consider starting a new project
+            soon.
+          </span>
+        ) : null}
       </div>
       {status === "disconnected" && (
         <div
