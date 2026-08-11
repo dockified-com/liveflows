@@ -38,6 +38,11 @@ export async function dispatchTask(options: DispatchOptions): Promise<DispatchRe
       const config = configRes.config;
 
       // 3. Build Instruction text
+      const validation = validateInstruction(options.instruction);
+      if (!validation.valid) {
+        return { ok: false, error: { code: 'CONFIG_INVALID', message: validation.error! } };
+      }
+
       // Read AGENTS.md if present
       let agentsMdContent: string | null = null;
       try {
@@ -60,11 +65,6 @@ export async function dispatchTask(options: DispatchOptions): Promise<DispatchRe
       let directoryTree: string | null = null;
       if (isCreationTask(options.instruction.description)) {
         directoryTree = await buildDirectoryTree(options.workspaceDir, 0);
-      }
-
-      const validation = validateInstruction(options.instruction);
-      if (!validation.valid) {
-        return { ok: false, error: { code: 'CONFIG_INVALID', message: validation.error! } };
       }
 
       const stdinContent = buildInstructionText({
