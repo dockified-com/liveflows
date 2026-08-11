@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { dispatchTask } from '../index';
 import * as configModule from '../config';
+import * as instructionBuilderModule from '../instruction-builder';
 import * as fileSnapshotModule from '../file-snapshot';
 import * as gitStateModule from '../git-state';
 import * as processRunnerModule from '../process-runner';
@@ -10,15 +11,24 @@ import fs from 'fs/promises';
 
 vi.mock('fs/promises');
 vi.mock('../config');
+
 vi.mock('../file-snapshot');
 vi.mock('../git-state');
-vi.mock('../process-runner');
+vi.mock('../process-runner', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual as any,
+    runProcess: vi.fn(),
+    classifyFailure: vi.fn(),
+  };
+});
 vi.mock('../logger');
 
 describe('dispatchTask', () => {
   beforeEach(() => {
     vi.resetAllMocks();
 
+    vi.spyOn(fs, 'stat').mockResolvedValue({ isDirectory: () => true } as any);
     vi.spyOn(fs, 'readFile').mockImplementation(async (filePath: any) => {
       if (filePath.endsWith('package.json')) {
         return JSON.stringify({ name: 'liveflows' });
@@ -153,6 +163,51 @@ describe('dispatchTask', () => {
       expect(result.result.exitCode).toBe(-1);
       expect(result.result.failureClass).toBe('retriable');
       expect(loggerModule.appendLog).toHaveBeenCalled();
+    }
+  });
+
+  it('fails if non-git workspace directory', async () => {
+    vi.spyOn(fs, 'stat').mockRejectedValue(new Error('ENOENT'));
+
+    const result = await dispatchTask({
+      workspaceDir: '/work',
+      instruction: validInstruction
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('WORKSPACE_INVALID');
+      expect(result.error.message).toContain('valid git repository');
+    }
+  });
+
+  it('fails if instruction is invalid', async () => {
+    const invalidInstruction = { ...validInstruction, description: '' };
+    const result = await dispatchTask({
+      workspaceDir: '/work',
+      instruction: invalidInstruction
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('CONFIG_INVALID');
+      expect(result.error.message).toContain('Missing or empty mandatory field');
+    }
+  });
+
+  it('returns DispatchError if process runner throws it', async () => {
+    vi.spyOn(processRunnerModule, 'runProcess').mockRejectedValue(
+      new DispatchError('BINARY_NOT_FOUND', 'Binary missing')
+    );
+
+    const result = await dispatchTask({
+      workspaceDir: '/work',
+      instruction: validInstruction
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error.code).toBe('BINARY_NOT_FOUND');
     }
   });
 });

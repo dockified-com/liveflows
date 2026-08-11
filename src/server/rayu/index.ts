@@ -9,7 +9,6 @@ import { runProcess, classifyFailure, DispatchError } from './process-runner';
 import { appendLog } from './logger';
 import type { DispatchOptions, DispatchResult, TaskResult } from './types';
 
-export { enqueueTask } from './queue';
 
 export async function dispatchTask(options: DispatchOptions): Promise<DispatchResult> {
   return enqueueTask(options.workspaceDir, async (): Promise<DispatchResult> => {
@@ -20,6 +19,12 @@ export async function dispatchTask(options: DispatchOptions): Promise<DispatchRe
         const pkg = JSON.parse(pkgStr);
         if (pkg.name !== 'liveflows') {
           return { ok: false, error: { code: 'WORKSPACE_INVALID', message: 'Workspace package.json name must be liveflows' } };
+        }
+        try {
+          const gitStat = await fs.stat(path.join(options.workspaceDir, '.git'));
+          if (!gitStat.isDirectory()) throw new Error();
+        } catch {
+          return { ok: false, error: { code: 'WORKSPACE_INVALID', message: 'Workspace is not a valid git repository' } };
         }
       } catch (e: any) {
         return { ok: false, error: { code: 'WORKSPACE_INVALID', message: 'Workspace invalid: ' + e.message } };
@@ -54,9 +59,7 @@ export async function dispatchTask(options: DispatchOptions): Promise<DispatchRe
 
       let directoryTree: string | null = null;
       if (isCreationTask(options.instruction.description)) {
-        // Not requested to implement full directory tree logic per exact design spec? The spec says 2-level deep tree.
-        // For simplicity, we just provide a basic one or null if not strictly specified how.
-        directoryTree = "src\n  server\n  components\n"; // Fake or skip for now unless required. Let's keep null.
+        directoryTree = await buildDirectoryTree(options.workspaceDir, 0);
       }
 
       const validation = validateInstruction(options.instruction);
@@ -136,7 +139,7 @@ export async function dispatchTask(options: DispatchOptions): Promise<DispatchRe
         unauthorizedChanges,
         gitInfo: preGitState ? {
           preHeadHash: preGitState.hash,
-          preWorkingTree: [], // Parse status if needed
+          preWorkingTree: parseGitStatus(preGitState.status),
           diff,
           dirtyWarning: preGitState.status ? 'Working tree was dirty' : null
         } : null,
@@ -146,7 +149,45 @@ export async function dispatchTask(options: DispatchOptions): Promise<DispatchRe
       return { ok: true, result: taskResult };
 
     } catch (error: any) {
-      return { ok: false, error: { code: 'CONFIG_INVALID', message: error.message } };
+      if (error instanceof DispatchError) {
+         return { ok: false, error: { code: error.code as any, message: error.message } };
+      }
+      return { ok: false, error: { code: 'WORKSPACE_INVALID', message: error.message || 'Unknown error' } };
     }
   });
+}
+
+async function buildDirectoryTree(dir: string, depth = 0): Promise<string> {
+  if (depth > 1) return '';
+  let result = '';
+  try {
+    const entries = await fs.readdir(dir, { withFileTypes: true });
+    const ignored = new Set(['node_modules', '.git', '.next']);
+    for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+      if (ignored.has(entry.name)) continue;
+      const indent = '  '.repeat(depth);
+      result += `${indent}${entry.name}\n`;
+      if (entry.isDirectory()) {
+        result += await buildDirectoryTree(path.join(dir, entry.name), depth + 1);
+      }
+    }
+  } catch (e) {}
+  return result;
+}
+
+function parseGitStatus(statusStr: string | null) {
+  if (!statusStr) return [];
+  const lines = statusStr.trim().split('\n');
+  const result: any[] = [];
+  for (const line of lines) {
+    if (!line) continue;
+    const code = line.substring(0, 2);
+    const file = line.substring(3).trim();
+    let status = 'modified';
+    if (code === '??') status = 'untracked';
+    else if (code.includes('A')) status = 'added';
+    else if (code.includes('D')) status = 'deleted';
+    result.push({ path: file, status });
+  }
+  return result;
 }
