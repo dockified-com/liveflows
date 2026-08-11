@@ -13,42 +13,16 @@ const DEFAULT_EXCLUDES = [
   ".git"
 ];
 
-function isExcluded(filePath: string, rootDir: string, ignorePatterns: string[]): boolean {
+function isExcluded(filePath: string, rootDir: string, ignoreRegexes: RegExp[]): boolean {
   const relPath = path.relative(rootDir, filePath).split(path.sep).join("/");
   
-  for (const exclude of DEFAULT_EXCLUDES) {
-    if (relPath === exclude || relPath.startsWith(`${exclude}/`)) {
-      return true;
-    }
-  }
+  const segments = relPath.split("/");
+  if (segments.some((seg) => DEFAULT_EXCLUDES.includes(seg))) return true;
 
   // Basic .gitignore matching (simplified for this task since we can't use `ignore` package)
-  for (const pattern of ignorePatterns) {
-    if (!pattern || pattern.startsWith("#")) continue;
-    
-    let regexPattern = pattern
-      .replace(/[.+^${}()|[\]\\]/g, "\\$&")
-      .replace(/\*/g, ".*")
-      .replace(/\?/g, ".");
-      
-    // If pattern ends with /, we want to match directory and its contents
-    if (regexPattern.endsWith("/")) {
-      regexPattern = regexPattern.slice(0, -1); // remove /
-      regexPattern = "(^|/)" + regexPattern + "(/|$)";
-    } else {
-      if (pattern.startsWith("/")) {
-        regexPattern = "^" + regexPattern.substring(1); // remove /
-      } else {
-        regexPattern = "(^|/)" + regexPattern + "(/|$)";
-      }
-    }
-
-    try {
-      if (new RegExp(regexPattern).test(relPath)) {
-        return true;
-      }
-    } catch {
-      // Ignore invalid regex patterns
+  for (const regex of ignoreRegexes) {
+    if (regex.test(relPath)) {
+      return true;
     }
   }
 
@@ -58,11 +32,36 @@ function isExcluded(filePath: string, rootDir: string, ignorePatterns: string[])
 /** Takes a snapshot of file paths + mtimes under workspace (non-recursive gitignore-aware) */
 export async function takeSnapshot(workspaceDir: string): Promise<Map<string, number>> {
   const snapshot = new Map<string, number>();
-  let ignorePatterns: string[] = [];
+  let ignoreRegexes: RegExp[] = [];
 
   try {
     const gitignoreContent = await fs.readFile(path.join(workspaceDir, ".gitignore"), "utf8");
-    ignorePatterns = gitignoreContent.split(/\r?\n/);
+    const patterns = gitignoreContent.split(/\r?\n/);
+    
+    for (const pattern of patterns) {
+      const trimmed = pattern.trim();
+      if (!trimmed || trimmed.startsWith("#") || trimmed.startsWith("!")) continue;
+      
+      const isAnchored = trimmed.startsWith("/");
+      const isDirOnly = trimmed.endsWith("/");
+      let cleanPattern = trimmed;
+      if (isAnchored) cleanPattern = cleanPattern.slice(1);
+      if (isDirOnly) cleanPattern = cleanPattern.slice(0, -1);
+      
+      let regexStr = cleanPattern
+        .replace(/[.+^${}()|[\]\\]/g, "\\$&")
+        .replace(/\*/g, ".*")
+        .replace(/\?/g, ".");
+        
+      const prefix = isAnchored ? "^" : "(^|/)";
+      const suffix = "(/|$)";
+      
+      try {
+        ignoreRegexes.push(new RegExp(prefix + regexStr + suffix));
+      } catch {
+        // Ignore invalid regex patterns
+      }
+    }
   } catch {
     // No .gitignore, that's fine
   }
@@ -78,7 +77,7 @@ export async function takeSnapshot(workspaceDir: string): Promise<Map<string, nu
     for (const entry of entries) {
       const fullPath = path.join(dir, entry.name);
       
-      if (isExcluded(fullPath, workspaceDir, ignorePatterns)) {
+      if (isExcluded(fullPath, workspaceDir, ignoreRegexes)) {
         continue;
       }
 

@@ -161,5 +161,37 @@ describe("File Snapshot Module", () => {
       expect(snapshot.has("ignored.txt")).toBe(false);
       expect(snapshot.has("build/out.js")).toBe(false);
     });
+
+    it("should exclude nested default directories", async () => {
+      await fs.mkdir(path.join(tempDir, "foo"));
+      await fs.mkdir(path.join(tempDir, "foo/node_modules"));
+      await fs.writeFile(path.join(tempDir, "foo/node_modules/file.js"), "");
+
+      const snapshot = await takeSnapshot(tempDir);
+      
+      expect(snapshot.has("foo/node_modules/file.js")).toBe(false);
+    });
+
+    it("should handle leading slash patterns correctly", async () => {
+      await fs.writeFile(path.join(tempDir, ".gitignore"), "/dist/\n/file.txt\n!/not_ignored.txt");
+      await fs.writeFile(path.join(tempDir, "file.txt"), ""); // ignored
+      await fs.writeFile(path.join(tempDir, "not_ignored.txt"), ""); // not ignored because of !
+      
+      await fs.mkdir(path.join(tempDir, "dist"));
+      await fs.writeFile(path.join(tempDir, "dist/out.js"), ""); // ignored
+      
+      await fs.mkdir(path.join(tempDir, "foo"));
+      await fs.writeFile(path.join(tempDir, "foo/file.txt"), ""); // NOT ignored (pattern is /file.txt)
+      await fs.mkdir(path.join(tempDir, "foo/dist"));
+      await fs.writeFile(path.join(tempDir, "foo/dist/out.js"), ""); // NOT ignored (pattern is /dist/)
+
+      const snapshot = await takeSnapshot(tempDir);
+      
+      expect(snapshot.has("file.txt")).toBe(false);
+      expect(snapshot.has("dist/out.js")).toBe(false);
+      expect(snapshot.has("not_ignored.txt")).toBe(true);
+      expect(snapshot.has("foo/file.txt")).toBe(true);
+      expect(snapshot.has("foo/dist/out.js")).toBe(true);
+    });
   });
 });
