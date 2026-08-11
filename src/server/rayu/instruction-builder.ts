@@ -13,14 +13,14 @@ export function validateInstruction(instruction: TaskInstruction): { valid: bool
   if (!instruction.description || instruction.description.trim() === "") {
     return { valid: false, error: "Missing or empty mandatory field: description" };
   }
-  if (!instruction.contextFiles || instruction.contextFiles.length === 0) {
-    return { valid: false, error: "Missing or empty mandatory field: contextFiles" };
+  if (!instruction.contextFiles || instruction.contextFiles.length === 0 || instruction.contextFiles.some(f => !f || f.trim() === "")) {
+    return { valid: false, error: "Missing, empty, or invalid mandatory field: contextFiles" };
   }
-  if (!instruction.constraints || instruction.constraints.length === 0) {
-    return { valid: false, error: "Missing or empty mandatory field: constraints" };
+  if (!instruction.constraints || instruction.constraints.length === 0 || instruction.constraints.some(c => !c || c.trim() === "")) {
+    return { valid: false, error: "Missing, empty, or invalid mandatory field: constraints" };
   }
-  if (!instruction.permittedFiles || instruction.permittedFiles.length === 0) {
-    return { valid: false, error: "Missing or empty mandatory field: permittedFiles" };
+  if (!instruction.permittedFiles || instruction.permittedFiles.length === 0 || instruction.permittedFiles.some(f => !f || f.trim() === "")) {
+    return { valid: false, error: "Missing, empty, or invalid mandatory field: permittedFiles" };
   }
   if (instruction.permittedFiles.length > 50) {
     return { valid: false, error: "permittedFiles count is out of bounds (1-50)" };
@@ -31,10 +31,10 @@ export function validateInstruction(instruction: TaskInstruction): { valid: bool
   return { valid: true };
 }
 
+const CREATION_TASK_REGEX = /\b(create|new|generate|build|add|make|scaffold)\b/i;
+
 export function isCreationTask(description: string): boolean {
-  const keywords = ["create", "new", "generate", "build", "add", "make", "scaffold"];
-  const lowerDesc = description.toLowerCase();
-  return keywords.some(kw => new RegExp(`\\b${kw}\\b`).test(lowerDesc));
+  return CREATION_TASK_REGEX.test(description);
 }
 
 export function buildInstructionText(ctx: BuildContext): string {
@@ -63,12 +63,17 @@ export function buildInstructionText(ctx: BuildContext): string {
   filePathsContext += fpHeader;
   
   for (const filePath of ctx.instruction.contextFiles) {
+    if (contextBudget <= 0) break;
+
     if (ctx.missingFiles.includes(filePath)) {
       const missingNote = `### ${filePath}\n[File not found]\n`;
       const missingBytes = Buffer.byteLength(missingNote, "utf8");
       if (contextBudget >= missingBytes) {
          filePathsContext += missingNote;
          contextBudget -= missingBytes;
+      } else {
+         contextBudget = 0;
+         break;
       }
       continue;
     }
@@ -82,13 +87,24 @@ export function buildInstructionText(ctx: BuildContext): string {
       if (contextBudget >= headerBytes + contentBytes) {
         filePathsContext += fileHeader + content + "\n";
         contextBudget -= (headerBytes + contentBytes);
+      } else if (contextBudget > headerBytes) {
+        const allowed = contextBudget - headerBytes;
+        const buf = Buffer.from(content, "utf8");
+        const truncated = buf.subarray(0, allowed).toString("utf8").replace(/\uFFFD/g, "");
+        filePathsContext += fileHeader + truncated + "\n";
+        contextBudget -= (headerBytes + Buffer.byteLength(truncated, "utf8"));
+        contextBudget = 0;
+        break;
+      } else {
+        contextBudget = 0;
+        break;
       }
     }
   }
   filePathsContext += "\n";
 
   let directoryTreeStr = "";
-  if (ctx.directoryTree) {
+  if (ctx.directoryTree && contextBudget > 0) {
      const dtHeader = `## Directory Structure\n`;
      const dtHeaderBytes = Buffer.byteLength(dtHeader, "utf8");
      const dtContentBytes = Buffer.byteLength(ctx.directoryTree, "utf8");
