@@ -113,6 +113,17 @@ describe("Configuration module", () => {
         })
       );
     });
+
+    const invalidContextArb = fc.oneof(fc.integer({ max: 1023 }), fc.integer({ min: 1048577 }));
+    it("rejects out-of-range maxContextBytes", async () => {
+      await fc.assert(
+        fc.asyncProperty(validConfigArbitrary, invalidContextArb, async (configObj, invalidContext) => {
+          vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify({ ...configObj, maxContextBytes: invalidContext }));
+          const result = await loadConfig("/dummy");
+          expect(result).toEqual({ ok: false, error: "maxContextBytes must be between 1024 and 1048576" });
+        })
+      );
+    });
   });
 
   describe("Feature: rayu-worker-agent, Property 9: Environment variable overrides take precedence over config file values", () => {
@@ -136,29 +147,49 @@ describe("Configuration module", () => {
         fc.asyncProperty(validConfigArbitrary, validEnvArbitrary, async (fileObj, envOverrides) => {
           vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(fileObj));
           
-          Object.keys(envOverrides).forEach(k => {
-             process.env[k] = envOverrides[k as keyof typeof envOverrides];
-          });
+          try {
+            Object.keys(envOverrides).forEach(k => {
+               process.env[k] = envOverrides[k as keyof typeof envOverrides];
+            });
 
-          const result = await loadConfig("/dummy");
-          expect(result.ok).toBe(true);
+            const result = await loadConfig("/dummy");
+            expect(result.ok).toBe(true);
 
-          if (result.ok) {
-            expect(result.config.binaryPath).toBe(envOverrides.RAYU_BINARY_PATH ?? fileObj.binaryPath);
-            expect(result.config.timeoutSeconds).toBe(
-              envOverrides.RAYU_TIMEOUT ? parseInt(envOverrides.RAYU_TIMEOUT, 10) : fileObj.timeoutSeconds
-            );
-            expect(result.config.maxOutputBytes).toBe(
-              envOverrides.RAYU_MAX_OUTPUT ? parseInt(envOverrides.RAYU_MAX_OUTPUT, 10) : fileObj.maxOutputBytes
-            );
-            expect(result.config.cliFlags).toEqual(
-              envOverrides.RAYU_CLI_FLAGS ? envOverrides.RAYU_CLI_FLAGS.split(",") : fileObj.cliFlags
-            );
+            if (result.ok) {
+              expect(result.config.binaryPath).toBe(envOverrides.RAYU_BINARY_PATH ?? fileObj.binaryPath);
+              expect(result.config.timeoutSeconds).toBe(
+                envOverrides.RAYU_TIMEOUT ? parseInt(envOverrides.RAYU_TIMEOUT, 10) : fileObj.timeoutSeconds
+              );
+              expect(result.config.maxOutputBytes).toBe(
+                envOverrides.RAYU_MAX_OUTPUT ? parseInt(envOverrides.RAYU_MAX_OUTPUT, 10) : fileObj.maxOutputBytes
+              );
+              expect(result.config.cliFlags).toEqual(
+                envOverrides.RAYU_CLI_FLAGS ? envOverrides.RAYU_CLI_FLAGS.split(",") : fileObj.cliFlags
+              );
+            }
+          } finally {
+            Object.keys(envOverrides).forEach(k => delete process.env[k]);
           }
-          
-          Object.keys(envOverrides).forEach(k => delete process.env[k]);
         })
       );
+    });
+
+    it("rejects invalid environment variables", async () => {
+      vi.mocked(fs.readFile).mockRejectedValue({ code: "ENOENT" });
+      process.env.RAYU_TIMEOUT = "invalid";
+      let result = await loadConfig("/dummy");
+      expect(result).toEqual({ ok: false, error: "RAYU_TIMEOUT must be an integer between 30 and 3600" });
+      delete process.env.RAYU_TIMEOUT;
+
+      process.env.RAYU_TIMEOUT = "30xyz";
+      result = await loadConfig("/dummy");
+      expect(result).toEqual({ ok: false, error: "RAYU_TIMEOUT must be an integer between 30 and 3600" });
+      delete process.env.RAYU_TIMEOUT;
+
+      process.env.RAYU_MAX_OUTPUT = "5";
+      result = await loadConfig("/dummy");
+      expect(result).toEqual({ ok: false, error: "RAYU_MAX_OUTPUT must be an integer between 1024 and 10485760" });
+      delete process.env.RAYU_MAX_OUTPUT;
     });
   });
 });

@@ -31,6 +31,9 @@ export async function loadConfig(workspaceDir: string): Promise<ConfigResult> {
     const fileContent = await fs.readFile(configPath, "utf-8");
     try {
       fileConfig = JSON.parse(fileContent);
+      if (typeof fileConfig !== "object" || fileConfig === null || Array.isArray(fileConfig)) {
+        return { ok: false, error: "rayu-config.json must contain a JSON object" };
+      }
     } catch (e) {
       return { ok: false, error: "Invalid JSON in rayu-config.json" };
     }
@@ -45,16 +48,18 @@ export async function loadConfig(workspaceDir: string): Promise<ConfigResult> {
     fileConfig.binaryPath = process.env.RAYU_BINARY_PATH;
   }
   if (process.env.RAYU_TIMEOUT !== undefined) {
-    const parsed = parseInt(process.env.RAYU_TIMEOUT, 10);
-    if (!isNaN(parsed)) {
-      fileConfig.timeoutSeconds = parsed;
+    const parsed = Number(process.env.RAYU_TIMEOUT);
+    if (!Number.isInteger(parsed) || parsed < 30 || parsed > 3600) {
+      return { ok: false, error: "RAYU_TIMEOUT must be an integer between 30 and 3600" };
     }
+    fileConfig.timeoutSeconds = parsed;
   }
   if (process.env.RAYU_MAX_OUTPUT !== undefined) {
-    const parsed = parseInt(process.env.RAYU_MAX_OUTPUT, 10);
-    if (!isNaN(parsed)) {
-      fileConfig.maxOutputBytes = parsed;
+    const parsed = Number(process.env.RAYU_MAX_OUTPUT);
+    if (!Number.isInteger(parsed) || parsed < 1024 || parsed > 10485760) {
+      return { ok: false, error: "RAYU_MAX_OUTPUT must be an integer between 1024 and 10485760" };
     }
+    fileConfig.maxOutputBytes = parsed;
   }
   if (process.env.RAYU_CLI_FLAGS !== undefined) {
     fileConfig.cliFlags = process.env.RAYU_CLI_FLAGS ? process.env.RAYU_CLI_FLAGS.split(",") : [];
@@ -74,15 +79,15 @@ export async function loadConfig(workspaceDir: string): Promise<ConfigResult> {
     return { ok: false, error: "binaryPath must be a non-empty string" };
   }
 
-  if (typeof config.timeoutSeconds !== "number" || config.timeoutSeconds < 30 || config.timeoutSeconds > 3600) {
+  if (!Number.isInteger(config.timeoutSeconds) || config.timeoutSeconds < 30 || config.timeoutSeconds > 3600) {
     return { ok: false, error: "timeoutSeconds must be between 30 and 3600" };
   }
 
-  if (typeof config.maxOutputBytes !== "number" || config.maxOutputBytes < 1024 || config.maxOutputBytes > 10485760) {
+  if (!Number.isInteger(config.maxOutputBytes) || config.maxOutputBytes < 1024 || config.maxOutputBytes > 10485760) {
     return { ok: false, error: "maxOutputBytes must be between 1024 and 10485760" };
   }
   
-  if (typeof config.maxContextBytes !== "number" || config.maxContextBytes < 1024 || config.maxContextBytes > 1048576) {
+  if (!Number.isInteger(config.maxContextBytes) || config.maxContextBytes < 1024 || config.maxContextBytes > 1048576) {
     return { ok: false, error: "maxContextBytes must be between 1024 and 1048576" };
   }
 

@@ -12,7 +12,7 @@ export default defineConfig({
     exclude: ["**/node_modules/**", "**/e2e/**", "**/.next/**"],
     globals: false,
     environment: "node",
-    globalSetup: ["./vitest.global-setup.ts"],
+    // globalSetup: ["./vitest.global-setup.ts"],
     restoreMocks: true,
     testTimeout: 10000,
     env: {
