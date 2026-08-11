@@ -41,25 +41,68 @@ model WorkspaceMember {
 }
 
 model Project {
-  id               String          @id @default(cuid())
-  name             String
-  workspaceId      String
-  liveblocksRoomId String          @unique
-  createdById      String
-  workspace        Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  canvas           CanvasSnapshot?
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
+  id          String    @id @default(cuid())
+  name        String
+  workspaceId String
+  createdById String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  folders     Folder[]
+  files       File[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   @@index([workspaceId, updatedAt])
 }
 
+model Folder {
+  id        String   @id @default(cuid())
+  projectId String
+  parentId  String?
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  parent    Folder?  @relation("FolderToFolder", fields: [parentId], references: [id], onDelete: Cascade)
+  children  Folder[] @relation("FolderToFolder")
+  files     File[]
+
+  @@index([projectId])
+}
+
+model File {
+  id               String   @id @default(cuid())
+  projectId        String
+  folderId         String?
+  name             String
+  type             String
+  liveblocksRoomId String?  @unique
+  createdById      String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  
+  project          Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  folder           Folder?  @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  canvas           CanvasSnapshot?
+  document         DocumentSnapshot?
+
+  @@unique([folderId, name])
+  @@index([projectId])
+}
+
 model CanvasSnapshot {
-  projectId    String   @id
-  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  fileId       String   @id
+  file         File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
   elements     Json     @default("[]")
   appState     Json     @default("{}")
   elementCount Int      @default(0)
+  syncedAt     DateTime @default(now())
+}
+
+model DocumentSnapshot {
+  fileId       String   @id
+  file         File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  content      Json     @default("{}")
   syncedAt     DateTime @default(now())
 }
 
