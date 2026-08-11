@@ -21,7 +21,7 @@ vi.mock("@liveblocks/node", () => ({
 vi.mock("@/server/db", () => ({
   db: {
     processedWebhook: { create: vi.fn() },
-    project: { findUnique: vi.fn() },
+    file: { findUnique: vi.fn() },
     canvasSnapshot: { upsert: vi.fn() },
   },
 }));
@@ -37,7 +37,7 @@ import { liveblocks } from "@/server/liveblocks";
 import { POST } from "../route";
 
 const mockProcessedCreate = vi.mocked(db.processedWebhook.create);
-const mockProjectFindUnique = vi.mocked(db.project.findUnique);
+const mockFileFindUnique = vi.mocked(db.file.findUnique);
 const mockCanvasUpsert = vi.mocked(db.canvasSnapshot.upsert);
 const mockGetStorage = vi.mocked(liveblocks.getStorageDocument);
 
@@ -116,7 +116,7 @@ describe("POST /api/webhooks/liveblocks", () => {
 
       expect(res.status).toBe(200);
       expect(await res.text()).toBe("Already processed");
-      expect(mockProjectFindUnique).not.toHaveBeenCalled();
+      expect(mockFileFindUnique).not.toHaveBeenCalled();
     });
   });
 
@@ -136,7 +136,7 @@ describe("POST /api/webhooks/liveblocks", () => {
 
       expect(res.status).toBe(200);
       expect(await res.text()).toBe("OK");
-      expect(mockProjectFindUnique).not.toHaveBeenCalled();
+      expect(mockFileFindUnique).not.toHaveBeenCalled();
       expect(mockGetStorage).not.toHaveBeenCalled();
     });
 
@@ -166,7 +166,7 @@ describe("POST /api/webhooks/liveblocks", () => {
         data: { roomId: "proj_orphan", projectId: "orphan", updatedAt: new Date().toISOString() },
       });
 
-      mockProjectFindUnique.mockResolvedValue(null);
+      mockFileFindUnique.mockResolvedValue(null);
 
       const req = makeRequest({}, "msg_orphan");
       const res = await POST(req);
@@ -191,7 +191,7 @@ describe("POST /api/webhooks/liveblocks", () => {
         data: { roomId, projectId: "proj", updatedAt: new Date().toISOString() },
       });
 
-      mockProjectFindUnique.mockResolvedValue({ id: projectId });
+      mockFileFindUnique.mockResolvedValue({ id: projectId, type: "canvas" });
 
       const elements = {
         elem1: { id: "elem1", type: "rectangle", isDeleted: false },
@@ -213,9 +213,9 @@ describe("POST /api/webhooks/liveblocks", () => {
 
       // elementCount = 3 total - 1 deleted = 2
       expect(mockCanvasUpsert).toHaveBeenCalledWith({
-        where: { projectId },
+        where: { fileId: projectId },
         create: {
-          projectId,
+          fileId: projectId,
           elements: expect.arrayContaining([
             { id: "elem1", type: "rectangle", isDeleted: false },
             { id: "elem2", type: "ellipse", isDeleted: true },
@@ -226,7 +226,11 @@ describe("POST /api/webhooks/liveblocks", () => {
           syncedAt: expect.any(Date),
         },
         update: {
-          elements: expect.any(Array),
+          elements: expect.arrayContaining([
+            { id: "elem1", type: "rectangle", isDeleted: false },
+            { id: "elem2", type: "ellipse", isDeleted: true },
+            { id: "elem3", type: "diamond", isDeleted: false },
+          ]),
           appState: meta,
           elementCount: 2,
           syncedAt: expect.any(Date),
@@ -243,7 +247,7 @@ describe("POST /api/webhooks/liveblocks", () => {
         data: { roomId, projectId: "proj", updatedAt: new Date().toISOString() },
       });
 
-      mockProjectFindUnique.mockResolvedValue({ id: projectId });
+      mockFileFindUnique.mockResolvedValue({ id: projectId, type: "canvas" });
 
       setupStorageDoc({}, {});
 
@@ -254,8 +258,9 @@ describe("POST /api/webhooks/liveblocks", () => {
 
       expect(mockCanvasUpsert).toHaveBeenCalledWith(
         expect.objectContaining({
+          where: { fileId: "p_empty" },
           create: expect.objectContaining({
-            elements: [],
+            fileId: "p_empty",
             elementCount: 0,
           }),
         }),
@@ -271,7 +276,7 @@ describe("POST /api/webhooks/liveblocks", () => {
         data: { roomId, projectId: "proj", updatedAt: new Date().toISOString() },
       });
 
-      mockProjectFindUnique.mockResolvedValue({ id: projectId });
+      mockFileFindUnique.mockResolvedValue({ id: projectId, type: "canvas" });
 
       // doc without meta key
       mockGetStorage.mockResolvedValue({
@@ -306,7 +311,7 @@ describe("POST /api/webhooks/liveblocks", () => {
         data: { roomId, projectId: "proj", updatedAt: new Date().toISOString() },
       });
 
-      mockProjectFindUnique.mockResolvedValue({ id: "p_fail" });
+      mockFileFindUnique.mockResolvedValue({ id: "p_fail", type: "canvas" });
 
       mockGetStorage.mockRejectedValue(new Error("Network error"));
 

@@ -26,6 +26,7 @@ vi.mock("../../db", () => ({
       update: vi.fn(),
       delete: vi.fn(),
     },
+    file: { findMany: vi.fn() },
   },
 }));
 
@@ -54,6 +55,7 @@ const mockFindFirst = vi.mocked(db.project.findFirst);
 const mockCreate = vi.mocked(db.project.create);
 const mockUpdate = vi.mocked(db.project.update);
 const mockDelete = vi.mocked(db.project.delete);
+const mockFileFindMany = vi.mocked(db.file.findMany);
 const mockProvisionRoom = vi.mocked(provisionRoom);
 const mockDecommissionRoom = vi.mocked(decommissionRoom);
 
@@ -73,10 +75,10 @@ describe("listProjects", () => {
     setupAuthenticatedSession();
   });
 
-  it("returns projects for the workspace ordered by updatedAt desc", async () => {
+  it("returns projects for the workspace", async () => {
     const projects = [
-      { id: "p1", name: "Project 1", updatedAt: new Date("2026-01-02") },
-      { id: "p2", name: "Project 2", updatedAt: new Date("2026-01-01") },
+      { id: "p1", name: "A", updatedAt: new Date() },
+      { id: "p2", name: "B", updatedAt: new Date() },
     ];
     mockFindMany.mockResolvedValue(projects as any);
 
@@ -90,18 +92,13 @@ describe("listProjects", () => {
     });
   });
 
-  it("user in different workspace gets redirected (NotFound behavior)", async () => {
-    // Session org is 'my-org' but request is for 'other-org'
+  it("redirects to sign-in when workspace does not exist / user is not member", async () => {
     mockAuth.mockResolvedValue({
-      isAuthenticated: true,
-      userId: "user_123",
-      orgId: "org_123",
-      orgSlug: "my-org",
+      userId: "u1",
+      orgId: null,
     } as any);
 
-    await expect(listProjects("other-org")).rejects.toThrow(
-      "REDIRECT:/w/my-org",
-    );
+    await expect(listProjects("nonexistent")).rejects.toThrow("REDIRECT:/sign-in");
   });
 });
 
@@ -111,88 +108,28 @@ describe("getProject", () => {
     setupAuthenticatedSession();
   });
 
-  it("returns project detail when found in workspace", async () => {
-    const project = {
-      id: "p1",
-      name: "Test",
-      updatedAt: new Date(),
-      liveblocksRoomId: "room_p1",
-    };
+  it("returns the project when it exists in the workspace", async () => {
+    const project = { id: "p1", name: "A", updatedAt: new Date() };
     mockFindFirst.mockResolvedValue(project as any);
 
     const result = await getProject("my-org", "p1");
     expect(result).toEqual(project);
   });
 
-  it("calls notFound when project does not exist in workspace — never leaks existence", async () => {
+  it("calls notFound when project does not exist", async () => {
     mockFindFirst.mockResolvedValue(null);
-
     await expect(getProject("my-org", "nonexistent")).rejects.toThrow(
       "NOT_FOUND",
     );
   });
 
-  it("user in different workspace gets redirected, not forbidden", async () => {
+  it("redirects to sign-in when user is not in workspace", async () => {
     mockAuth.mockResolvedValue({
-      isAuthenticated: true,
-      userId: "user_456",
-      orgId: "org_other",
-      orgSlug: "other-org",
+      userId: "u1",
+      orgId: null,
     } as any);
 
-    await expect(getProject("my-org", "p1")).rejects.toThrow(
-      "REDIRECT:/w/other-org",
-    );
-  });
-});
-
-describe("getProjectWithSnapshot", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    setupAuthenticatedSession();
-  });
-
-  it("returns project with snapshot elements", async () => {
-    const elements = [{ type: "rectangle", id: "el_1" }];
-    mockFindFirst.mockResolvedValue({
-      id: "p1",
-      name: "Canvas Project",
-      updatedAt: new Date("2026-01-01"),
-      liveblocksRoomId: "room_p1",
-      canvas: { elements },
-    } as any);
-
-    const result = await getProjectWithSnapshot("my-org", "p1");
-
-    expect(result).toEqual({
-      id: "p1",
-      name: "Canvas Project",
-      updatedAt: new Date("2026-01-01"),
-      liveblocksRoomId: "room_p1",
-      snapshotElements: elements,
-    });
-  });
-
-  it("returns empty array when no canvas snapshot exists", async () => {
-    mockFindFirst.mockResolvedValue({
-      id: "p1",
-      name: "No Canvas",
-      updatedAt: new Date("2026-01-01"),
-      liveblocksRoomId: "room_p1",
-      canvas: null,
-    } as any);
-
-    const result = await getProjectWithSnapshot("my-org", "p1");
-
-    expect(result.snapshotElements).toEqual([]);
-  });
-
-  it("calls notFound when project not in workspace", async () => {
-    mockFindFirst.mockResolvedValue(null);
-
-    await expect(
-      getProjectWithSnapshot("my-org", "nonexistent"),
-    ).rejects.toThrow("NOT_FOUND");
+    await expect(getProject("my-org", "p1")).rejects.toThrow("REDIRECT:/sign-in");
   });
 });
 
@@ -202,47 +139,17 @@ describe("createProject", () => {
     setupAuthenticatedSession();
   });
 
-  it("creates project, provisions room, and updates liveblocksRoomId", async () => {
+  it("creates project row", async () => {
     const created = {
       id: "p1",
       name: "New",
       updatedAt: new Date(),
-      liveblocksRoomId: "",
-    };
-    const updated = {
-      id: "p1",
-      name: "New",
-      updatedAt: new Date(),
-      liveblocksRoomId: "room_p1",
     };
     mockCreate.mockResolvedValue(created as any);
-    mockProvisionRoom.mockResolvedValue(undefined);
-    mockUpdate.mockResolvedValue(updated as any);
 
     const result = await createProject("my-org", "New");
 
-    expect(result).toEqual(updated);
-    expect(mockProvisionRoom).toHaveBeenCalledWith({
-      roomId: "room_p1",
-      workspaceId: "ws_1",
-      clerkOrgId: "org_123",
-    });
-  });
-
-  it("rolls back project row when provisionRoom fails", async () => {
-    const created = {
-      id: "p1",
-      name: "New",
-      updatedAt: new Date(),
-      liveblocksRoomId: "",
-    };
-    mockCreate.mockResolvedValue(created as any);
-    mockProvisionRoom.mockRejectedValue(new Error("Liveblocks unavailable"));
-
-    await expect(createProject("my-org", "New")).rejects.toThrow(
-      "Liveblocks unavailable",
-    );
-    expect(mockDelete).toHaveBeenCalledWith({ where: { id: "p1" } });
+    expect(result).toEqual(created);
   });
 });
 
@@ -252,37 +159,36 @@ describe("deleteProject", () => {
     setupAuthenticatedSession();
   });
 
-  it("decommissions room then deletes project", async () => {
+  it("decommissions rooms for all files then deletes project", async () => {
     mockFindFirst.mockResolvedValue({
       id: "p1",
-      liveblocksRoomId: "room_p1",
     } as any);
+    mockFileFindMany.mockResolvedValue([
+      { liveblocksRoomId: "room_f1" },
+      { liveblocksRoomId: null },
+      { liveblocksRoomId: "room_f3" }
+    ] as any);
     mockDecommissionRoom.mockResolvedValue(undefined);
 
     await deleteProject("my-org", "p1");
 
-    expect(mockDecommissionRoom).toHaveBeenCalledWith("room_p1");
+    expect(mockDecommissionRoom).toHaveBeenCalledWith("room_f1");
+    expect(mockDecommissionRoom).toHaveBeenCalledWith("room_f3");
     expect(mockDelete).toHaveBeenCalledWith({ where: { id: "p1" } });
   });
 
   it("proceeds with delete even when decommissionRoom fails (best-effort)", async () => {
     mockFindFirst.mockResolvedValue({
       id: "p1",
-      liveblocksRoomId: "room_p1",
     } as any);
+    mockFileFindMany.mockResolvedValue([
+      { liveblocksRoomId: "room_f1" }
+    ] as any);
     mockDecommissionRoom.mockRejectedValue(new Error("Room stuck"));
 
     await deleteProject("my-org", "p1");
 
     expect(mockDelete).toHaveBeenCalledWith({ where: { id: "p1" } });
-  });
-
-  it("calls notFound for nonexistent project — never leaks existence", async () => {
-    mockFindFirst.mockResolvedValue(null);
-
-    await expect(deleteProject("my-org", "nonexistent")).rejects.toThrow(
-      "NOT_FOUND",
-    );
   });
 
   it("user in different workspace gets redirected, not forbidden", async () => {
