@@ -124,7 +124,7 @@ Spec 0001 · code (filled by /develop)
 
 ## MVP 1b
 
-### 1. MCP server (agent read/draw access) · in-progress
+### 1. MCP server (agent read/draw access) · done
 External AI coding agents read and draw diagrams via MCP, reusing 1a's reconciliation pattern. Gets its own spec once 1a is stable.
 **Done when:** an external MCP client can read a project's current canvas and add elements via `convertToExcalidrawElements()` skeletons without corrupting concurrent human edits.
 - [x] Design it (spec): `/architect MCP server`
@@ -134,8 +134,8 @@ External AI coding agents read and draw diagrams via MCP, reusing 1a's reconcili
   - [x] MCP Server Core (SSE + message routes) (AC-1)
   - [x] MCP Tools (Read): `list_files`, `read_canvas` (AC-2, AC-3)
   - [x] MCP Tools (Write): `draw_elements` (AC-4)
-- [ ] Verify it: `/check verify MCP server`
-- [ ] Test it: `/test MCP server`
+- [x] Verify it: `/check verify MCP server`
+- [x] Test it: `/test MCP server`
 Spec 0002 · code (filled by /develop)
 
 ## MVP 2 and deferred
