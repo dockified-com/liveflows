@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export default async function Home() {
   const { isAuthenticated, orgSlug } = await auth();
@@ -14,37 +14,28 @@ export default async function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-50 selection:bg-neutral-800">
-      <main className="relative isolate">
-        {/* Background Gradients */}
-        <div
-          className="absolute inset-x-0 top-[-10rem] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[-20rem]"
-          aria-hidden="true"
-        >
-          <div className="relative left-1/2 -z-10 aspect-[1155/678] w-[36.125rem] max-w-none -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#3b82f6] to-[#8b5cf6] opacity-20 sm:left-[calc(50%-40rem)] sm:w-[72.1875rem]"></div>
-        </div>
-
-        {/* Navbar */}
-        <header className="absolute inset-x-0 top-0 z-50">
+    <div className="min-h-screen bg-[#0e1117] text-[#f0f6fc] selection:bg-[#30363d]">
+      <main className="relative">
+        <header className="border-b border-[#21262d] bg-[#0e1117]/95">
           <nav
-            className="flex items-center justify-between p-6 lg:px-8"
+            className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-8"
             aria-label="Global"
           >
             <div className="flex lg:flex-1">
-              <span className="text-xl font-bold tracking-tight text-white">
+              <span className="font-mono text-sm font-semibold tracking-[0.2em] text-[#f0f6fc] uppercase">
                 LiveFlows
               </span>
             </div>
             <div className="flex flex-1 justify-end gap-x-6 items-center">
               <Link
                 href="/sign-in"
-                className="text-sm font-semibold leading-6 text-white hover:text-neutral-300 transition-colors"
+                className="font-mono text-xs font-semibold text-[#f0f6fc] hover:text-[#ff9e00] transition-colors"
               >
                 Log in
               </Link>
               <Link
                 href="/sign-up"
-                className="rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur-md hover:bg-white/20 transition-all border border-white/10"
+                className="rounded border border-[#ff9e00] bg-[#ff9e00]/10 px-4 py-2 font-mono text-xs font-semibold text-[#ff9e00] hover:bg-[#ff9e00] hover:text-[#0e1117] transition-colors"
               >
                 Sign up
               </Link>
@@ -52,30 +43,31 @@ export default async function Home() {
           </nav>
         </header>
 
-        {/* Hero Section */}
-        <div className="mx-auto max-w-7xl px-6 pb-24 pt-48 sm:pb-32 lg:flex lg:px-8 lg:py-40">
-          <div className="mx-auto max-w-2xl lg:mx-0 lg:max-w-xl lg:flex-shrink-0 lg:pt-8 text-center lg:text-left">
-            <h1 className="mt-10 text-4xl font-bold tracking-tight text-white sm:text-6xl text-balance">
-              Collaborative System Design in Realtime.
-            </h1>
-            <p className="mt-6 text-lg leading-8 text-neutral-400">
-              Brainstorm architecture, map out systems, and design
-              infrastructure with your entire team. LiveFlows provides a
-              powerful Excalidraw canvas synchronized perfectly across
-              workspaces.
+        <div className="mx-auto grid max-w-7xl gap-12 px-6 py-16 lg:grid-cols-[0.82fr_1.18fr] lg:px-8 lg:py-20">
+          <div className="flex flex-col justify-center">
+            <p className="font-mono text-xs font-semibold tracking-[0.24em] text-[#ff9e00] uppercase">
+              Realtime architecture workspace
             </p>
-            <div className="mt-10 flex items-center justify-center lg:justify-start gap-x-6">
+            <h1 className="mt-5 text-4xl font-semibold text-[#f0f6fc] sm:text-6xl text-balance">
+              Collaborative system design without canvas drift.
+            </h1>
+            <p className="mt-6 max-w-xl text-base leading-7 text-[#8b949e]">
+              Draw architecture diagrams together on an Excalidraw canvas backed
+              by Liveblocks, scoped to Clerk workspaces, and mirrored to
+              Postgres for fast project lists.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-4">
               <Link
                 href="/sign-up"
-                className="rounded-md bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-colors"
+                className="rounded bg-[#ff9e00] px-5 py-3 font-mono text-xs font-semibold text-[#0e1117] hover:bg-[#ffb547] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff9e00] transition-colors"
               >
-                Get Started for free
+                START WORKSPACE
               </Link>
               <Link
                 href="/sign-in"
-                className="text-sm font-semibold leading-6 text-white group"
+                className="font-mono text-xs font-semibold text-[#f0f6fc] group"
               >
-                Sign in to workspace{" "}
+                OPEN EXISTING ORG{" "}
                 <span
                   aria-hidden="true"
                   className="inline-block transition-transform group-hover:translate-x-1"
@@ -84,83 +76,137 @@ export default async function Home() {
                 </span>
               </Link>
             </div>
-          </div>
-          <div className="mx-auto mt-16 flex max-w-2xl sm:mt-24 lg:ml-10 lg:mr-0 lg:mt-0 lg:max-w-none lg:flex-none xl:ml-32">
-            <div className="max-w-3xl flex-none sm:max-w-5xl lg:max-w-none">
-              <div className="rounded-xl bg-white/5 p-2 ring-1 ring-white/10 backdrop-blur-lg">
-                <div className="rounded-md bg-neutral-900/80 p-8 shadow-2xl h-[400px] w-[600px] flex items-center justify-center border border-white/5">
-                  <p className="text-neutral-500 font-mono text-sm">
-                    [ Interactive Canvas Demo ]
-                  </p>
-                </div>
+            <dl className="mt-10 grid max-w-xl grid-cols-3 gap-3 font-mono text-[11px]">
+              <div className="border border-[#21262d] bg-[#161b22] p-3">
+                <dt className="text-[#484f58]">WRITE PATH</dt>
+                <dd className="mt-1 text-[#10b981]">LIVEBLOCKS</dd>
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Features */}
-        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-24 sm:py-32">
-          <div className="mx-auto max-w-2xl lg:text-center">
-            <h2 className="text-base font-semibold leading-7 text-blue-500">
-              Deploy faster
-            </h2>
-            <p className="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-              Everything you need to map out systems
-            </p>
-          </div>
-          <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
-            <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-2 lg:gap-y-16">
-              <div className="relative pl-16">
-                <dt className="text-base font-semibold leading-7 text-white">
-                  <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600">
-                    <svg
-                      className="h-6 w-6 text-white"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.5"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"
-                      />
-                    </svg>
-                  </div>
-                  Realtime Sync
-                </dt>
-                <dd className="mt-2 text-base leading-7 text-neutral-400">
-                  Powered by Liveblocks, see your team's cursors and updates
-                  instantly with zero lag.
-                </dd>
+              <div className="border border-[#21262d] bg-[#161b22] p-3">
+                <dt className="text-[#484f58]">READ PATH</dt>
+                <dd className="mt-1 text-[#f0f6fc]">POSTGRES</dd>
               </div>
-              <div className="relative pl-16">
-                <dt className="text-base font-semibold leading-7 text-white">
-                  <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600">
-                    <svg
-                      className="h-6 w-6 text-white"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      strokeWidth="1.5"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
-                      />
-                    </svg>
-                  </div>
-                  Strict Workspace Isolation
-                </dt>
-                <dd className="mt-2 text-base leading-7 text-neutral-400">
-                  Projects are securely bound to Clerk Organizations, ensuring
-                  enterprise-grade data isolation.
-                </dd>
+              <div className="border border-[#21262d] bg-[#161b22] p-3">
+                <dt className="text-[#484f58]">AUTH</dt>
+                <dd className="mt-1 text-[#f0f6fc]">CLERK ORGS</dd>
               </div>
             </dl>
           </div>
+
+          <section
+            aria-label="LiveFlows canvas preview"
+            className="border border-[#21262d] bg-[#161b22]"
+          >
+            <div className="flex items-center justify-between border-b border-[#21262d] px-4 py-3 font-mono text-[11px] text-[#8b949e]">
+              <span>project: payments-platform</span>
+              <span className="text-[#10b981]">3 collaborators live</span>
+            </div>
+            <div className="grid min-h-[470px] grid-cols-[150px_1fr]">
+              <aside className="border-r border-[#21262d] bg-[#0e1117] p-4 font-mono text-[11px]">
+                <p className="text-[#484f58]">FILES</p>
+                <div className="mt-4 space-y-2">
+                  <div className="border border-[#30363d] bg-[#161b22] px-3 py-2 text-[#f0f6fc]">
+                    System Map
+                  </div>
+                  <div className="px-3 py-2 text-[#8b949e]">Auth Notes</div>
+                  <div className="px-3 py-2 text-[#8b949e]">API Split</div>
+                </div>
+              </aside>
+              <div className="relative overflow-hidden bg-[#f7f8fa]">
+                <div className="absolute inset-0 bg-[linear-gradient(#d9dee7_1px,transparent_1px),linear-gradient(90deg,#d9dee7_1px,transparent_1px)] bg-[size:32px_32px]" />
+                <div className="absolute left-[8%] top-[13%] rounded border border-[#9aa4b2] bg-white px-4 py-3 shadow-sm">
+                  <p className="font-mono text-[10px] text-[#657080]">CLIENT</p>
+                  <p className="mt-1 text-sm font-semibold text-[#0e1117]">
+                    Web App
+                  </p>
+                </div>
+                <div className="absolute left-[38%] top-[20%] rounded border-2 border-[#ff9e00] bg-white px-5 py-4 shadow-sm">
+                  <p className="font-mono text-[10px] text-[#9a6700]">
+                    EDGE ROUTE
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-[#0e1117]">
+                    API Gateway
+                  </p>
+                </div>
+                <div className="absolute right-[8%] top-[12%] rounded border border-[#10b981] bg-white px-4 py-3 shadow-sm">
+                  <p className="font-mono text-[10px] text-[#047857]">
+                    REALTIME
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-[#0e1117]">
+                    Liveblocks Room
+                  </p>
+                </div>
+                <div className="absolute bottom-[18%] left-[31%] rounded border border-[#9aa4b2] bg-white px-4 py-3 shadow-sm">
+                  <p className="font-mono text-[10px] text-[#657080]">
+                    READ MODEL
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-[#0e1117]">
+                    Postgres Mirror
+                  </p>
+                </div>
+                <svg
+                  className="absolute inset-0 h-full w-full"
+                  aria-hidden="true"
+                  fill="none"
+                  viewBox="0 0 640 470"
+                >
+                  <path
+                    d="M136 104 C190 108 210 126 246 138"
+                    stroke="#657080"
+                    strokeWidth="2"
+                    strokeDasharray="6 6"
+                  />
+                  <path
+                    d="M388 142 C440 108 472 96 515 94"
+                    stroke="#10b981"
+                    strokeWidth="2"
+                  />
+                  <path
+                    d="M320 184 C310 248 300 290 286 336"
+                    stroke="#ff9e00"
+                    strokeWidth="2"
+                  />
+                </svg>
+                <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between border border-[#d0d7de] bg-white/90 px-3 py-2 font-mono text-[10px] text-[#657080]">
+                  <span>canvas mirror fresh: 42s ago</span>
+                  <span>storage: 1.8 MB / 10 MB</span>
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
+
+        <section className="border-t border-[#21262d] bg-[#0e1117] px-6 py-14 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <h2 className="font-mono text-xs font-semibold tracking-[0.24em] text-[#8b949e] uppercase">
+              Workspace guarantees
+            </h2>
+            <div className="mt-6 grid gap-px overflow-hidden border border-[#21262d] bg-[#21262d] md:grid-cols-3">
+              {[
+                [
+                  "Realtime sync",
+                  "Element-level updates keep teammates aligned without turning Postgres into the canvas writer.",
+                ],
+                [
+                  "Workspace isolation",
+                  "Room permissions resolve from Clerk organization membership instead of URL input.",
+                ],
+                [
+                  "Readable mirrors",
+                  "Project lists, search, and outage fallback read from the Postgres canvas snapshot.",
+                ],
+              ].map(([title, body]) => (
+                <div key={title} className="bg-[#161b22] p-5">
+                  <h3 className="text-sm font-semibold text-[#f0f6fc]">
+                    {title}
+                  </h3>
+                  <p className="mt-3 text-sm leading-6 text-[#8b949e]">
+                    {body}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       </main>
     </div>
   );
