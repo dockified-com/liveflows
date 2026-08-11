@@ -85,20 +85,20 @@ export async function createFile(
     const liveblocksRoomIdToSave = type === "canvas" ? roomId : null;
 
     if (type === "canvas") {
-        const updated = await db.file.update({
+      const updated = await db.file.update({
         where: { id: file.id },
         data: { liveblocksRoomId: roomId },
         select: {
-            id: true,
-            projectId: true,
-            folderId: true,
-            name: true,
-            type: true,
-            liveblocksRoomId: true,
-            updatedAt: true,
+          id: true,
+          projectId: true,
+          folderId: true,
+          name: true,
+          type: true,
+          liveblocksRoomId: true,
+          updatedAt: true,
         },
-        });
-        return updated;
+      });
+      return updated;
     }
 
     return file;
@@ -124,7 +124,11 @@ export async function renameFile(
   }
 
   const existing = await db.file.findFirst({
-    where: { projectId: file.projectId, folderId: file.folderId, name: newName },
+    where: {
+      projectId: file.projectId,
+      folderId: file.folderId,
+      name: newName,
+    },
   });
   if (existing) {
     throw new Error("File with this name already exists in this location");
@@ -168,7 +172,11 @@ export async function moveFile(
   }
 
   const existing = await db.file.findFirst({
-    where: { projectId: file.projectId, folderId: newFolderId, name: file.name },
+    where: {
+      projectId: file.projectId,
+      folderId: newFolderId,
+      name: file.name,
+    },
   });
   if (existing) {
     throw new Error("File with this name already exists in this location");
@@ -229,7 +237,11 @@ export async function getFileWithSnapshot(
   const workspace = await requireWorkspace(workspaceSlug);
 
   const file = await db.file.findFirst({
-    where: { id: fileId, project: { workspaceId: workspace.id }, type: "canvas" },
+    where: {
+      id: fileId,
+      project: { workspaceId: workspace.id },
+      type: "canvas",
+    },
     select: {
       id: true,
       name: true,

@@ -103,7 +103,11 @@ describe("POST /api/webhooks/liveblocks", () => {
     it("returns 200 and skips handler when svix-id was already processed", async () => {
       mockVerifyRequest.mockReturnValue({
         type: "storageUpdated",
-        data: { roomId: "proj_1", projectId: "proj", updatedAt: new Date().toISOString() },
+        data: {
+          roomId: "proj_1",
+          projectId: "proj",
+          updatedAt: new Date().toISOString(),
+        },
       });
 
       // Simulate unique constraint violation
@@ -163,7 +167,11 @@ describe("POST /api/webhooks/liveblocks", () => {
     it("returns 200 when no project matches the roomId", async () => {
       mockVerifyRequest.mockReturnValue({
         type: "storageUpdated",
-        data: { roomId: "proj_orphan", projectId: "orphan", updatedAt: new Date().toISOString() },
+        data: {
+          roomId: "proj_orphan",
+          projectId: "orphan",
+          updatedAt: new Date().toISOString(),
+        },
       });
 
       mockFileFindUnique.mockResolvedValue(null);
@@ -188,10 +196,17 @@ describe("POST /api/webhooks/liveblocks", () => {
 
       mockVerifyRequest.mockReturnValue({
         type: "storageUpdated",
-        data: { roomId, projectId: "proj", updatedAt: new Date().toISOString() },
+        data: {
+          roomId,
+          projectId: "proj",
+          updatedAt: new Date().toISOString(),
+        },
       });
 
-      mockFileFindUnique.mockResolvedValue({ id: projectId, type: "canvas" } as any);
+      mockFileFindUnique.mockResolvedValue({
+        id: projectId,
+        type: "canvas",
+      } as any);
 
       const elements = {
         elem1: { id: "elem1", type: "rectangle", isDeleted: false },
@@ -244,10 +259,17 @@ describe("POST /api/webhooks/liveblocks", () => {
 
       mockVerifyRequest.mockReturnValue({
         type: "storageUpdated",
-        data: { roomId, projectId: "proj", updatedAt: new Date().toISOString() },
+        data: {
+          roomId,
+          projectId: "proj",
+          updatedAt: new Date().toISOString(),
+        },
       });
 
-      mockFileFindUnique.mockResolvedValue({ id: projectId, type: "canvas" } as any);
+      mockFileFindUnique.mockResolvedValue({
+        id: projectId,
+        type: "canvas",
+      } as any);
 
       setupStorageDoc({}, {});
 
@@ -273,10 +295,17 @@ describe("POST /api/webhooks/liveblocks", () => {
 
       mockVerifyRequest.mockReturnValue({
         type: "storageUpdated",
-        data: { roomId, projectId: "proj", updatedAt: new Date().toISOString() },
+        data: {
+          roomId,
+          projectId: "proj",
+          updatedAt: new Date().toISOString(),
+        },
       });
 
-      mockFileFindUnique.mockResolvedValue({ id: projectId, type: "canvas" } as any);
+      mockFileFindUnique.mockResolvedValue({
+        id: projectId,
+        type: "canvas",
+      } as any);
 
       // doc without meta key
       mockGetStorage.mockResolvedValue({
@@ -308,10 +337,17 @@ describe("POST /api/webhooks/liveblocks", () => {
 
       mockVerifyRequest.mockReturnValue({
         type: "storageUpdated",
-        data: { roomId, projectId: "proj", updatedAt: new Date().toISOString() },
+        data: {
+          roomId,
+          projectId: "proj",
+          updatedAt: new Date().toISOString(),
+        },
       });
 
-      mockFileFindUnique.mockResolvedValue({ id: "p_fail", type: "canvas" } as any);
+      mockFileFindUnique.mockResolvedValue({
+        id: "p_fail",
+        type: "canvas",
+      } as any);
 
       mockGetStorage.mockRejectedValue(new Error("Network error"));
 

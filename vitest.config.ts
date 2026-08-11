@@ -24,7 +24,8 @@ export default defineConfig({
           restoreMocks: true,
           testTimeout: 10000,
           env: {
-            TEST_DATABASE_URL: "postgresql://test:test@localhost:5433/liveflows_test",
+            TEST_DATABASE_URL:
+              "postgresql://test:test@localhost:5433/liveflows_test",
           },
         },
       },
@@ -44,7 +45,8 @@ export default defineConfig({
           restoreMocks: true,
           testTimeout: 10000,
           env: {
-            TEST_DATABASE_URL: "postgresql://test:test@localhost:5433/liveflows_test",
+            TEST_DATABASE_URL:
+              "postgresql://test:test@localhost:5433/liveflows_test",
           },
         },
       },

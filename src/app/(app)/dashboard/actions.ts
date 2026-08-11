@@ -1,7 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createPersonalAccessToken, deletePersonalAccessToken } from "@/server/dal/pats";
+import {
+  createPersonalAccessToken,
+  deletePersonalAccessToken,
+} from "@/server/dal/pats";
 
 export async function createTokenAction(formData: FormData) {
   const name = formData.get("name") as string;

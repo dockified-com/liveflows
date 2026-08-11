@@ -18,9 +18,9 @@ export function CreateFileForm({
   );
 
   return (
-    <form action={formAction} className="flex flex-col gap-3">
+    <form action={formAction} className="flex flex-col gap-3 font-mono text-xs">
       {state?.error && (
-        <div className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
+        <div className="text-red-400 bg-red-950/50 p-2 rounded border border-red-800">
           {state.error}
         </div>
       )}
@@ -28,19 +28,22 @@ export function CreateFileForm({
         name="name"
         type="text"
         required
-        placeholder="File name"
-        className="rounded border px-3 py-2"
+        placeholder="FILE NAME"
+        className="rounded border border-[#30363d] bg-[#0e1117] px-3 py-2 text-[#f0f6fc] placeholder-[#484f58] focus:border-[#ff9e00] focus:outline-none"
       />
-      <select name="type" className="rounded border px-3 py-2">
-        <option value="canvas">Canvas</option>
-        <option value="document">Document</option>
+      <select
+        name="type"
+        className="rounded border border-[#30363d] bg-[#0e1117] px-3 py-2 text-[#f0f6fc] focus:border-[#ff9e00] focus:outline-none"
+      >
+        <option value="canvas">CANVAS (EXCALIDRAW)</option>
+        <option value="document">DOCUMENT (TIPTAP)</option>
       </select>
       <button
         type="submit"
         disabled={isPending}
-        className="bg-blue-600 text-white rounded px-4 py-2 hover:bg-blue-700 disabled:opacity-50"
+        className="rounded border border-[#ff9e00] bg-[#ff9e00]/10 px-4 py-2 font-semibold text-[#ff9e00] hover:bg-[#ff9e00] hover:text-[#0e1117] disabled:opacity-50 transition-colors"
       >
-        {isPending ? "Creating..." : "Create File"}
+        {isPending ? "CREATING..." : "+ CREATE FILE"}
       </button>
     </form>
   );
@@ -61,9 +64,9 @@ export function CreateFolderForm({
   );
 
   return (
-    <form action={formAction} className="flex flex-col gap-3">
+    <form action={formAction} className="flex flex-col gap-3 font-mono text-xs">
       {state?.error && (
-        <div className="text-sm text-red-600 bg-red-50 p-2 rounded border border-red-200">
+        <div className="text-red-400 bg-red-950/50 p-2 rounded border border-red-800">
           {state.error}
         </div>
       )}
@@ -71,15 +74,15 @@ export function CreateFolderForm({
         name="name"
         type="text"
         required
-        placeholder="Folder name"
-        className="rounded border px-3 py-2"
+        placeholder="FOLDER NAME"
+        className="rounded border border-[#30363d] bg-[#0e1117] px-3 py-2 text-[#f0f6fc] placeholder-[#484f58] focus:border-[#ff9e00] focus:outline-none"
       />
       <button
         type="submit"
         disabled={isPending}
-        className="bg-blue-600 text-white rounded px-4 py-2 hover:bg-blue-700 disabled:opacity-50"
+        className="rounded border border-[#ff9e00] bg-[#ff9e00]/10 px-4 py-2 font-semibold text-[#ff9e00] hover:bg-[#ff9e00] hover:text-[#0e1117] disabled:opacity-50 transition-colors"
       >
-        {isPending ? "Creating..." : "Create Folder"}
+        {isPending ? "CREATING..." : "+ CREATE FOLDER"}
       </button>
     </form>
   );

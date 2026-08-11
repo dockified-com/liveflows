@@ -25,7 +25,7 @@ describe("AppLayout", () => {
     );
     const wrapper = container.firstElementChild as HTMLElement;
     expect(wrapper.className).toContain("flex");
-    expect(wrapper.className).toContain("h-full");
+    expect(wrapper.className).toContain("h-screen");
     expect(wrapper.className).toContain("flex-col");
   });
 });

@@ -13,17 +13,20 @@ export default async function Page({
   const file = await getFileWithSnapshot(workspaceSlug, fileId);
 
   return (
-    <div className="flex h-full flex-col">
-      <header className="flex items-center justify-between border-b px-4 py-2">
-        <h1 className="font-medium text-sm">{file.name}</h1>
+    <div className="flex h-full w-full flex-col bg-[#0e1117]">
+      <header className="flex items-center justify-between border-b border-[#21262d] bg-[#161b22] px-4 py-2 font-mono text-xs text-[#8b949e]">
+        <div className="flex items-center gap-2">
+          <span className="text-[#10b981]">🎨</span>
+          <h1 className="font-semibold text-[#f0f6fc]">{file.name}</h1>
+        </div>
         <a
-          className="text-muted-foreground text-sm underline hover:text-foreground"
+          className="text-[#ff9e00] hover:underline"
           href={`/w/${workspaceSlug}`}
         >
-          Back to workspace
+          &larr; BACK TO WORKSPACE
         </a>
       </header>
-      <div className="min-h-0 flex-1">
+      <div className="relative min-h-0 flex-1 w-full">
         <CanvasRoom
           fallbackElements={file.snapshotElements as ExcalidrawElement[]}
           roomId={file.liveblocksRoomId}

@@ -265,7 +265,9 @@ describe("Configuration module", () => {
                 );
               }
             } finally {
-              for (const k of Object.keys(envOverrides)) { delete process.env[k]; }
+              for (const k of Object.keys(envOverrides)) {
+                delete process.env[k];
+              }
             }
           },
         ),

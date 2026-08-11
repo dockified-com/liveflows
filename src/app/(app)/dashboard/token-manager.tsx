@@ -46,8 +46,13 @@ export function TokenManager({ tokens }: { tokens: Token[] }) {
 
         {newToken && (
           <div className="p-4 bg-green-50 border border-green-200 rounded-md mb-6">
-            <h3 className="text-sm font-medium text-green-800">New Token Generated!</h3>
-            <p className="text-sm text-green-700 mt-1">Make sure to copy your personal access token now. You won't be able to see it again!</p>
+            <h3 className="text-sm font-medium text-green-800">
+              New Token Generated!
+            </h3>
+            <p className="text-sm text-green-700 mt-1">
+              Make sure to copy your personal access token now. You won't be
+              able to see it again!
+            </p>
             <code className="block mt-2 p-2 bg-green-100 rounded text-green-900 font-mono text-sm break-all">
               {newToken}
             </code>
@@ -57,12 +62,16 @@ export function TokenManager({ tokens }: { tokens: Token[] }) {
         <div className="bg-white border rounded-lg overflow-hidden">
           <ul className="divide-y">
             {tokens.map((pat) => (
-              <li key={pat.id} className="p-4 flex justify-between items-center">
+              <li
+                key={pat.id}
+                className="p-4 flex justify-between items-center"
+              >
                 <div>
                   <div className="font-medium text-sm">{pat.name}</div>
                   <div className="text-xs text-gray-500 mt-1">
                     Created {new Date(pat.createdAt).toLocaleDateString()}
-                    {pat.lastUsedAt && ` · Last used ${new Date(pat.lastUsedAt).toLocaleDateString()}`}
+                    {pat.lastUsedAt &&
+                      ` · Last used ${new Date(pat.lastUsedAt).toLocaleDateString()}`}
                   </div>
                 </div>
                 <button
@@ -74,7 +83,9 @@ export function TokenManager({ tokens }: { tokens: Token[] }) {
               </li>
             ))}
             {tokens.length === 0 && (
-              <li className="p-4 text-sm text-gray-500 text-center">No tokens generated yet.</li>
+              <li className="p-4 text-sm text-gray-500 text-center">
+                No tokens generated yet.
+              </li>
             )}
           </ul>
         </div>
@@ -82,7 +93,10 @@ export function TokenManager({ tokens }: { tokens: Token[] }) {
 
       <form action={handleCreate} className="space-y-4 max-w-sm">
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+          <label
+            htmlFor="name"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
             Generate new token
           </label>
           <input

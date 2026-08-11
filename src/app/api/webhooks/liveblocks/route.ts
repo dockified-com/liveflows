@@ -72,10 +72,7 @@ export async function POST(req: NextRequest) {
 
   // 5. Fetch Storage document and upsert CanvasSnapshot
   try {
-    const doc = await liveblocks.getStorageDocument(
-      event.data.roomId,
-      "json",
-    );
+    const doc = await liveblocks.getStorageDocument(event.data.roomId, "json");
 
     const elementsObj: Record<string, unknown> =
       (doc as Record<string, unknown>).elements != null

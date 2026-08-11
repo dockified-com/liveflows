@@ -29,7 +29,7 @@ describe("ProjectList", () => {
   it("renders a heading and list of projects", () => {
     render(<ProjectList projects={mockProjects} workspaceSlug="acme" />);
     expect(
-      screen.getByRole("heading", { name: /projects/i }),
+      screen.getByRole("heading", { name: /system diagrams & architectures/i }),
     ).toBeInTheDocument();
     expect(screen.getAllByRole("listitem")).toHaveLength(2);
   });
@@ -42,7 +42,9 @@ describe("ProjectList", () => {
 
   it("shows empty state when no projects", () => {
     render(<ProjectList projects={[]} workspaceSlug="acme" />);
-    expect(screen.getByText(/no projects yet/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/no active diagram rooms in this workspace/i),
+    ).toBeInTheDocument();
   });
 
   it("opens create-project modal on button click", () => {

@@ -12,9 +12,10 @@ export async function createFileAction(
 ) {
   const name = formData.get("name");
   const type = formData.get("type");
-  
+
   if (typeof name !== "string" || !name) return { error: "Name is required" };
-  if (type !== "canvas" && type !== "document") return { error: "Invalid file type" };
+  if (type !== "canvas" && type !== "document")
+    return { error: "Invalid file type" };
 
   try {
     await createFile(workspaceSlug, projectId, folderId, name, type);
@@ -33,7 +34,7 @@ export async function createFolderAction(
   formData: FormData,
 ) {
   const name = formData.get("name");
-  
+
   if (typeof name !== "string" || !name) return { error: "Name is required" };
 
   try {
@@ -44,4 +45,3 @@ export async function createFolderAction(
     return { error: error.message || "Failed to create folder" };
   }
 }
-

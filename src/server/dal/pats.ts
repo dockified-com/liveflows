@@ -60,7 +60,7 @@ export async function deletePersonalAccessToken(id: string) {
 
 export async function verifyPersonalAccessToken(token: string) {
   const tokenHash = hashToken(token);
-  
+
   const pat = await db.personalAccessToken.findUnique({
     where: { tokenHash },
     include: {
@@ -73,10 +73,12 @@ export async function verifyPersonalAccessToken(token: string) {
   }
 
   // Update lastUsedAt asynchronously
-  void db.personalAccessToken.update({
-    where: { id: pat.id },
-    data: { lastUsedAt: new Date() },
-  }).catch(console.error);
+  void db.personalAccessToken
+    .update({
+      where: { id: pat.id },
+      data: { lastUsedAt: new Date() },
+    })
+    .catch(console.error);
 
   return pat.user;
 }

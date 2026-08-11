@@ -32,7 +32,9 @@ export function createServer(userId: string, sessionId: string) {
 
       if (!workspace || workspace.members.length === 0) {
         return {
-          content: [{ type: "text", text: "Workspace not found or access denied." }],
+          content: [
+            { type: "text", text: "Workspace not found or access denied." },
+          ],
           isError: true,
         };
       }
@@ -45,7 +47,7 @@ export function createServer(userId: string, sessionId: string) {
       return {
         content: [{ type: "text", text: JSON.stringify(files, null, 2) }],
       };
-    }
+    },
   );
 
   server.tool(
@@ -91,14 +93,16 @@ export function createServer(userId: string, sessionId: string) {
           {
             type: "text",
             text: JSON.stringify(
-              snapshot ? { elements: snapshot.elements, appState: snapshot.appState } : { elements: [], appState: {} },
+              snapshot
+                ? { elements: snapshot.elements, appState: snapshot.appState }
+                : { elements: [], appState: {} },
               null,
-              2
+              2,
             ),
           },
         ],
       };
-    }
+    },
   );
 
   server.tool(
@@ -106,7 +110,9 @@ export function createServer(userId: string, sessionId: string) {
     "Add or update Excalidraw elements on a canvas",
     {
       fileId: z.string().describe("The ID of the canvas file"),
-      elements: z.array(z.any()).describe("List of Excalidraw elements to add or update"),
+      elements: z
+        .array(z.any())
+        .describe("List of Excalidraw elements to add or update"),
     },
     async ({ fileId, elements }) => {
       const file = await db.file.findUnique({
@@ -131,7 +137,9 @@ export function createServer(userId: string, sessionId: string) {
 
       if (!file.liveblocksRoomId) {
         return {
-          content: [{ type: "text", text: "File does not have an active canvas room." }],
+          content: [
+            { type: "text", text: "File does not have an active canvas room." },
+          ],
           isError: true,
         };
       }
@@ -140,7 +148,7 @@ export function createServer(userId: string, sessionId: string) {
       // Since Excalidraw uses a LiveMap for elements, we will update the elements.
       // Wait, let's look at how elements are represented in Liveblocks.
       // LiveFlows MVP 1a uses `LiveMap` for `elements` in `CanvasRoom`.
-      
+
       const elementsMap: Record<string, any> = {};
       for (const el of elements) {
         if (el.id) {
@@ -150,35 +158,45 @@ export function createServer(userId: string, sessionId: string) {
 
       if (Object.keys(elementsMap).length > 0) {
         try {
-          const res = await fetch(`https://api.liveblocks.io/v2/rooms/${file.liveblocksRoomId}/storage`, {
-            method: "POST",
-            headers: {
-              "Authorization": `Bearer ${process.env.LIVEBLOCKS_SECRET_KEY}`,
-              "Content-Type": "application/json",
+          const res = await fetch(
+            `https://api.liveblocks.io/v2/rooms/${file.liveblocksRoomId}/storage`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${process.env.LIVEBLOCKS_SECRET_KEY}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                elements: {
+                  update: elementsMap,
+                },
+              }),
             },
-            body: JSON.stringify({
-              elements: {
-                update: elementsMap
-              }
-            })
-          });
+          );
 
           if (!res.ok) {
             const err = await res.text();
             throw new Error(err);
           }
         } catch (e: any) {
-           return {
-             content: [{ type: "text", text: `Failed to update Liveblocks storage: ${e.message}` }],
-             isError: true,
-           };
+          return {
+            content: [
+              {
+                type: "text",
+                text: `Failed to update Liveblocks storage: ${e.message}`,
+              },
+            ],
+            isError: true,
+          };
         }
       }
 
       return {
-        content: [{ type: "text", text: "Successfully applied elements to canvas." }],
+        content: [
+          { type: "text", text: "Successfully applied elements to canvas." },
+        ],
       };
-    }
+    },
   );
 
   activeServers.set(sessionId, server);

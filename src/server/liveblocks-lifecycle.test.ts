@@ -10,7 +10,11 @@ vi.hoisted(() => {
 });
 
 // --- Mock Setup ---
-const { hoistedCreateRoom, hoistedInitializeStorageDocument, hoistedDeleteRoom } = vi.hoisted(() => {
+const {
+  hoistedCreateRoom,
+  hoistedInitializeStorageDocument,
+  hoistedDeleteRoom,
+} = vi.hoisted(() => {
   return {
     hoistedCreateRoom: vi.fn(),
     hoistedInitializeStorageDocument: vi.fn(),

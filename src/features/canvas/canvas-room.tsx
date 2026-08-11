@@ -64,7 +64,7 @@ function Canvas({
     const map = root.elements;
     if (!map) return null;
     const result: ExcalidrawElement[] = [];
-    
+
     // Support both ES6 Maps (from LiveMap) and plain objects (from legacy rooms)
     if (typeof map.entries === "function") {
       for (const [, liveObj] of map.entries()) {
@@ -72,7 +72,11 @@ function Canvas({
       }
     } else {
       for (const liveObj of Object.values(map)) {
-        result.push((liveObj as any).toImmutable ? (liveObj as any).toImmutable() : liveObj);
+        result.push(
+          (liveObj as any).toImmutable
+            ? (liveObj as any).toImmutable()
+            : liveObj,
+        );
       }
     }
     return result;
@@ -201,7 +205,7 @@ function Canvas({
   }, [api]);
 
   return (
-    <div style={{ height: "100vh", width: "100vw" }}>
+    <div className="relative h-full w-full overflow-hidden">
       <div
         style={{
           position: "absolute",

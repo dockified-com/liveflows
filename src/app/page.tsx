@@ -26,12 +26,20 @@ export default async function Home() {
 
         {/* Navbar */}
         <header className="absolute inset-x-0 top-0 z-50">
-          <nav className="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
+          <nav
+            className="flex items-center justify-between p-6 lg:px-8"
+            aria-label="Global"
+          >
             <div className="flex lg:flex-1">
-              <span className="text-xl font-bold tracking-tight text-white">LiveFlows</span>
+              <span className="text-xl font-bold tracking-tight text-white">
+                LiveFlows
+              </span>
             </div>
             <div className="flex flex-1 justify-end gap-x-6 items-center">
-              <Link href="/sign-in" className="text-sm font-semibold leading-6 text-white hover:text-neutral-300 transition-colors">
+              <Link
+                href="/sign-in"
+                className="text-sm font-semibold leading-6 text-white hover:text-neutral-300 transition-colors"
+              >
                 Log in
               </Link>
               <Link
@@ -51,7 +59,10 @@ export default async function Home() {
               Collaborative System Design in Realtime.
             </h1>
             <p className="mt-6 text-lg leading-8 text-neutral-400">
-              Brainstorm architecture, map out systems, and design infrastructure with your entire team. LiveFlows provides a powerful Excalidraw canvas synchronized perfectly across workspaces.
+              Brainstorm architecture, map out systems, and design
+              infrastructure with your entire team. LiveFlows provides a
+              powerful Excalidraw canvas synchronized perfectly across
+              workspaces.
             </p>
             <div className="mt-10 flex items-center justify-center lg:justify-start gap-x-6">
               <Link
@@ -60,8 +71,17 @@ export default async function Home() {
               >
                 Get Started for free
               </Link>
-              <Link href="/sign-in" className="text-sm font-semibold leading-6 text-white group">
-                Sign in to workspace <span aria-hidden="true" className="inline-block transition-transform group-hover:translate-x-1">→</span>
+              <Link
+                href="/sign-in"
+                className="text-sm font-semibold leading-6 text-white group"
+              >
+                Sign in to workspace{" "}
+                <span
+                  aria-hidden="true"
+                  className="inline-block transition-transform group-hover:translate-x-1"
+                >
+                  →
+                </span>
               </Link>
             </div>
           </div>
@@ -69,7 +89,9 @@ export default async function Home() {
             <div className="max-w-3xl flex-none sm:max-w-5xl lg:max-w-none">
               <div className="rounded-xl bg-white/5 p-2 ring-1 ring-white/10 backdrop-blur-lg">
                 <div className="rounded-md bg-neutral-900/80 p-8 shadow-2xl h-[400px] w-[600px] flex items-center justify-center border border-white/5">
-                  <p className="text-neutral-500 font-mono text-sm">[ Interactive Canvas Demo ]</p>
+                  <p className="text-neutral-500 font-mono text-sm">
+                    [ Interactive Canvas Demo ]
+                  </p>
                 </div>
               </div>
             </div>
@@ -79,7 +101,9 @@ export default async function Home() {
         {/* Features */}
         <div className="mx-auto max-w-7xl px-6 lg:px-8 py-24 sm:py-32">
           <div className="mx-auto max-w-2xl lg:text-center">
-            <h2 className="text-base font-semibold leading-7 text-blue-500">Deploy faster</h2>
+            <h2 className="text-base font-semibold leading-7 text-blue-500">
+              Deploy faster
+            </h2>
             <p className="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">
               Everything you need to map out systems
             </p>
@@ -89,27 +113,49 @@ export default async function Home() {
               <div className="relative pl-16">
                 <dt className="text-base font-semibold leading-7 text-white">
                   <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600">
-                    <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                    <svg
+                      className="h-6 w-6 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="1.5"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"
+                      />
                     </svg>
                   </div>
                   Realtime Sync
                 </dt>
                 <dd className="mt-2 text-base leading-7 text-neutral-400">
-                  Powered by Liveblocks, see your team's cursors and updates instantly with zero lag.
+                  Powered by Liveblocks, see your team's cursors and updates
+                  instantly with zero lag.
                 </dd>
               </div>
               <div className="relative pl-16">
                 <dt className="text-base font-semibold leading-7 text-white">
                   <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600">
-                    <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+                    <svg
+                      className="h-6 w-6 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="1.5"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
+                      />
                     </svg>
                   </div>
                   Strict Workspace Isolation
                 </dt>
                 <dd className="mt-2 text-base leading-7 text-neutral-400">
-                  Projects are securely bound to Clerk Organizations, ensuring enterprise-grade data isolation.
+                  Projects are securely bound to Clerk Organizations, ensuring
+                  enterprise-grade data isolation.
                 </dd>
               </div>
             </dl>

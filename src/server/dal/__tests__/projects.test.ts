@@ -97,7 +97,9 @@ describe("listProjects", () => {
       orgId: null,
     } as any);
 
-    await expect(listProjects("nonexistent")).rejects.toThrow("REDIRECT:/sign-in");
+    await expect(listProjects("nonexistent")).rejects.toThrow(
+      "REDIRECT:/sign-in",
+    );
   });
 });
 
@@ -128,7 +130,9 @@ describe("getProject", () => {
       orgId: null,
     } as any);
 
-    await expect(getProject("my-org", "p1")).rejects.toThrow("REDIRECT:/sign-in");
+    await expect(getProject("my-org", "p1")).rejects.toThrow(
+      "REDIRECT:/sign-in",
+    );
   });
 });
 
@@ -165,7 +169,7 @@ describe("deleteProject", () => {
     mockFileFindMany.mockResolvedValue([
       { liveblocksRoomId: "room_f1" },
       { liveblocksRoomId: null },
-      { liveblocksRoomId: "room_f3" }
+      { liveblocksRoomId: "room_f3" },
     ] as any);
     mockDecommissionRoom.mockResolvedValue(undefined);
 
@@ -181,7 +185,7 @@ describe("deleteProject", () => {
       id: "p1",
     } as any);
     mockFileFindMany.mockResolvedValue([
-      { liveblocksRoomId: "room_f1" }
+      { liveblocksRoomId: "room_f1" },
     ] as any);
     mockDecommissionRoom.mockRejectedValue(new Error("Room stuck"));
 
