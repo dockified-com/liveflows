@@ -44,7 +44,6 @@ import {
   createProject,
   deleteProject,
   getProject,
-  getProjectWithSnapshot,
   listProjects,
 } from "../projects";
 

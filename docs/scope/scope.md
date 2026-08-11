@@ -128,12 +128,12 @@ Spec 0001 · code (filled by /develop)
 External AI coding agents read and draw diagrams via MCP, reusing 1a's reconciliation pattern. Gets its own spec once 1a is stable.
 **Done when:** an external MCP client can read a project's current canvas and add elements via `convertToExcalidrawElements()` skeletons without corrupting concurrent human edits.
 - [x] Design it (spec): `/architect MCP server`
-- [ ] Build it: `/develop MCP server`
-  - [ ] Migration + data model: `PersonalAccessToken` (AC-1)
-  - [ ] Token Management UI (AC-1)
-  - [ ] MCP Server Core (SSE + message routes) (AC-1)
-  - [ ] MCP Tools (Read): `list_files`, `read_canvas` (AC-2, AC-3)
-  - [ ] MCP Tools (Write): `draw_elements` (AC-4)
+- [x] Build it: `/develop MCP server`
+  - [x] Migration + data model: `PersonalAccessToken` (AC-1)
+  - [x] Token Management UI (AC-1)
+  - [x] MCP Server Core (SSE + message routes) (AC-1)
+  - [x] MCP Tools (Read): `list_files`, `read_canvas` (AC-2, AC-3)
+  - [x] MCP Tools (Write): `draw_elements` (AC-4)
 - [ ] Verify it: `/check verify MCP server`
 - [ ] Test it: `/test MCP server`
 Spec 0002 · code (filled by /develop)

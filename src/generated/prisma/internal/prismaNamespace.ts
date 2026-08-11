@@ -405,7 +405,8 @@ export const ModelName = {
   File: 'File',
   CanvasSnapshot: 'CanvasSnapshot',
   DocumentSnapshot: 'DocumentSnapshot',
-  ProcessedWebhook: 'ProcessedWebhook'
+  ProcessedWebhook: 'ProcessedWebhook',
+  PersonalAccessToken: 'PersonalAccessToken'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -421,7 +422,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "workspace" | "workspaceMember" | "project" | "folder" | "file" | "canvasSnapshot" | "documentSnapshot" | "processedWebhook"
+    modelProps: "user" | "workspace" | "workspaceMember" | "project" | "folder" | "file" | "canvasSnapshot" | "documentSnapshot" | "processedWebhook" | "personalAccessToken"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1091,6 +1092,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    PersonalAccessToken: {
+      payload: Prisma.$PersonalAccessTokenPayload<ExtArgs>
+      fields: Prisma.PersonalAccessTokenFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PersonalAccessTokenFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PersonalAccessTokenPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PersonalAccessTokenFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PersonalAccessTokenPayload>
+        }
+        findFirst: {
+          args: Prisma.PersonalAccessTokenFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PersonalAccessTokenPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PersonalAccessTokenFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PersonalAccessTokenPayload>
+        }
+        findMany: {
+          args: Prisma.PersonalAccessTokenFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PersonalAccessTokenPayload>[]
+        }
+        create: {
+          args: Prisma.PersonalAccessTokenCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PersonalAccessTokenPayload>
+        }
+        createMany: {
+          args: Prisma.PersonalAccessTokenCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PersonalAccessTokenCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PersonalAccessTokenPayload>[]
+        }
+        delete: {
+          args: Prisma.PersonalAccessTokenDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PersonalAccessTokenPayload>
+        }
+        update: {
+          args: Prisma.PersonalAccessTokenUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PersonalAccessTokenPayload>
+        }
+        deleteMany: {
+          args: Prisma.PersonalAccessTokenDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PersonalAccessTokenUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PersonalAccessTokenUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PersonalAccessTokenPayload>[]
+        }
+        upsert: {
+          args: Prisma.PersonalAccessTokenUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PersonalAccessTokenPayload>
+        }
+        aggregate: {
+          args: Prisma.PersonalAccessTokenAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePersonalAccessToken>
+        }
+        groupBy: {
+          args: Prisma.PersonalAccessTokenGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PersonalAccessTokenGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PersonalAccessTokenCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PersonalAccessTokenCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1230,6 +1305,19 @@ export const ProcessedWebhookScalarFieldEnum = {
 } as const
 
 export type ProcessedWebhookScalarFieldEnum = (typeof ProcessedWebhookScalarFieldEnum)[keyof typeof ProcessedWebhookScalarFieldEnum]
+
+
+export const PersonalAccessTokenScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  tokenHash: 'tokenHash',
+  lastUsedAt: 'lastUsedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PersonalAccessTokenScalarFieldEnum = (typeof PersonalAccessTokenScalarFieldEnum)[keyof typeof PersonalAccessTokenScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1507,6 +1595,7 @@ export type GlobalOmitConfig = {
   canvasSnapshot?: Prisma.CanvasSnapshotOmit
   documentSnapshot?: Prisma.DocumentSnapshotOmit
   processedWebhook?: Prisma.ProcessedWebhookOmit
+  personalAccessToken?: Prisma.PersonalAccessTokenOmit
 }
 
 /* Types for Logging */

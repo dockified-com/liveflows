@@ -86,3 +86,8 @@ export type DocumentSnapshot = Prisma.DocumentSnapshotModel
  * 
  */
 export type ProcessedWebhook = Prisma.ProcessedWebhookModel
+/**
+ * Model PersonalAccessToken
+ * 
+ */
+export type PersonalAccessToken = Prisma.PersonalAccessTokenModel

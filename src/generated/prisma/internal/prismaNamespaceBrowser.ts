@@ -59,7 +59,8 @@ export const ModelName = {
   File: 'File',
   CanvasSnapshot: 'CanvasSnapshot',
   DocumentSnapshot: 'DocumentSnapshot',
-  ProcessedWebhook: 'ProcessedWebhook'
+  ProcessedWebhook: 'ProcessedWebhook',
+  PersonalAccessToken: 'PersonalAccessToken'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -178,6 +179,19 @@ export const ProcessedWebhookScalarFieldEnum = {
 } as const
 
 export type ProcessedWebhookScalarFieldEnum = (typeof ProcessedWebhookScalarFieldEnum)[keyof typeof ProcessedWebhookScalarFieldEnum]
+
+
+export const PersonalAccessTokenScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  tokenHash: 'tokenHash',
+  lastUsedAt: 'lastUsedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PersonalAccessTokenScalarFieldEnum = (typeof PersonalAccessTokenScalarFieldEnum)[keyof typeof PersonalAccessTokenScalarFieldEnum]
 
 
 export const SortOrder = {
