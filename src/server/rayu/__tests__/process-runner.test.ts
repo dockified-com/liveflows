@@ -76,7 +76,7 @@ describe('process-runner', () => {
 
     it('handles successful execution', async () => {
       const mockChild = new EventEmitter() as any;
-      mockChild.stdin = { write: vi.fn(), end: vi.fn() };
+      mockChild.stdin = { write: vi.fn(), end: vi.fn(), on: vi.fn() };
       mockChild.stdout = new EventEmitter();
       mockChild.stderr = new EventEmitter();
       mockChild.kill = vi.fn();
@@ -106,6 +106,7 @@ describe('process-runner', () => {
 
     it('handles binary not found', async () => {
       const mockChild = new EventEmitter() as any;
+      mockChild.kill = vi.fn();
       vi.mocked(child_process.spawn).mockReturnValue(mockChild);
       
       const promise = runProcess({
@@ -126,6 +127,7 @@ describe('process-runner', () => {
 
     it('handles startup timeout', async () => {
       const mockChild = new EventEmitter() as any;
+      mockChild.kill = vi.fn();
       vi.mocked(child_process.spawn).mockReturnValue(mockChild);
       
       const promise = runProcess({
@@ -146,7 +148,7 @@ describe('process-runner', () => {
 
     it('handles timeout sequence (SIGTERM -> SIGKILL -> unkillable)', async () => {
       const mockChild = new EventEmitter() as any;
-      mockChild.stdin = { write: vi.fn(), end: vi.fn() };
+      mockChild.stdin = { write: vi.fn(), end: vi.fn(), on: vi.fn() };
       mockChild.stdout = new EventEmitter();
       mockChild.stderr = new EventEmitter();
       mockChild.kill = vi.fn();
@@ -183,7 +185,8 @@ describe('process-runner', () => {
       const mockChild = new EventEmitter() as any;
       mockChild.stdin = { 
         write: vi.fn().mockImplementation(() => { throw new Error('EPIPE'); }), 
-        end: vi.fn() 
+        end: vi.fn(),
+        on: vi.fn()
       };
       mockChild.kill = vi.fn();
       
@@ -203,6 +206,50 @@ describe('process-runner', () => {
       
       await expect(promise).rejects.toMatchObject({ code: 'STDIN_WRITE_FAILED' });
       expect(mockChild.kill).toHaveBeenCalledWith('SIGKILL');
+    });
+  });
+
+  describe('Additional runProcess tests', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+      vi.clearAllMocks();
+    });
+
+    it('handles successful exit during SIGTERM grace period', async () => {
+      const mockChild = new EventEmitter() as any;
+      mockChild.stdin = { write: vi.fn(), end: vi.fn(), on: vi.fn() };
+      mockChild.stdout = new EventEmitter();
+      mockChild.stderr = new EventEmitter();
+      mockChild.kill = vi.fn();
+      
+      vi.mocked(child_process.spawn).mockReturnValue(mockChild);
+      
+      const promise = runProcess({
+        binaryPath: 'rayu',
+        cliFlags: [],
+        workingDir: '/tmp',
+        stdinContent: '',
+        timeoutMs: 5000,
+        maxOutputBytes: 1000,
+        env: {}
+      });
+      
+      mockChild.emit('spawn');
+      
+      // Advance by timeout (SIGTERM)
+      vi.advanceTimersByTime(5000);
+      expect(mockChild.kill).toHaveBeenCalledWith('SIGTERM');
+      
+      // Exit successfully during grace period
+      mockChild.emit('close', null, 'SIGTERM');
+      
+      const result = await promise;
+      expect(result.timedOut).toBe(true);
+      expect(result.exitCode).toBe(-1);
     });
   });
 });

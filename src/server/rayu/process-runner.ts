@@ -56,14 +56,16 @@ export function runProcess(options: RunOptions): Promise<RunResult> {
     let unkillable = false;
     let resolved = false;
 
+    let child: ChildProcess | undefined;
+
     const startupTimeoutTimer = setTimeout(() => {
       if (!resolved) {
         resolved = true;
+        if (child) child.kill('SIGKILL');
         reject(new DispatchError('STARTUP_TIMEOUT', 'Process startup timed out'));
       }
     }, 10000);
 
-    let child: ChildProcess;
     try {
       child = spawn(options.binaryPath, options.cliFlags, {
         cwd: options.workingDir,
@@ -108,16 +110,25 @@ export function runProcess(options: RunOptions): Promise<RunResult> {
         }, 5000);
       }, options.timeoutMs);
 
+      child!.stdin?.on('error', (e: any) => {
+        cleanupTimers();
+        if (!resolved) {
+          resolved = true;
+          child!.kill('SIGKILL');
+          reject(new DispatchError('STDIN_WRITE_FAILED', `Failed to write stdin: ${e.message}`));
+        }
+      });
+
       try {
         if (options.stdinContent) {
-          child.stdin?.write(options.stdinContent);
+          child!.stdin?.write(options.stdinContent);
         }
-        child.stdin?.end();
+        child!.stdin?.end();
       } catch (e: any) {
         cleanupTimers();
         if (!resolved) {
           resolved = true;
-          child.kill('SIGKILL');
+          child!.kill('SIGKILL');
           reject(new DispatchError('STDIN_WRITE_FAILED', `Failed to write stdin: ${e.message}`));
         }
       }
@@ -135,21 +146,34 @@ export function runProcess(options: RunOptions): Promise<RunResult> {
       }
     });
 
-    child.stdout?.on('data', (chunk) => {
+    let stdoutSize = 0;
+    let stderrSize = 0;
+    const threshold = 16384;
+    child!.stdout?.on('data', (chunk) => {
       stdoutChunks.push(chunk);
+      stdoutSize += chunk.length;
+      while (stdoutSize - stdoutChunks[0].length >= options.maxOutputBytes + threshold) {
+        stdoutSize -= stdoutChunks[0].length;
+        stdoutChunks.shift();
+      }
     });
 
-    child.stderr?.on('data', (chunk) => {
+    child!.stderr?.on('data', (chunk) => {
       stderrChunks.push(chunk);
+      stderrSize += chunk.length;
+      while (stderrSize - stderrChunks[0].length >= options.maxOutputBytes + threshold) {
+        stderrSize -= stderrChunks[0].length;
+        stderrChunks.shift();
+      }
     });
 
-    child.on('close', (code, signal) => {
+    child!.on('close', (code, signal) => {
       cleanupTimers();
       if (resolved) return;
       resolved = true;
       durationMs = Date.now() - startTime;
       
-      let exitCode = code ?? 0;
+      let exitCode = code ?? (signal ? -1 : 0);
       if (signal === 'SIGTERM' || signal === 'SIGKILL') {
         exitCode = -1;
       }
