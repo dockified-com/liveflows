@@ -113,12 +113,12 @@ Explicitly rejected: a single file that is simultaneously a document and a canva
 - Canvas realtime reconciliation (H) and canvas mirror webhook (J): unaffected in mechanism, but now run per open canvas file rather than per project
 **Done when:** a user can create folders and files inside a project, open multiple files as tabs, split two tabs side by side, and each file (document or canvas) is independently synced and editable with no shared or generated content between file types.
 - [x] Design it (spec): `/architect multi-file projects`
-- [ ] Build it: `/develop multi-file projects`
-  - [ ] Migration + data model: `Folder`/`File`/`DocumentSnapshot`, re-key `CanvasSnapshot`, backfill existing projects into root-level canvas files (AC-1, AC-2, AC-4)
-  - [ ] File/folder DAL: create, rename, move (uniqueness + cycle checks), delete with room/document decommission (AC-3, AC-5, AC-6, AC-7, AC-8, AC-9)
-  - [ ] Update project deletion, canvas reconciliation, and the canvas mirror webhook to key off file id instead of project id
-- [ ] Verify it: `/check verify multi-file projects`
-- [ ] Test it: `/test multi-file projects`
+- [x] Build it: `/develop multi-file projects`
+  - [x] Migration + data model: `Folder`/`File`/`DocumentSnapshot`, re-key `CanvasSnapshot`, backfill existing projects into root-level canvas files (AC-1, AC-2, AC-4)
+  - [x] File/folder DAL: create, rename, move (uniqueness + cycle checks), delete with room/document decommission (AC-3, AC-5, AC-6, AC-7, AC-8, AC-9)
+  - [x] Update project deletion, canvas reconciliation, and the canvas mirror webhook to key off file id instead of project id
+- [x] Verify it: `/check verify multi-file projects`
+- [x] Test it: `/test multi-file projects`
 Implementation detail for the spec, not a scope change: tabs and file-tree items share one drag source. Click a tree file → opens a new tab, never replaces or closes an existing tab. Drag a tab or a tree file onto a pane's edge → new split in that direction (macOS window-snap style); onto a pane's center → replaces that pane's current file; onto the empty tab bar area → adds a new tab with no layout change (Notion-style). Reorder-within-bar, drag-to-split, and drag-to-add-tab are all pure client UI state, no backend implication. Demoed in `docs/UI-design/final-light-saas/project-file-tabs.html`.
 Spec 0001 · code (filled by /develop)
 
