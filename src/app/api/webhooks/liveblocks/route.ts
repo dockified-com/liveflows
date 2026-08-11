@@ -50,15 +50,22 @@ export async function POST(req: NextRequest) {
     return new Response("OK", { status: 200 });
   }
 
-  // 4. Project lookup by liveblocksRoomId
-  const project = await db.project.findUnique({
+  // 4. File lookup by liveblocksRoomId
+  const file = await db.file.findUnique({
     where: { liveblocksRoomId: event.data.roomId },
-    select: { id: true },
+    select: { id: true, type: true },
   });
 
-  if (!project) {
+  if (!file) {
     console.warn(
-      `[liveblocks] No project found for room ${event.data.roomId} — webhook ignored`,
+      `[liveblocks] No file found for room ${event.data.roomId} — webhook ignored`,
+    );
+    return new Response("OK", { status: 200 });
+  }
+
+  if (file.type !== "canvas") {
+    console.warn(
+      `[liveblocks] Room ${event.data.roomId} is not a canvas (${file.type}) — ignoring canvas snapshot`,
     );
     return new Response("OK", { status: 200 });
   }
@@ -83,9 +90,9 @@ export async function POST(req: NextRequest) {
     const meta = (doc as Record<string, unknown>).meta ?? {};
 
     await db.canvasSnapshot.upsert({
-      where: { projectId: project.id },
+      where: { fileId: file.id },
       create: {
-        projectId: project.id,
+        fileId: file.id,
         elements: elements as unknown[],
         appState: meta,
         elementCount,

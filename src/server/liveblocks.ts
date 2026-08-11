@@ -9,29 +9,28 @@ export const liveblocks = new Liveblocks({
 });
 
 /**
- * Deterministic room ID from project ID.
- * Convention: `proj_${projectId}`
+ * Deterministic room ID from file ID.
+ * Convention: `file_${fileId}`
  */
-export function roomIdForProject(projectId: string): string {
-  return `proj_${projectId}`;
+export function roomIdForFile(fileId: string): string {
+  return `file_${fileId}`;
 }
 
 /**
- * Creates the Liveblocks room and seeds empty Storage.
- * Throws on failure so the caller (DAL createProject) can roll back the Project row.
+ * Creates the Liveblocks room and optionally seeds empty Storage.
+ * Throws on failure so the caller (DAL createFile) can roll back the File row.
  *
  * - defaultAccesses: [] means deny by default
  * - groupsAccesses grants workspace-level write via the group id
  * - organizationId is IMMUTABLE after room creation (hard tenant isolation)
- * - initializeStorageDocument disconnects all users — safe here because
- *   the room was just created and nobody is connected yet
  */
 export async function provisionRoom(args: {
   roomId: string;
   workspaceId: string;
   clerkOrgId: string;
+  type: "canvas" | "document";
 }): Promise<void> {
-  const { roomId, workspaceId, clerkOrgId } = args;
+  const { roomId, workspaceId, clerkOrgId, type } = args;
 
   await liveblocks.createRoom(roomId, {
     defaultAccesses: [],
@@ -39,21 +38,23 @@ export async function provisionRoom(args: {
     organizationId: clerkOrgId,
   });
 
-  await liveblocks.initializeStorageDocument(roomId, {
-    liveblocksType: "LiveObject",
-    data: {
-      elements: {
-        liveblocksType: "LiveMap",
-        data: {},
-      },
-      meta: {
-        liveblocksType: "LiveObject",
-        data: {
-          viewBackgroundColor: "#ffffff",
+  if (type === "canvas") {
+    await liveblocks.initializeStorageDocument(roomId, {
+      liveblocksType: "LiveObject",
+      data: {
+        elements: {
+          liveblocksType: "LiveMap",
+          data: {},
+        },
+        meta: {
+          liveblocksType: "LiveObject",
+          data: {
+            viewBackgroundColor: "#ffffff",
+          },
         },
       },
-    },
-  });
+    });
+  }
 }
 
 /**
