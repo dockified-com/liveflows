@@ -1,0 +1,5 @@
+#!/usr/bin/expect
+spawn npx prisma migrate dev --name multi_file_projects --create-only
+expect "Are you sure you want create this migration"
+send "y\r"
+expect eof

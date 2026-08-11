@@ -117,3 +117,55 @@ export async function deleteProject(
 
   await db.project.delete({ where: { id: project.id } });
 }
+
+export type ProjectContents = {
+  files: {
+    id: string;
+    name: string;
+    type: string;
+    updatedAt: Date;
+    folderId: string | null;
+  }[];
+  folders: {
+    id: string;
+    name: string;
+    parentId: string | null;
+    updatedAt: Date;
+  }[];
+};
+
+export async function listProjectContents(
+  workspaceSlug: string,
+  projectId: string,
+): Promise<ProjectContents> {
+  const workspace = await requireWorkspace(workspaceSlug);
+
+  const project = await db.project.findFirst({
+    where: { id: projectId, workspaceId: workspace.id },
+    select: { id: true },
+  });
+
+  if (!project) {
+    notFound();
+  }
+
+  const files = await db.file.findMany({
+    where: { projectId: project.id },
+    select: {
+      id: true,
+      name: true,
+      type: true,
+      updatedAt: true,
+      folderId: true,
+    },
+    orderBy: { name: "asc" },
+  });
+
+  const folders = await db.folder.findMany({
+    where: { projectId: project.id },
+    select: { id: true, name: true, parentId: true, updatedAt: true },
+    orderBy: { name: "asc" },
+  });
+
+  return { files, folders };
+}

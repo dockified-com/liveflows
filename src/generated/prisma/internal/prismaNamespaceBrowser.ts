@@ -55,7 +55,10 @@ export const ModelName = {
   Workspace: 'Workspace',
   WorkspaceMember: 'WorkspaceMember',
   Project: 'Project',
+  Folder: 'Folder',
+  File: 'File',
   CanvasSnapshot: 'CanvasSnapshot',
+  DocumentSnapshot: 'DocumentSnapshot',
   ProcessedWebhook: 'ProcessedWebhook'
 } as const
 
@@ -113,7 +116,6 @@ export const ProjectScalarFieldEnum = {
   id: 'id',
   name: 'name',
   workspaceId: 'workspaceId',
-  liveblocksRoomId: 'liveblocksRoomId',
   createdById: 'createdById',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -122,8 +124,35 @@ export const ProjectScalarFieldEnum = {
 export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
 
 
-export const CanvasSnapshotScalarFieldEnum = {
+export const FolderScalarFieldEnum = {
+  id: 'id',
   projectId: 'projectId',
+  parentId: 'parentId',
+  name: 'name',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FolderScalarFieldEnum = (typeof FolderScalarFieldEnum)[keyof typeof FolderScalarFieldEnum]
+
+
+export const FileScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  folderId: 'folderId',
+  name: 'name',
+  type: 'type',
+  liveblocksRoomId: 'liveblocksRoomId',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FileScalarFieldEnum = (typeof FileScalarFieldEnum)[keyof typeof FileScalarFieldEnum]
+
+
+export const CanvasSnapshotScalarFieldEnum = {
+  fileId: 'fileId',
   elements: 'elements',
   appState: 'appState',
   elementCount: 'elementCount',
@@ -131,6 +160,15 @@ export const CanvasSnapshotScalarFieldEnum = {
 } as const
 
 export type CanvasSnapshotScalarFieldEnum = (typeof CanvasSnapshotScalarFieldEnum)[keyof typeof CanvasSnapshotScalarFieldEnum]
+
+
+export const DocumentSnapshotScalarFieldEnum = {
+  fileId: 'fileId',
+  content: 'content',
+  syncedAt: 'syncedAt'
+} as const
+
+export type DocumentSnapshotScalarFieldEnum = (typeof DocumentSnapshotScalarFieldEnum)[keyof typeof DocumentSnapshotScalarFieldEnum]
 
 
 export const ProcessedWebhookScalarFieldEnum = {

@@ -93,14 +93,14 @@ export async function POST(req: NextRequest) {
       where: { fileId: file.id },
       create: {
         fileId: file.id,
-        elements: elements as unknown[],
-        appState: meta,
+        elements: elements as any,
+        appState: meta as any,
         elementCount,
         syncedAt: new Date(),
       },
       update: {
-        elements: elements as unknown[],
-        appState: meta,
+        elements: elements as any,
+        appState: meta as any,
         elementCount,
         syncedAt: new Date(),
       },

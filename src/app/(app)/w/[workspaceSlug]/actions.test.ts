@@ -46,9 +46,8 @@ describe("createProjectAction", () => {
   it("calls createProject with trimmed name and redirects", async () => {
     mockCreateProject.mockResolvedValue({
       id: "p1",
-      name: "Test",
+      name: "Test Project",
       updatedAt: new Date(),
-      liveblocksRoomId: "proj_p1",
     });
 
     const fd = new FormData();

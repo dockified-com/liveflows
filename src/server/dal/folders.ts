@@ -102,7 +102,7 @@ export async function moveFolder(
       if (currentId === folderId) {
         throw new Error("Cannot move a folder into its own child");
       }
-      const parent = await db.folder.findUnique({
+      const parent: { parentId: string | null } | null = await db.folder.findUnique({
         where: { id: currentId },
         select: { parentId: true },
       });
