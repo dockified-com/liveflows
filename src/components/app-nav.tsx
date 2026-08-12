@@ -12,14 +12,14 @@ export function AppNav() {
   const { sidebarOpen, toggleSidebar } = useUiStore();
 
   return (
-    <header className="flex items-center justify-between border-b border-[#21262d] bg-[#161b22] px-4 h-14 font-mono text-xs text-[#8b949e]">
+    <header className="flex h-14 items-center justify-between border-b border-[var(--line)] bg-[var(--card)] px-4 font-sans text-xs text-[var(--ink-soft)]">
       <nav aria-label="Main navigation" className="flex items-center gap-4">
         <button
           type="button"
           onClick={toggleSidebar}
           aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
           aria-expanded={sidebarOpen}
-          className="rounded border border-[#30363d] bg-[#0e1117] p-1.5 text-[#f0f6fc] hover:border-[#ff9e00] hover:text-[#ff9e00] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff9e00] transition-colors"
+          className="rounded-[var(--radius-sm)] border border-[var(--line)] bg-[var(--card)] p-1.5 text-[var(--ink)] hover:bg-[var(--bg-2)] hover:text-[var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)] transition-colors"
         >
           <svg
             aria-hidden="true"
@@ -36,17 +36,17 @@ export function AppNav() {
             />
           </svg>
         </button>
-        <div className="flex items-center gap-2 border-l border-[#30363d] pl-4">
-          <span className="font-bold uppercase tracking-wider text-[#ff9e00]">
-            :: LIVEFLOWS
+        <div className="flex items-center gap-2 border-l border-[var(--line)] pl-4">
+          <span className="font-bold text-[13px] text-[var(--accent)]">
+            LIVEFLOWS
           </span>
-          <span className="text-[#30363d]">/</span>
+          <span className="text-[var(--ink-faint)]">/</span>
           <OrganizationSwitcher
             appearance={{
               elements: {
-                rootBox: "text-[#f0f6fc]",
+                rootBox: "text-[var(--ink)]",
                 organizationSwitcherTrigger:
-                  "text-[#f0f6fc] font-mono hover:bg-[#21262d] py-1 px-2 rounded border border-[#30363d]",
+                  "text-[var(--ink)] font-sans hover:bg-[var(--bg-2)] py-1 px-2 rounded-[var(--radius-sm)] border border-[var(--line)]",
               },
             }}
           />
@@ -56,11 +56,10 @@ export function AppNav() {
       <div className="hidden md:flex items-center gap-6">
         <div className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10b981] opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#10b981]"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--success)] opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--success)]"></span>
           </span>
-          <span className="text-[#f0f6fc]">LIVE SYNC</span>
-          <span className="text-[#484f58]">(12ms)</span>
+          <span className="text-[var(--ink)] font-medium">LIVE SYNC</span>
         </div>
       </div>
 

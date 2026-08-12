@@ -681,7 +681,7 @@ Synthesized from this review's findings. Each task derives from a specific findi
   - Surfaced by: the Reference-Locked Final UI Fidelity Contract and test review D29 — the current summary table cannot prove state-level coverage or stop blind implementation.
   - Files: `docs/specs/final-light-saas-fidelity-manifest.json`, `docs/specs/final-light-saas-fidelity-manifest.md`, focused manifest schema/validation script and tests, pinned font assets outside the frozen reference directory, capture-environment and D40 performance-baseline configuration.
   - Verify: every required state × primary viewport has one stable manifest ID; 767/768/1279/1280 boundary checks are represented; frozen reference, font, runtime, and browser hashes validate; every row names its T1–T10 owner and executable fixture; approved-reference baseline captures are stable; the representative D40 fixture/metric/sample/invariant contract names an owner task and blocks that owner until its real baseline plus derived absolute budget evidence is recorded; CEO/design-owner preflight approval is recorded. T1–T10 remain blocked until this gate passes, and each later owner task remains blocked on its own D40 evidence gate.
-- [ ] **T1 (P1, human: ~4h / CC: ~35min)** — Design system — Codify the finalized Light SaaS system and semantic tokens
+- [x] **T1 (P1, human: ~4h / CC: ~35min)** — Design system — Codify the finalized Light SaaS system and semantic tokens
   - Surfaced by: Pass 5 — no durable `DESIGN.md`; repeated dark hex values currently control authenticated UI.
   - Files: `DESIGN.md`, `src/app/globals.css`, `src/app/layout.tsx`, new focused primitives under `src/components/ui/`.
   - Verify: token/contrast audit plus `pnpm lint` and component tests.
