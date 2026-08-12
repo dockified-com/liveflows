@@ -167,16 +167,20 @@ function Canvas({
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const flushLatest = useCallback(() => {
-    if (!latestSceneRef.current) return;
+    if (!latestSceneRef.current || remoteElements === null) return;
     const changed = collectLocalChanges(
       latestSceneRef.current,
       ledger.current,
     );
     if (changed.length > 0) {
-      for (const el of changed) ledger.current.set(el.id, el.version);
-      push(changed);
+      try {
+        for (const el of changed) ledger.current.set(el.id, el.version);
+        push(changed);
+      } catch (err) {
+        console.warn("Failed to push storage mutation (storage loading/disconnected):", err);
+      }
     }
-  }, [push]);
+  }, [push, remoteElements]);
 
   const onChange = useCallback(
     (elements: readonly ExcalidrawElement[]) => {
