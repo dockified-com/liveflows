@@ -4,6 +4,7 @@ import Link from "next/link";
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
+import { useUiStore } from "@/stores/ui";
 
 export interface BreadcrumbItem {
   label: string;
@@ -28,6 +29,7 @@ export function Topbar({
 }: TopbarProps) {
   const isCanvas = variant === "canvas";
   const heightClass = isCanvas ? "h-[56px]" : "h-16";
+  const openModal = useUiStore((s) => s.openModal);
 
   return (
     <header
@@ -131,7 +133,11 @@ export function Topbar({
         {actionSlot ? (
           actionSlot
         ) : (
-          <Button variant="primary" size="sm">
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => openModal({ kind: "create-project" })}
+          >
             + New project
           </Button>
         )}
