@@ -75,7 +75,7 @@ describe("CanvasRoom fallback", () => {
     const banner = container.querySelector('[data-testid="outage-banner"]');
     expect(banner).toBeInTheDocument();
     expect(banner).toHaveTextContent(
-      "Liveblocks is unreachable. The canvas is in read-only mode.",
+      "Liveblocks is unreachable. Rendering read-only snapshot.",
     );
   });
 
@@ -125,9 +125,7 @@ describe("CanvasRoom fallback", () => {
     const warning = container.querySelector('[data-testid="storage-warning"]');
     expect(warning).toBeInTheDocument();
     expect(warning).toHaveAttribute("data-severity", "warning");
-    expect(warning).toHaveTextContent(
-      "Warning: Canvas is getting large. Consider starting a new project soon.",
-    );
+    expect(warning).toHaveTextContent("Large Canvas");
   });
 
   it("renders critical storage warning when elementCount > 5000", () => {
@@ -138,8 +136,6 @@ describe("CanvasRoom fallback", () => {
     const warning = container.querySelector('[data-testid="storage-warning"]');
     expect(warning).toBeInTheDocument();
     expect(warning).toHaveAttribute("data-severity", "critical");
-    expect(warning).toHaveTextContent(
-      "Warning: Canvas is getting large. Consider starting a new project soon.",
-    );
+    expect(warning).toHaveTextContent("Critical Size");
   });
 });

@@ -685,7 +685,7 @@ Synthesized from this review's findings. Each task derives from a specific findi
   - Surfaced by: Pass 5 — no durable `DESIGN.md`; repeated dark hex values currently control authenticated UI.
   - Files: `DESIGN.md`, `src/app/globals.css`, `src/app/layout.tsx`, new focused primitives under `src/components/ui/`.
   - Verify: token/contrast audit plus `pnpm lint` and component tests.
-- [ ] **T2 (P1, human: ~2d / CC: ~2h)** — Application shell — Build responsive rail, sidebar, top bar, and contextual drawer
+- [x] **T2 (P1, human: ~2d / CC: ~2h)** — Application shell — Build responsive rail, sidebar, top bar, and contextual drawer
   - Surfaced by: Pass 1 and Pass 6 — current top-only dark navigation does not match the finalized hierarchy or mobile needs.
   - Files: `src/app/(app)/layout.tsx`, `src/components/app-nav.tsx`, new shell/navigation components.
   - Verify: keyboard/focus tests and screenshots at 1440px, 1024px, and 390px.
