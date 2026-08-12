@@ -15,7 +15,7 @@ export default async function WorkspacePage({
   const projects = await listProjects(workspace.slug);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8">
+    <div className="mx-auto max-w-6xl p-7">
       <ProjectList projects={projects} workspaceSlug={workspace.slug} />
       <CreateProjectModal
         createAction={createProjectAction.bind(null, workspace.slug)}

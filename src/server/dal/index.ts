@@ -28,3 +28,5 @@ export {
 export type { FolderDetail } from "./folders";
 export type { WorkspaceRef } from "./workspaces";
 export { requireWorkspace, requireWorkspaceByOrgId } from "./workspaces";
+export { getProjectWorkspace } from "./project-workspace";
+export type { WorkspaceProjectMetadata } from "./project-workspace";

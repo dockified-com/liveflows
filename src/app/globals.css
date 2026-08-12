@@ -1,29 +1,67 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0e1117;
-  --foreground: #f0f6fc;
-  --surface: #161b22;
-  --surface-border: #21262d;
-  --steel: #8b949e;
-  --amber: #ff9e00;
-  --emerald: #10b981;
+  --bg: #f8fafc;
+  --bg-2: #f1f5f9;
+  --card: #ffffff;
+  --line: #e2e8f0;
+  --ink: #1e293b;
+  --ink-soft: #64748b;
+  --ink-faint: #94a3b8;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-soft: #eff6ff;
+  --success: #16a34a;
+  --success-soft: #f0fdf4;
+  --warn: #d97706;
+  --warn-soft: #fffbeb;
+  --destructive: #dc2626;
+  --destructive-soft: #fef2f2;
+
+  /* Legacy variable mappings to maintain backward compatibility during transition */
+  --background: var(--bg);
+  --foreground: var(--ink);
+  --surface: var(--card);
+  --surface-border: var(--line);
+  --steel: var(--ink-soft);
+  --amber: var(--warn);
+  --emerald: var(--success);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-surface: var(--surface);
-  --color-surface-border: var(--surface-border);
-  --color-steel: var(--steel);
-  --color-amber: var(--amber);
-  --color-emerald: var(--emerald);
+  --color-bg: var(--bg);
+  --color-bg-2: var(--bg-2);
+  --color-card: var(--card);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-soft: var(--accent-soft);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-destructive: var(--destructive);
+  --color-destructive-soft: var(--destructive-soft);
+
+  /* Legacy themes */
+  --color-background: var(--bg);
+  --color-foreground: var(--ink);
+  --color-surface: var(--card);
+  --color-surface-border: var(--line);
+  --color-steel: var(--ink-soft);
+  --color-amber: var(--warn);
+  --color-emerald: var(--success);
+
   --font-sans: var(--font-geist-sans), system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), monospace;
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: var(--bg);
+  color: var(--ink);
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
 }

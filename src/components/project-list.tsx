@@ -1,31 +1,88 @@
 "use client";
 
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Icon } from "@/components/ui/icon";
 import type { ProjectListItem } from "@/server/dal/projects";
 import { useUiStore } from "@/stores/ui";
 
-const MONTHS = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
-];
+function formatRelativeDate(date: Date, now: number = Date.now()): string {
+  const diffMs = now - new Date(date).getTime();
+  if (diffMs < 0) {
+    return "Updated just now";
+  }
 
-function formatDate(date: Date): string {
+  const minutes = Math.floor(diffMs / 60_000);
+  if (minutes < 1) return "Updated just now";
+  if (minutes === 1) return "Updated 1m ago";
+  if (minutes < 60) return `Updated ${minutes}m ago`;
+
+  const hours = Math.floor(minutes / 60);
+  if (hours === 1) return "Updated 1h ago";
+  if (hours < 24) return `Updated ${hours}h ago`;
+
+  const days = Math.floor(hours / 24);
+  if (days === 1) return "Updated 1d ago";
+  if (days < 7) return `Updated ${days}d ago`;
+
   const d = new Date(date);
-  const month = MONTHS[d.getUTCMonth()];
-  const day = d.getUTCDate();
-  const hours = String(d.getUTCHours()).padStart(2, "0");
-  const minutes = String(d.getUTCMinutes()).padStart(2, "0");
-  return `${month} ${day}, ${hours}:${minutes} UTC`;
+  return `Updated ${d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  })}`;
+}
+
+function ProjectCard({
+  project,
+  workspaceSlug,
+}: {
+  project: ProjectListItem;
+  workspaceSlug: string;
+}) {
+  return (
+    <li>
+      <Link
+        href={`/w/${workspaceSlug}/p/${project.id}`}
+        className="group block rounded-xl border border-[var(--line)] bg-[var(--card)] p-[18px] shadow-[0_1px_2px_rgba(15,23,42,0.04),0_1px_3px_rgba(15,23,42,0.06)] transition-[transform,box-shadow,border-color] duration-150 hover:scale-[1.02] hover:shadow-[0_4px_12px_rgba(15,23,42,0.08)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+      >
+        <div className="flex items-start gap-3">
+          <span className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-[9px] bg-[var(--accent-soft)] text-[var(--accent)]">
+            <Icon size={17}>
+              <path d="M3.75 6A2.25 2.25 0 016 3.75h2.25a2.25 2.25 0 012.25 2.25v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zm10.5 0A2.25 2.25 0 0116.5 3.75h1.5A2.25 2.25 0 0120.25 6v1.5a2.25 2.25 0 01-2.25 2.25h-1.5a2.25 2.25 0 01-2.25-2.25V6zM3.75 16.5A2.25 2.25 0 016 14.25h1.5a2.25 2.25 0 012.25 2.25v1.5a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25v-1.5zm10.5 0a2.25 2.25 0 012.25-2.25h1.5a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-1.5A2.25 2.25 0 0114.25 18v-1.5z" />
+            </Icon>
+          </span>
+          <div className="min-w-0">
+            <h2 className="truncate text-[15px] font-semibold text-[var(--ink)]">
+              {project.name}
+            </h2>
+            <p className="mt-0.5 text-xs text-[var(--ink-faint)]">
+              {formatRelativeDate(project.updatedAt)}
+            </p>
+          </div>
+        </div>
+      </Link>
+    </li>
+  );
+}
+
+function NewProjectCard({ onClick }: { onClick: () => void }) {
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={onClick}
+        className="flex min-h-[120px] w-full flex-col items-center justify-center gap-2 rounded-xl border-[1.5px] border-dashed border-[var(--line)] bg-transparent p-[18px] text-[var(--ink-faint)] transition-colors hover:border-[var(--accent)] hover:bg-[var(--accent-soft)] hover:text-[var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+      >
+        <Icon size={22}>
+          <path d="M12 4.5v15m7.5-7.5h-15" />
+        </Icon>
+        <span className="text-[13.5px] font-medium">New project</span>
+      </button>
+    </li>
+  );
 }
 
 export function ProjectList({
@@ -36,118 +93,49 @@ export function ProjectList({
   workspaceSlug: string;
 }) {
   const { openModal } = useUiStore();
+  const openCreate = () => openModal({ kind: "create-project" });
 
   return (
-    <section aria-labelledby="projects-heading" className="space-y-6">
-      {/* Telemetry Header Bar */}
-      <div className="flex flex-col gap-4 border border-[#21262d] bg-[#161b22] p-4 font-mono text-xs text-[#8b949e] md:flex-row md:items-center md:justify-between">
-        <div className="flex flex-wrap items-center gap-6">
-          <div>
-            <span className="text-[#484f58] uppercase">TOTAL_PROJECTS:</span>{" "}
-            <span className="font-semibold text-[#f0f6fc]">
-              {projects.length}
-            </span>
-          </div>
-          <div>
-            <span className="text-[#484f58] uppercase">MIRROR_STATUS:</span>{" "}
-            <span className="text-[#10b981]">SYNCED</span>
-          </div>
-          <div>
-            <span className="text-[#484f58] uppercase">PERMISSIONS:</span>{" "}
-            <span className="text-[#ff9e00]">MEMBER_READ_WRITE</span>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => openModal({ kind: "create-project" })}
-          className="inline-flex items-center justify-center gap-2 rounded border border-[#ff9e00] bg-[#ff9e00]/10 px-4 py-2 font-mono text-xs font-semibold text-[#ff9e00] hover:bg-[#ff9e00] hover:text-[#0e1117] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff9e00] transition-colors"
-        >
-          <span>+</span> NEW PROJECT
-        </button>
-      </div>
-
-      <div className="flex items-center justify-between border-b border-[#21262d] pb-3">
+    <section aria-labelledby="projects-heading">
+      <div className="mb-6">
         <h1
           id="projects-heading"
-          className="font-mono text-sm font-semibold tracking-wider text-[#f0f6fc] uppercase"
+          className="text-2xl font-bold text-[var(--ink)]"
         >
-          // SYSTEM DIAGRAMS & ARCHITECTURES
+          Projects
         </h1>
+        <p className="mt-1 text-sm text-[var(--ink-faint)]">
+          {projects.length === 0
+            ? "System diagrams and architectures for this workspace."
+            : `${projects.length} ${projects.length === 1 ? "project" : "projects"}`}
+        </p>
       </div>
 
       {projects.length === 0 ? (
-        <div className="border border-dashed border-[#30363d] bg-[#161b22]/50 p-12 text-center font-mono text-xs text-[#8b949e]">
-          <p className="mb-4">NO ACTIVE DIAGRAM ROOMS IN THIS WORKSPACE.</p>
-          <button
-            type="button"
-            onClick={() => openModal({ kind: "create-project" })}
-            className="text-[#ff9e00] underline hover:text-[#ff9e00]/80"
-          >
-            CREATE FIRST PROJECT &rarr;
-          </button>
-        </div>
+        <EmptyState
+          icon={
+            <Icon size={28}>
+              <path d="M3.75 6A2.25 2.25 0 016 3.75h2.25a2.25 2.25 0 012.25 2.25v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zm10.5 0A2.25 2.25 0 0116.5 3.75h1.5A2.25 2.25 0 0120.25 6v1.5a2.25 2.25 0 01-2.25 2.25h-1.5a2.25 2.25 0 01-2.25-2.25V6zM3.75 16.5A2.25 2.25 0 016 14.25h1.5a2.25 2.25 0 012.25 2.25v1.5a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25v-1.5zm10.5 0a2.25 2.25 0 012.25-2.25h1.5a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-1.5A2.25 2.25 0 0114.25 18v-1.5z" />
+            </Icon>
+          }
+          title="No projects yet"
+          description="Projects are shared canvases where your team designs system diagrams together."
+          action={
+            <Button variant="primary" size="md" onClick={openCreate}>
+              + New project
+            </Button>
+          }
+        />
       ) : (
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project, idx) => (
-            <li key={project.id}>
-              <Link
-                href={`/w/${workspaceSlug}/p/${project.id}`}
-                className="group relative block rounded border border-[#21262d] bg-[#161b22] p-5 hover:border-[#ff9e00] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff9e00]"
-              >
-                {/* Top Meta Line */}
-                <div className="flex items-center justify-between font-mono text-[10px] text-[#484f58] mb-3">
-                  <span>#SYS-{String(idx + 1).padStart(2, "0")}</span>
-                  <span className="flex items-center gap-1.5 text-[#10b981]">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#10b981]"></span>
-                    READY
-                  </span>
-                </div>
-
-                {/* Project Title */}
-                <h2 className="font-mono text-sm font-semibold text-[#f0f6fc] group-hover:text-[#ff9e00] transition-colors truncate">
-                  {project.name}
-                </h2>
-
-                {/* Canvas Wireframe Placeholder Accent */}
-                <div className="mt-4 h-24 w-full rounded border border-[#21262d] bg-[#0e1117] p-2 font-mono text-[10px] text-[#484f58] flex flex-col justify-between group-hover:border-[#30363d] transition-colors">
-                  <div className="flex justify-between items-center text-[9px] text-[#30363d]">
-                    <span>GRID 100x100</span>
-                    <span>CANVAS_STORAGE</span>
-                  </div>
-                  <div className="flex items-center justify-center gap-2 text-[#484f58]">
-                    <svg
-                      className="h-5 w-5 text-[#30363d] group-hover:text-[#ff9e00]/50 transition-colors"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={1.5}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M3.75 3.75v16.5h16.5M3.75 12h16.5M12 3.75v16.5"
-                      />
-                    </svg>
-                    <span className="text-[10px]">
-                      Interactive Excalidraw Room
-                    </span>
-                  </div>
-                  <div className="text-right text-[9px] text-[#30363d]">
-                    LIVEBLOCKS_ROOM
-                  </div>
-                </div>
-
-                {/* Bottom Footer Details */}
-                <div className="mt-4 flex items-center justify-between font-mono text-[11px] text-[#8b949e]">
-                  <span>UPDATED</span>
-                  <span className="text-[#f0f6fc]">
-                    {formatDate(project.updatedAt)}
-                  </span>
-                </div>
-              </Link>
-            </li>
+        <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {projects.map((project) => (
+            <ProjectCard
+              key={project.id}
+              project={project}
+              workspaceSlug={workspaceSlug}
+            />
           ))}
+          <NewProjectCard onClick={openCreate} />
         </ul>
       )}
     </section>
