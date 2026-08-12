@@ -1,5 +1,5 @@
 import type { ExcalidrawElement } from "@excalidraw/excalidraw/element/types";
-import { CanvasRoom } from "@/features/canvas";
+import { EditorPaneRouter } from "@/features/project-workspace/editor-pane-router";
 import { getFileWithSnapshot } from "@/server/dal";
 
 export const dynamic = "force-dynamic";
@@ -13,23 +13,26 @@ export default async function Page({
   const file = await getFileWithSnapshot(workspaceSlug, fileId);
 
   return (
-    <div className="flex h-full w-full flex-col bg-[#0e1117]">
-      <header className="flex items-center justify-between border-b border-[#21262d] bg-[#161b22] px-4 py-2 font-mono text-xs text-[#8b949e]">
+    <div className="flex h-full w-full flex-col bg-[var(--surface)] font-sans">
+      <header className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--surface-elevated)] px-4 py-2 text-xs text-[var(--ink-secondary)] select-none">
         <div className="flex items-center gap-2">
-          <span className="text-[#10b981]">🎨</span>
-          <h1 className="font-semibold text-[#f0f6fc]">{file.name}</h1>
+          <span className="opacity-80">
+            {file.type === "canvas" ? "🎨" : "📄"}
+          </span>
+          <h1 className="font-semibold text-[var(--ink)]">{file.name}</h1>
         </div>
         <a
-          className="text-[#ff9e00] hover:underline"
+          className="text-[var(--accent)] hover:underline"
           href={`/w/${workspaceSlug}`}
         >
-          &larr; BACK TO WORKSPACE
+          &larr; Back to workspace
         </a>
       </header>
       <div className="relative min-h-0 flex-1 w-full">
-        <CanvasRoom
-          fallbackElements={file.snapshotElements as ExcalidrawElement[]}
-          roomId={file.liveblocksRoomId}
+        <EditorPaneRouter
+          fileId={file.id}
+          fileType={file.type}
+          liveblocksRoomId={file.liveblocksRoomId}
         />
       </div>
     </div>

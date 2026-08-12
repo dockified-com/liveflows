@@ -225,6 +225,7 @@ export async function deleteFile(
 export type FileWithSnapshot = {
   id: string;
   name: string;
+  type: string;
   updatedAt: Date;
   liveblocksRoomId: string;
   snapshotElements: unknown[]; // CanvasSnapshot.elements — may be [] if never synced
@@ -240,26 +241,29 @@ export async function getFileWithSnapshot(
     where: {
       id: fileId,
       project: { workspaceId: workspace.id },
-      type: "canvas",
     },
     select: {
       id: true,
       name: true,
+      type: true,
       updatedAt: true,
       liveblocksRoomId: true,
       canvas: { select: { elements: true } },
     },
   });
 
-  if (!file || !file.liveblocksRoomId) {
+  if (!file) {
     notFound();
   }
+
+  const roomId = file.liveblocksRoomId || `file_${file.id}`;
 
   return {
     id: file.id,
     name: file.name,
+    type: file.type,
     updatedAt: file.updatedAt,
-    liveblocksRoomId: file.liveblocksRoomId,
+    liveblocksRoomId: roomId,
     snapshotElements: (file.canvas?.elements as unknown[]) ?? [],
   };
 }
