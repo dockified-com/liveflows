@@ -3,17 +3,22 @@
 import { useLiveblocksExtension } from "@liveblocks/react-tiptap";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { createClient } from "@liveblocks/client";
+import { createRoomContext } from "@liveblocks/react";
 import { Icon } from "@/components/ui/icon";
+
+const client = createClient({
+  authEndpoint: "/api/liveblocks-auth",
+});
+
+const { RoomProvider } = createRoomContext(client);
 
 export interface DocumentEditorProps {
   roomId: string;
   readOnly?: boolean;
 }
 
-export function DocumentEditor({
-  roomId: _roomId,
-  readOnly = false,
-}: DocumentEditorProps) {
+function InnerDocumentEditor({ readOnly = false }: { readOnly?: boolean }) {
   const liveblocks = useLiveblocksExtension();
 
   const editor = useEditor({
@@ -25,7 +30,6 @@ export function DocumentEditor({
       liveblocks,
     ],
     editable: !readOnly,
-    content: "",
   });
 
   if (!editor) {
@@ -133,5 +137,13 @@ export function DocumentEditor({
         <EditorContent editor={editor} />
       </div>
     </div>
+  );
+}
+
+export function DocumentEditor({ roomId, readOnly }: DocumentEditorProps) {
+  return (
+    <RoomProvider id={roomId}>
+      <InnerDocumentEditor readOnly={readOnly} />
+    </RoomProvider>
   );
 }
