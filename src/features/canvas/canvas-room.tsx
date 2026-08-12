@@ -1,5 +1,6 @@
 "use client";
 
+import "@excalidraw/excalidraw/index.css";
 import type { ExcalidrawElement } from "@excalidraw/excalidraw/element/types";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 import { createClient, LiveMap, LiveObject } from "@liveblocks/client";
