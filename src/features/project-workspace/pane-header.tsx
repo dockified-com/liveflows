@@ -23,7 +23,9 @@ export function PaneHeader({
     <div className="flex h-8 w-full items-center justify-between border-b border-[var(--border)] bg-[var(--surface-subtle)] px-3 text-xs font-sans select-none shrink-0">
       <div className="flex items-center gap-2 min-w-0">
         <span
-          className="shrink-0 text-[var(--ink-tertiary)]"
+          className={`shrink-0 ${
+            fileType === "canvas" ? "text-blue-600" : "text-violet-600"
+          }`}
           aria-hidden="true"
         >
           {fileType === "canvas" ? (

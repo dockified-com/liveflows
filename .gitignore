@@ -57,3 +57,4 @@ tsconfig.tsbuildinfo
 # analysis & scratch outputs
 graphify-out/
 scratch/
+.gstack/

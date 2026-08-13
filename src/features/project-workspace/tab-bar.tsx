@@ -93,11 +93,16 @@ function SortableTab({
       onFocus={() => setRovingId(tab.id)}
       className={`group relative flex h-8 items-center gap-2 rounded-t-md px-3 text-xs font-medium cursor-pointer transition-colors touch-none select-none ${
         isActive
-          ? "bg-[var(--surface)] text-[var(--ink)] shadow-xs border-t-2 border-t-[var(--accent)]"
-          : "text-[var(--ink-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--ink)]"
+          ? "bg-white text-slate-900 shadow-2xs border-t-2 border-t-blue-600 font-semibold"
+          : "text-slate-600 hover:bg-slate-200/60 hover:text-slate-900"
       }`}
     >
-      <span className="shrink-0 text-[var(--ink-tertiary)]" aria-hidden="true">
+      <span
+        className={`shrink-0 ${
+          tab.type === "canvas" ? "text-blue-600" : "text-violet-600"
+        }`}
+        aria-hidden="true"
+      >
         {tab.type === "canvas" ? (
           <Icon size="sm">
             <circle cx="12" cy="12" r="10" />

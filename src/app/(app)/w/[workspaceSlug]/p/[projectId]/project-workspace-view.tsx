@@ -217,7 +217,7 @@ function InnerWorkspaceContent({
       {/* Main Workspace Body: File Tree Sidebar + Tab & Editor Container */}
       <div className="flex flex-1 min-h-0 w-full overflow-hidden">
         {/* Left File Tree Sidebar Pane */}
-        <aside className="w-64 border-r border-[var(--border)] bg-[var(--surface-subtle)] flex flex-col shrink-0 select-none overflow-hidden">
+        <aside className="w-64 border-r border-slate-200 bg-slate-100/80 flex flex-col shrink-0 select-none overflow-hidden">
           <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--border)]">
             <span className="text-[11px] font-semibold text-[var(--ink-tertiary)] uppercase tracking-wider">
               Project Files ({metadata.files.length})

@@ -239,12 +239,12 @@ function TreeNodeItem({
           if (el) nodeRefs.current.set(node.id, el);
           else nodeRefs.current.delete(node.id);
         }}
-        className={`group flex items-center justify-between py-1.5 pr-2 cursor-pointer transition-colors ${
+        className={`group flex items-center justify-between py-1.5 pr-2 cursor-pointer transition-all rounded-md my-0.5 ${
           isActive
-            ? "bg-[var(--surface-selected)] text-[var(--accent)] font-medium"
+            ? "bg-white shadow-2xs text-blue-700 font-semibold border-l-2 border-blue-600"
             : isOpen
-              ? "text-[var(--ink)] hover:bg-[var(--surface-hover)]"
-              : "text-[var(--ink-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--ink)]"
+              ? "text-[var(--ink)] bg-slate-200/50 hover:bg-slate-200/80 font-medium"
+              : "text-[var(--ink-secondary)] hover:bg-slate-200/60 hover:text-[var(--ink)]"
         }`}
         style={indentStyle}
         onClick={() => {
@@ -268,18 +268,31 @@ function TreeNodeItem({
           title={node.name}
         >
           {isFolder ? (
-            <span className="text-[var(--ink-tertiary)] group-hover:text-[var(--ink)] shrink-0">
-              <Icon size="sm">
-                {isExpanded ? (
-                  <path d="M6 9l6 6 6-6" />
-                ) : (
-                  <path d="M9 18l6-6-6-6" />
-                )}
-              </Icon>
-            </span>
+            <>
+              <span className="text-slate-400 group-hover:text-slate-600 shrink-0">
+                <Icon size="sm">
+                  {isExpanded ? (
+                    <path d="M6 9l6 6 6-6" />
+                  ) : (
+                    <path d="M9 18l6-6-6-6" />
+                  )}
+                </Icon>
+              </span>
+              <span className="shrink-0 text-amber-500" aria-hidden="true">
+                <Icon size="sm">
+                  {isExpanded ? (
+                    <path d="M5 19a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4l2 2h9a2 2 0 0 1 2 2v1M5 19h14a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2H9l-2-2H5z" />
+                  ) : (
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                  )}
+                </Icon>
+              </span>
+            </>
           ) : (
             <span
-              className="shrink-0 text-[var(--ink-tertiary)]"
+              className={`shrink-0 ${
+                node.fileType === "canvas" ? "text-blue-600" : "text-violet-600"
+              }`}
               aria-hidden="true"
             >
               {node.fileType === "canvas" ? (
@@ -312,7 +325,7 @@ function TreeNodeItem({
                 e.stopPropagation();
                 onCreateInFolder(node.id);
               }}
-              className="p-1 rounded text-[var(--ink-tertiary)] hover:bg-[var(--border)] hover:text-[var(--ink)]"
+              className="p-1 rounded text-slate-500 hover:bg-slate-300/60 hover:text-slate-900"
             >
               <Icon size="sm">
                 <line x1="12" y1="5" x2="12" y2="19" />
@@ -329,7 +342,7 @@ function TreeNodeItem({
                 e.stopPropagation();
                 onRename(node.id, node.type, node.name);
               }}
-              className="p-1 rounded text-[var(--ink-tertiary)] hover:bg-[var(--border)] hover:text-[var(--ink)]"
+              className="p-1 rounded text-slate-500 hover:bg-slate-300/60 hover:text-slate-900"
             >
               <Icon size="sm">
                 <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
@@ -345,7 +358,7 @@ function TreeNodeItem({
                 e.stopPropagation();
                 onDelete(node.id, node.type, node.name);
               }}
-              className="p-1 rounded text-[var(--ink-tertiary)] hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-950 dark:hover:text-rose-400"
+              className="p-1 rounded text-slate-500 hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-950 dark:hover:text-rose-400"
             >
               <Icon size="sm">
                 <polyline points="3 6 5 6 21 6" />
@@ -357,7 +370,7 @@ function TreeNodeItem({
       </div>
 
       {isFolder && isExpanded && node.children && (
-        <div role="group">
+        <div role="group" className="border-l border-slate-200/80 ml-3 pl-1">
           {node.children.map((childNode) => (
             <TreeNodeItem
               key={childNode.id}
