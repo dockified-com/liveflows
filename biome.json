@@ -14,7 +14,13 @@
       "!dist",
       "!build",
       "!src/generated",
-      "!.kiro"
+      "!.kiro",
+      "!docs",
+      "!graphify-out",
+      "!scratch",
+      "!run-test.ts",
+      "!test-liveblocks.js",
+      "!continue.md"
     ]
   },
   "formatter": {
@@ -30,7 +36,10 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true
+      "recommended": true,
+      "a11y": {
+        "useSemanticElements": "off"
+      }
     },
     "domains": {
       "next": "recommended",

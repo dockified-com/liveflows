@@ -55,8 +55,12 @@ export const ModelName = {
   Workspace: 'Workspace',
   WorkspaceMember: 'WorkspaceMember',
   Project: 'Project',
+  Folder: 'Folder',
+  File: 'File',
   CanvasSnapshot: 'CanvasSnapshot',
-  ProcessedWebhook: 'ProcessedWebhook'
+  DocumentSnapshot: 'DocumentSnapshot',
+  ProcessedWebhook: 'ProcessedWebhook',
+  PersonalAccessToken: 'PersonalAccessToken'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -113,7 +117,6 @@ export const ProjectScalarFieldEnum = {
   id: 'id',
   name: 'name',
   workspaceId: 'workspaceId',
-  liveblocksRoomId: 'liveblocksRoomId',
   createdById: 'createdById',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -122,10 +125,41 @@ export const ProjectScalarFieldEnum = {
 export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
 
 
-export const CanvasSnapshotScalarFieldEnum = {
+export const FolderScalarFieldEnum = {
+  id: 'id',
   projectId: 'projectId',
+  parentId: 'parentId',
+  name: 'name',
+  normalizedName: 'normalizedName',
+  directoryKey: 'directoryKey',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FolderScalarFieldEnum = (typeof FolderScalarFieldEnum)[keyof typeof FolderScalarFieldEnum]
+
+
+export const FileScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  folderId: 'folderId',
+  name: 'name',
+  normalizedName: 'normalizedName',
+  directoryKey: 'directoryKey',
+  type: 'type',
+  liveblocksRoomId: 'liveblocksRoomId',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FileScalarFieldEnum = (typeof FileScalarFieldEnum)[keyof typeof FileScalarFieldEnum]
+
+
+export const CanvasSnapshotScalarFieldEnum = {
+  fileId: 'fileId',
   elements: 'elements',
-  viewBackgroundColor: 'viewBackgroundColor',
+  appState: 'appState',
   elementCount: 'elementCount',
   syncedAt: 'syncedAt'
 } as const
@@ -133,13 +167,39 @@ export const CanvasSnapshotScalarFieldEnum = {
 export type CanvasSnapshotScalarFieldEnum = (typeof CanvasSnapshotScalarFieldEnum)[keyof typeof CanvasSnapshotScalarFieldEnum]
 
 
+export const DocumentSnapshotScalarFieldEnum = {
+  fileId: 'fileId',
+  content: 'content',
+  syncedAt: 'syncedAt'
+} as const
+
+export type DocumentSnapshotScalarFieldEnum = (typeof DocumentSnapshotScalarFieldEnum)[keyof typeof DocumentSnapshotScalarFieldEnum]
+
+
 export const ProcessedWebhookScalarFieldEnum = {
   id: 'id',
   source: 'source',
+  status: 'status',
+  leaseUntil: 'leaseUntil',
+  attemptCount: 'attemptCount',
+  completedAt: 'completedAt',
   receivedAt: 'receivedAt'
 } as const
 
 export type ProcessedWebhookScalarFieldEnum = (typeof ProcessedWebhookScalarFieldEnum)[keyof typeof ProcessedWebhookScalarFieldEnum]
+
+
+export const PersonalAccessTokenScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  tokenHash: 'tokenHash',
+  lastUsedAt: 'lastUsedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PersonalAccessTokenScalarFieldEnum = (typeof PersonalAccessTokenScalarFieldEnum)[keyof typeof PersonalAccessTokenScalarFieldEnum]
 
 
 export const SortOrder = {

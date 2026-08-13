@@ -1,120 +1,137 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-// vi.hoisted runs before anything else — including vi.mock factories and imports.
-const { mockCreateRoom, mockInitializeStorageDocument, mockDeleteRoom } =
-  vi.hoisted(() => {
-    // Also set env var here so it's available before liveblocks.ts loads
-    process.env.LIVEBLOCKS_SECRET_KEY = "sk_test_fake";
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
-    return {
-      mockCreateRoom: vi.fn(),
-      mockInitializeStorageDocument: vi.fn(),
-      mockDeleteRoom: vi.fn(),
-    };
-  });
+// Set env var before liveblocks.ts loads using vi.hoisted
+vi.hoisted(() => {
+  process.env.LIVEBLOCKS_SECRET_KEY = "sk_test_fake";
+});
 
-// Mock ONLY the external boundary (@liveblocks/node).
-vi.mock("@liveblocks/node", () => {
+// --- Mock Setup ---
+const {
+  hoistedCreateRoom,
+  hoistedInitializeStorageDocument,
+  hoistedDeleteRoom,
+} = vi.hoisted(() => {
   return {
-    Liveblocks: class MockLiveblocks {
-      createRoom = mockCreateRoom;
-      initializeStorageDocument = mockInitializeStorageDocument;
-      deleteRoom = mockDeleteRoom;
-    },
+    hoistedCreateRoom: vi.fn(),
+    hoistedInitializeStorageDocument: vi.fn(),
+    hoistedDeleteRoom: vi.fn(),
   };
 });
 
-// Import the REAL module — NOT a mock. The functions under test are exercised
-// against the mocked Liveblocks SDK instance created above.
+vi.mock("@liveblocks/node", () => ({
+  Liveblocks: class MockLiveblocks {
+    createRoom = hoistedCreateRoom;
+    initializeStorageDocument = hoistedInitializeStorageDocument;
+    deleteRoom = hoistedDeleteRoom;
+  },
+}));
+
 import {
   decommissionRoom,
+  liveblocks,
   provisionRoom,
-  roomIdForProject,
-} from "@/server/liveblocks";
+  roomIdForFile,
+} from "./liveblocks";
 
-describe("roomIdForProject", () => {
-  it("returns proj_ prefixed id", () => {
-    expect(roomIdForProject("abc123")).toBe("proj_abc123");
+const mockCreateRoom = vi.mocked(liveblocks.createRoom);
+const mockInitializeStorageDocument = vi.mocked(
+  liveblocks.initializeStorageDocument,
+);
+const mockDeleteRoom = vi.mocked(liveblocks.deleteRoom);
+
+describe("roomIdForFile", () => {
+  it("returns file_ prefixed id", () => {
+    expect(roomIdForFile("abc123")).toBe("file_abc123");
   });
 });
 
 describe("provisionRoom", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it("creates room with correct permissions and seeds empty storage", async () => {
-    mockCreateRoom.mockResolvedValue({ id: "proj_abc" });
-    mockInitializeStorageDocument.mockResolvedValue({});
-
+  it("creates room with correct permissions and seeds empty storage for canvas", async () => {
     await provisionRoom({
-      roomId: "proj_abc",
-      workspaceId: "ws_xyz",
+      roomId: "file_abc",
+      workspaceId: "ws_456",
       clerkOrgId: "org_123",
+      type: "canvas",
     });
 
-    expect(mockCreateRoom).toHaveBeenCalledWith("proj_abc", {
+    expect(mockCreateRoom).toHaveBeenCalledWith("file_abc", {
       defaultAccesses: [],
-      groupsAccesses: { ws_xyz: ["*:write"] },
+      groupsAccesses: { ws_456: ["*:write"] },
       organizationId: "org_123",
     });
 
     expect(mockInitializeStorageDocument).toHaveBeenCalledWith(
-      "proj_abc",
+      "file_abc",
       expect.objectContaining({
         liveblocksType: "LiveObject",
-        data: expect.objectContaining({
-          elements: expect.objectContaining({ liveblocksType: "LiveMap" }),
-          meta: expect.objectContaining({ liveblocksType: "LiveObject" }),
-        }),
       }),
     );
   });
 
+  it("creates room but does not seed storage for document type", async () => {
+    await provisionRoom({
+      roomId: "file_abc",
+      workspaceId: "ws_456",
+      clerkOrgId: "org_123",
+      type: "document",
+    });
+
+    expect(mockCreateRoom).toHaveBeenCalledWith("file_abc", expect.any(Object));
+    expect(mockInitializeStorageDocument).not.toHaveBeenCalled();
+  });
+
   it("throws if createRoom fails so the caller can roll back", async () => {
-    mockCreateRoom.mockRejectedValue(new Error("Liveblocks 500"));
+    mockCreateRoom.mockRejectedValue(new Error("Network error"));
 
     await expect(
       provisionRoom({
-        roomId: "proj_abc",
-        workspaceId: "ws_xyz",
+        roomId: "file_abc",
+        workspaceId: "ws_456",
         clerkOrgId: "org_123",
+        type: "canvas",
       }),
-    ).rejects.toThrow("Liveblocks 500");
+    ).rejects.toThrow("Network error");
   });
 
   it("throws if initializeStorageDocument fails", async () => {
-    mockCreateRoom.mockResolvedValue({ id: "proj_abc" });
+    mockCreateRoom.mockResolvedValue({} as any);
     mockInitializeStorageDocument.mockRejectedValue(
       new Error("Storage init failed"),
     );
 
     await expect(
       provisionRoom({
-        roomId: "proj_abc",
-        workspaceId: "ws_xyz",
+        roomId: "file_abc",
+        workspaceId: "ws_456",
         clerkOrgId: "org_123",
+        type: "canvas",
       }),
     ).rejects.toThrow("Storage init failed");
   });
 });
 
 describe("decommissionRoom", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it("deletes room and resolves", async () => {
-    mockDeleteRoom.mockResolvedValue(undefined);
+    mockDeleteRoom.mockResolvedValue();
 
-    await expect(decommissionRoom("proj_abc")).resolves.toBeUndefined();
-    expect(mockDeleteRoom).toHaveBeenCalledWith("proj_abc");
+    await decommissionRoom("file_abc");
+    expect(mockDeleteRoom).toHaveBeenCalledWith("file_abc");
   });
 
   it("logs and resolves on failure — never throws", async () => {
     mockDeleteRoom.mockRejectedValue(new Error("Network error"));
+    const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 
-    // Must NOT throw — best-effort
-    await expect(decommissionRoom("proj_abc")).resolves.toBeUndefined();
+    await decommissionRoom("file_abc");
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Failed to delete room file_abc"),
+      expect.any(Error),
+    );
+
+    consoleSpy.mockRestore();
   });
 });

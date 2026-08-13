@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LiveFlows
 
-## Getting Started
+A collaborative diagramming and documentation workspace for software system architecture. Realtime multiplayer canvas powered by Excalidraw + Liveblocks, structured workspace file trees, independent split views, and rich Tiptap documents.
 
-First, run the development server:
+---
 
+## Quick Start
+
+### 1. Prerequisites
+- **Node.js**: >= 20
+- **Package Manager**: `pnpm` (locked — do not use `npm` or `yarn`)
+
+### 2. Installation
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Clone the repository
+git clone git@github.com:dockified-com/liveflows.git
+cd liveflows
+
+# Install dependencies
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 3. Environment Setup
+Create a `.env.local` file in the project root:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+# Clerk Auth
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+CLERK_SECRET_KEY=sk_test_...
+CLERK_WEBHOOK_SIGNING_SECRET=whsec_...
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Liveblocks Realtime
+LIVEBLOCKS_SECRET_KEY=sk_dev_...
+LIVEBLOCKS_WEBHOOK_SECRET=whsec_...
 
-## Learn More
+# Database (Supabase / Postgres)
+DATABASE_URL=postgresql://postgres:...@aws-0-us-east-1.pooler.supabase.com:6543/postgres?pgbooster=true
+DIRECT_URL=postgresql://postgres:...@db.xxx.supabase.co:5432/postgres
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 4. Run Development Server
+```bash
+pnpm dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## CLI Development Commands
 
-## Deploy on Vercel
+| Command | Action |
+|---|---|
+| `pnpm dev` | Starts Next.js 16 development server with Turbopack |
+| `pnpm build` | Compiles production build & runs TypeScript check |
+| `pnpm test` | Runs Vitest unit & integration test suites |
+| `pnpm test:e2e` | Runs Playwright end-to-end browser tests |
+| `pnpm lint` | Runs Biome code linter across source files |
+| `pnpm format` | Formats codebase with Biome (`--write`) |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Architecture Overview
+
+| Concern | Owner |
+|---|---|
+| **Realtime Canvas & Document State** | Liveblocks Storage (`LiveMap` & Yjs) |
+| **Authentication & Workspaces** | Clerk (Organizations as workspace primitive) |
+| **Data Persistence & Metadata** | PostgreSQL via Prisma 7 (`@prisma/adapter-pg`) |
+| **Canvas Surface** | Excalidraw (`@excalidraw/excalidraw`) |
+| **Document Editor** | Tiptap (`@liveblocks/react-tiptap`) |
+| **Ephemeral UI Layout State** | Zustand (`src/features/project-workspace/workspace-state.ts`) |
+
+For comprehensive architectural design & DAL authorization rules, see `AGENTS.md` and `docs/specs/2026-08-11-final-light-saas-implementation-plan.md`.

@@ -35,23 +35,21 @@ export type CanvasSnapshotSumAggregateOutputType = {
 }
 
 export type CanvasSnapshotMinAggregateOutputType = {
-  projectId: string | null
-  viewBackgroundColor: string | null
+  fileId: string | null
   elementCount: number | null
   syncedAt: Date | null
 }
 
 export type CanvasSnapshotMaxAggregateOutputType = {
-  projectId: string | null
-  viewBackgroundColor: string | null
+  fileId: string | null
   elementCount: number | null
   syncedAt: Date | null
 }
 
 export type CanvasSnapshotCountAggregateOutputType = {
-  projectId: number
+  fileId: number
   elements: number
-  viewBackgroundColor: number
+  appState: number
   elementCount: number
   syncedAt: number
   _all: number
@@ -67,23 +65,21 @@ export type CanvasSnapshotSumAggregateInputType = {
 }
 
 export type CanvasSnapshotMinAggregateInputType = {
-  projectId?: true
-  viewBackgroundColor?: true
+  fileId?: true
   elementCount?: true
   syncedAt?: true
 }
 
 export type CanvasSnapshotMaxAggregateInputType = {
-  projectId?: true
-  viewBackgroundColor?: true
+  fileId?: true
   elementCount?: true
   syncedAt?: true
 }
 
 export type CanvasSnapshotCountAggregateInputType = {
-  projectId?: true
+  fileId?: true
   elements?: true
-  viewBackgroundColor?: true
+  appState?: true
   elementCount?: true
   syncedAt?: true
   _all?: true
@@ -176,9 +172,9 @@ export type CanvasSnapshotGroupByArgs<ExtArgs extends runtime.Types.Extensions.I
 }
 
 export type CanvasSnapshotGroupByOutputType = {
-  projectId: string
+  fileId: string
   elements: runtime.JsonValue
-  viewBackgroundColor: string
+  appState: runtime.JsonValue
   elementCount: number
   syncedAt: Date
   _count: CanvasSnapshotCountAggregateOutputType | null
@@ -207,39 +203,39 @@ export type CanvasSnapshotWhereInput = {
   AND?: Prisma.CanvasSnapshotWhereInput | Prisma.CanvasSnapshotWhereInput[]
   OR?: Prisma.CanvasSnapshotWhereInput[]
   NOT?: Prisma.CanvasSnapshotWhereInput | Prisma.CanvasSnapshotWhereInput[]
-  projectId?: Prisma.StringFilter<"CanvasSnapshot"> | string
+  fileId?: Prisma.StringFilter<"CanvasSnapshot"> | string
   elements?: Prisma.JsonFilter<"CanvasSnapshot">
-  viewBackgroundColor?: Prisma.StringFilter<"CanvasSnapshot"> | string
+  appState?: Prisma.JsonFilter<"CanvasSnapshot">
   elementCount?: Prisma.IntFilter<"CanvasSnapshot"> | number
   syncedAt?: Prisma.DateTimeFilter<"CanvasSnapshot"> | Date | string
-  project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
+  file?: Prisma.XOR<Prisma.FileScalarRelationFilter, Prisma.FileWhereInput>
 }
 
 export type CanvasSnapshotOrderByWithRelationInput = {
-  projectId?: Prisma.SortOrder
+  fileId?: Prisma.SortOrder
   elements?: Prisma.SortOrder
-  viewBackgroundColor?: Prisma.SortOrder
+  appState?: Prisma.SortOrder
   elementCount?: Prisma.SortOrder
   syncedAt?: Prisma.SortOrder
-  project?: Prisma.ProjectOrderByWithRelationInput
+  file?: Prisma.FileOrderByWithRelationInput
 }
 
 export type CanvasSnapshotWhereUniqueInput = Prisma.AtLeast<{
-  projectId?: string
+  fileId?: string
   AND?: Prisma.CanvasSnapshotWhereInput | Prisma.CanvasSnapshotWhereInput[]
   OR?: Prisma.CanvasSnapshotWhereInput[]
   NOT?: Prisma.CanvasSnapshotWhereInput | Prisma.CanvasSnapshotWhereInput[]
   elements?: Prisma.JsonFilter<"CanvasSnapshot">
-  viewBackgroundColor?: Prisma.StringFilter<"CanvasSnapshot"> | string
+  appState?: Prisma.JsonFilter<"CanvasSnapshot">
   elementCount?: Prisma.IntFilter<"CanvasSnapshot"> | number
   syncedAt?: Prisma.DateTimeFilter<"CanvasSnapshot"> | Date | string
-  project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
-}, "projectId">
+  file?: Prisma.XOR<Prisma.FileScalarRelationFilter, Prisma.FileWhereInput>
+}, "fileId">
 
 export type CanvasSnapshotOrderByWithAggregationInput = {
-  projectId?: Prisma.SortOrder
+  fileId?: Prisma.SortOrder
   elements?: Prisma.SortOrder
-  viewBackgroundColor?: Prisma.SortOrder
+  appState?: Prisma.SortOrder
   elementCount?: Prisma.SortOrder
   syncedAt?: Prisma.SortOrder
   _count?: Prisma.CanvasSnapshotCountOrderByAggregateInput
@@ -253,64 +249,64 @@ export type CanvasSnapshotScalarWhereWithAggregatesInput = {
   AND?: Prisma.CanvasSnapshotScalarWhereWithAggregatesInput | Prisma.CanvasSnapshotScalarWhereWithAggregatesInput[]
   OR?: Prisma.CanvasSnapshotScalarWhereWithAggregatesInput[]
   NOT?: Prisma.CanvasSnapshotScalarWhereWithAggregatesInput | Prisma.CanvasSnapshotScalarWhereWithAggregatesInput[]
-  projectId?: Prisma.StringWithAggregatesFilter<"CanvasSnapshot"> | string
+  fileId?: Prisma.StringWithAggregatesFilter<"CanvasSnapshot"> | string
   elements?: Prisma.JsonWithAggregatesFilter<"CanvasSnapshot">
-  viewBackgroundColor?: Prisma.StringWithAggregatesFilter<"CanvasSnapshot"> | string
+  appState?: Prisma.JsonWithAggregatesFilter<"CanvasSnapshot">
   elementCount?: Prisma.IntWithAggregatesFilter<"CanvasSnapshot"> | number
   syncedAt?: Prisma.DateTimeWithAggregatesFilter<"CanvasSnapshot"> | Date | string
 }
 
 export type CanvasSnapshotCreateInput = {
   elements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  viewBackgroundColor?: string
+  appState?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   elementCount?: number
   syncedAt?: Date | string
-  project: Prisma.ProjectCreateNestedOneWithoutCanvasInput
+  file: Prisma.FileCreateNestedOneWithoutCanvasInput
 }
 
 export type CanvasSnapshotUncheckedCreateInput = {
-  projectId: string
+  fileId: string
   elements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  viewBackgroundColor?: string
+  appState?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   elementCount?: number
   syncedAt?: Date | string
 }
 
 export type CanvasSnapshotUpdateInput = {
   elements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  viewBackgroundColor?: Prisma.StringFieldUpdateOperationsInput | string
+  appState?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   elementCount?: Prisma.IntFieldUpdateOperationsInput | number
   syncedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  project?: Prisma.ProjectUpdateOneRequiredWithoutCanvasNestedInput
+  file?: Prisma.FileUpdateOneRequiredWithoutCanvasNestedInput
 }
 
 export type CanvasSnapshotUncheckedUpdateInput = {
-  projectId?: Prisma.StringFieldUpdateOperationsInput | string
+  fileId?: Prisma.StringFieldUpdateOperationsInput | string
   elements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  viewBackgroundColor?: Prisma.StringFieldUpdateOperationsInput | string
+  appState?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   elementCount?: Prisma.IntFieldUpdateOperationsInput | number
   syncedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CanvasSnapshotCreateManyInput = {
-  projectId: string
+  fileId: string
   elements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  viewBackgroundColor?: string
+  appState?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   elementCount?: number
   syncedAt?: Date | string
 }
 
 export type CanvasSnapshotUpdateManyMutationInput = {
   elements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  viewBackgroundColor?: Prisma.StringFieldUpdateOperationsInput | string
+  appState?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   elementCount?: Prisma.IntFieldUpdateOperationsInput | number
   syncedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type CanvasSnapshotUncheckedUpdateManyInput = {
-  projectId?: Prisma.StringFieldUpdateOperationsInput | string
+  fileId?: Prisma.StringFieldUpdateOperationsInput | string
   elements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  viewBackgroundColor?: Prisma.StringFieldUpdateOperationsInput | string
+  appState?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   elementCount?: Prisma.IntFieldUpdateOperationsInput | number
   syncedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -321,9 +317,9 @@ export type CanvasSnapshotNullableScalarRelationFilter = {
 }
 
 export type CanvasSnapshotCountOrderByAggregateInput = {
-  projectId?: Prisma.SortOrder
+  fileId?: Prisma.SortOrder
   elements?: Prisma.SortOrder
-  viewBackgroundColor?: Prisma.SortOrder
+  appState?: Prisma.SortOrder
   elementCount?: Prisma.SortOrder
   syncedAt?: Prisma.SortOrder
 }
@@ -333,15 +329,13 @@ export type CanvasSnapshotAvgOrderByAggregateInput = {
 }
 
 export type CanvasSnapshotMaxOrderByAggregateInput = {
-  projectId?: Prisma.SortOrder
-  viewBackgroundColor?: Prisma.SortOrder
+  fileId?: Prisma.SortOrder
   elementCount?: Prisma.SortOrder
   syncedAt?: Prisma.SortOrder
 }
 
 export type CanvasSnapshotMinOrderByAggregateInput = {
-  projectId?: Prisma.SortOrder
-  viewBackgroundColor?: Prisma.SortOrder
+  fileId?: Prisma.SortOrder
   elementCount?: Prisma.SortOrder
   syncedAt?: Prisma.SortOrder
 }
@@ -350,36 +344,36 @@ export type CanvasSnapshotSumOrderByAggregateInput = {
   elementCount?: Prisma.SortOrder
 }
 
-export type CanvasSnapshotCreateNestedOneWithoutProjectInput = {
-  create?: Prisma.XOR<Prisma.CanvasSnapshotCreateWithoutProjectInput, Prisma.CanvasSnapshotUncheckedCreateWithoutProjectInput>
-  connectOrCreate?: Prisma.CanvasSnapshotCreateOrConnectWithoutProjectInput
+export type CanvasSnapshotCreateNestedOneWithoutFileInput = {
+  create?: Prisma.XOR<Prisma.CanvasSnapshotCreateWithoutFileInput, Prisma.CanvasSnapshotUncheckedCreateWithoutFileInput>
+  connectOrCreate?: Prisma.CanvasSnapshotCreateOrConnectWithoutFileInput
   connect?: Prisma.CanvasSnapshotWhereUniqueInput
 }
 
-export type CanvasSnapshotUncheckedCreateNestedOneWithoutProjectInput = {
-  create?: Prisma.XOR<Prisma.CanvasSnapshotCreateWithoutProjectInput, Prisma.CanvasSnapshotUncheckedCreateWithoutProjectInput>
-  connectOrCreate?: Prisma.CanvasSnapshotCreateOrConnectWithoutProjectInput
+export type CanvasSnapshotUncheckedCreateNestedOneWithoutFileInput = {
+  create?: Prisma.XOR<Prisma.CanvasSnapshotCreateWithoutFileInput, Prisma.CanvasSnapshotUncheckedCreateWithoutFileInput>
+  connectOrCreate?: Prisma.CanvasSnapshotCreateOrConnectWithoutFileInput
   connect?: Prisma.CanvasSnapshotWhereUniqueInput
 }
 
-export type CanvasSnapshotUpdateOneWithoutProjectNestedInput = {
-  create?: Prisma.XOR<Prisma.CanvasSnapshotCreateWithoutProjectInput, Prisma.CanvasSnapshotUncheckedCreateWithoutProjectInput>
-  connectOrCreate?: Prisma.CanvasSnapshotCreateOrConnectWithoutProjectInput
-  upsert?: Prisma.CanvasSnapshotUpsertWithoutProjectInput
+export type CanvasSnapshotUpdateOneWithoutFileNestedInput = {
+  create?: Prisma.XOR<Prisma.CanvasSnapshotCreateWithoutFileInput, Prisma.CanvasSnapshotUncheckedCreateWithoutFileInput>
+  connectOrCreate?: Prisma.CanvasSnapshotCreateOrConnectWithoutFileInput
+  upsert?: Prisma.CanvasSnapshotUpsertWithoutFileInput
   disconnect?: Prisma.CanvasSnapshotWhereInput | boolean
   delete?: Prisma.CanvasSnapshotWhereInput | boolean
   connect?: Prisma.CanvasSnapshotWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.CanvasSnapshotUpdateToOneWithWhereWithoutProjectInput, Prisma.CanvasSnapshotUpdateWithoutProjectInput>, Prisma.CanvasSnapshotUncheckedUpdateWithoutProjectInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CanvasSnapshotUpdateToOneWithWhereWithoutFileInput, Prisma.CanvasSnapshotUpdateWithoutFileInput>, Prisma.CanvasSnapshotUncheckedUpdateWithoutFileInput>
 }
 
-export type CanvasSnapshotUncheckedUpdateOneWithoutProjectNestedInput = {
-  create?: Prisma.XOR<Prisma.CanvasSnapshotCreateWithoutProjectInput, Prisma.CanvasSnapshotUncheckedCreateWithoutProjectInput>
-  connectOrCreate?: Prisma.CanvasSnapshotCreateOrConnectWithoutProjectInput
-  upsert?: Prisma.CanvasSnapshotUpsertWithoutProjectInput
+export type CanvasSnapshotUncheckedUpdateOneWithoutFileNestedInput = {
+  create?: Prisma.XOR<Prisma.CanvasSnapshotCreateWithoutFileInput, Prisma.CanvasSnapshotUncheckedCreateWithoutFileInput>
+  connectOrCreate?: Prisma.CanvasSnapshotCreateOrConnectWithoutFileInput
+  upsert?: Prisma.CanvasSnapshotUpsertWithoutFileInput
   disconnect?: Prisma.CanvasSnapshotWhereInput | boolean
   delete?: Prisma.CanvasSnapshotWhereInput | boolean
   connect?: Prisma.CanvasSnapshotWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.CanvasSnapshotUpdateToOneWithWhereWithoutProjectInput, Prisma.CanvasSnapshotUpdateWithoutProjectInput>, Prisma.CanvasSnapshotUncheckedUpdateWithoutProjectInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CanvasSnapshotUpdateToOneWithWhereWithoutFileInput, Prisma.CanvasSnapshotUpdateWithoutFileInput>, Prisma.CanvasSnapshotUncheckedUpdateWithoutFileInput>
 }
 
 export type IntFieldUpdateOperationsInput = {
@@ -390,46 +384,46 @@ export type IntFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type CanvasSnapshotCreateWithoutProjectInput = {
+export type CanvasSnapshotCreateWithoutFileInput = {
   elements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  viewBackgroundColor?: string
+  appState?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   elementCount?: number
   syncedAt?: Date | string
 }
 
-export type CanvasSnapshotUncheckedCreateWithoutProjectInput = {
+export type CanvasSnapshotUncheckedCreateWithoutFileInput = {
   elements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  viewBackgroundColor?: string
+  appState?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   elementCount?: number
   syncedAt?: Date | string
 }
 
-export type CanvasSnapshotCreateOrConnectWithoutProjectInput = {
+export type CanvasSnapshotCreateOrConnectWithoutFileInput = {
   where: Prisma.CanvasSnapshotWhereUniqueInput
-  create: Prisma.XOR<Prisma.CanvasSnapshotCreateWithoutProjectInput, Prisma.CanvasSnapshotUncheckedCreateWithoutProjectInput>
+  create: Prisma.XOR<Prisma.CanvasSnapshotCreateWithoutFileInput, Prisma.CanvasSnapshotUncheckedCreateWithoutFileInput>
 }
 
-export type CanvasSnapshotUpsertWithoutProjectInput = {
-  update: Prisma.XOR<Prisma.CanvasSnapshotUpdateWithoutProjectInput, Prisma.CanvasSnapshotUncheckedUpdateWithoutProjectInput>
-  create: Prisma.XOR<Prisma.CanvasSnapshotCreateWithoutProjectInput, Prisma.CanvasSnapshotUncheckedCreateWithoutProjectInput>
+export type CanvasSnapshotUpsertWithoutFileInput = {
+  update: Prisma.XOR<Prisma.CanvasSnapshotUpdateWithoutFileInput, Prisma.CanvasSnapshotUncheckedUpdateWithoutFileInput>
+  create: Prisma.XOR<Prisma.CanvasSnapshotCreateWithoutFileInput, Prisma.CanvasSnapshotUncheckedCreateWithoutFileInput>
   where?: Prisma.CanvasSnapshotWhereInput
 }
 
-export type CanvasSnapshotUpdateToOneWithWhereWithoutProjectInput = {
+export type CanvasSnapshotUpdateToOneWithWhereWithoutFileInput = {
   where?: Prisma.CanvasSnapshotWhereInput
-  data: Prisma.XOR<Prisma.CanvasSnapshotUpdateWithoutProjectInput, Prisma.CanvasSnapshotUncheckedUpdateWithoutProjectInput>
+  data: Prisma.XOR<Prisma.CanvasSnapshotUpdateWithoutFileInput, Prisma.CanvasSnapshotUncheckedUpdateWithoutFileInput>
 }
 
-export type CanvasSnapshotUpdateWithoutProjectInput = {
+export type CanvasSnapshotUpdateWithoutFileInput = {
   elements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  viewBackgroundColor?: Prisma.StringFieldUpdateOperationsInput | string
+  appState?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   elementCount?: Prisma.IntFieldUpdateOperationsInput | number
   syncedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type CanvasSnapshotUncheckedUpdateWithoutProjectInput = {
+export type CanvasSnapshotUncheckedUpdateWithoutFileInput = {
   elements?: Prisma.JsonNullValueInput | runtime.InputJsonValue
-  viewBackgroundColor?: Prisma.StringFieldUpdateOperationsInput | string
+  appState?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   elementCount?: Prisma.IntFieldUpdateOperationsInput | number
   syncedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -437,60 +431,60 @@ export type CanvasSnapshotUncheckedUpdateWithoutProjectInput = {
 
 
 export type CanvasSnapshotSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
-  projectId?: boolean
+  fileId?: boolean
   elements?: boolean
-  viewBackgroundColor?: boolean
+  appState?: boolean
   elementCount?: boolean
   syncedAt?: boolean
-  project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
+  file?: boolean | Prisma.FileDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["canvasSnapshot"]>
 
 export type CanvasSnapshotSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
-  projectId?: boolean
+  fileId?: boolean
   elements?: boolean
-  viewBackgroundColor?: boolean
+  appState?: boolean
   elementCount?: boolean
   syncedAt?: boolean
-  project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
+  file?: boolean | Prisma.FileDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["canvasSnapshot"]>
 
 export type CanvasSnapshotSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
-  projectId?: boolean
+  fileId?: boolean
   elements?: boolean
-  viewBackgroundColor?: boolean
+  appState?: boolean
   elementCount?: boolean
   syncedAt?: boolean
-  project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
+  file?: boolean | Prisma.FileDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["canvasSnapshot"]>
 
 export type CanvasSnapshotSelectScalar = {
-  projectId?: boolean
+  fileId?: boolean
   elements?: boolean
-  viewBackgroundColor?: boolean
+  appState?: boolean
   elementCount?: boolean
   syncedAt?: boolean
 }
 
-export type CanvasSnapshotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"projectId" | "elements" | "viewBackgroundColor" | "elementCount" | "syncedAt", ExtArgs["result"]["canvasSnapshot"]>
+export type CanvasSnapshotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"fileId" | "elements" | "appState" | "elementCount" | "syncedAt", ExtArgs["result"]["canvasSnapshot"]>
 export type CanvasSnapshotInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
+  file?: boolean | Prisma.FileDefaultArgs<ExtArgs>
 }
 export type CanvasSnapshotIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
+  file?: boolean | Prisma.FileDefaultArgs<ExtArgs>
 }
 export type CanvasSnapshotIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
+  file?: boolean | Prisma.FileDefaultArgs<ExtArgs>
 }
 
 export type $CanvasSnapshotPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "CanvasSnapshot"
   objects: {
-    project: Prisma.$ProjectPayload<ExtArgs>
+    file: Prisma.$FilePayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
-    projectId: string
+    fileId: string
     elements: runtime.JsonValue
-    viewBackgroundColor: string
+    appState: runtime.JsonValue
     elementCount: number
     syncedAt: Date
   }, ExtArgs["result"]["canvasSnapshot"]>
@@ -576,8 +570,8 @@ export interface CanvasSnapshotDelegate<ExtArgs extends runtime.Types.Extensions
    * // Get first 10 CanvasSnapshots
    * const canvasSnapshots = await prisma.canvasSnapshot.findMany({ take: 10 })
    * 
-   * // Only select the `projectId`
-   * const canvasSnapshotWithProjectIdOnly = await prisma.canvasSnapshot.findMany({ select: { projectId: true } })
+   * // Only select the `fileId`
+   * const canvasSnapshotWithFileIdOnly = await prisma.canvasSnapshot.findMany({ select: { fileId: true } })
    * 
    */
   findMany<T extends CanvasSnapshotFindManyArgs>(args?: Prisma.SelectSubset<T, CanvasSnapshotFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CanvasSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -621,9 +615,9 @@ export interface CanvasSnapshotDelegate<ExtArgs extends runtime.Types.Extensions
    *   ]
    * })
    * 
-   * // Create many CanvasSnapshots and only return the `projectId`
-   * const canvasSnapshotWithProjectIdOnly = await prisma.canvasSnapshot.createManyAndReturn({
-   *   select: { projectId: true },
+   * // Create many CanvasSnapshots and only return the `fileId`
+   * const canvasSnapshotWithFileIdOnly = await prisma.canvasSnapshot.createManyAndReturn({
+   *   select: { fileId: true },
    *   data: [
    *     // ... provide data here
    *   ]
@@ -712,9 +706,9 @@ export interface CanvasSnapshotDelegate<ExtArgs extends runtime.Types.Extensions
    *   ]
    * })
    * 
-   * // Update zero or more CanvasSnapshots and only return the `projectId`
-   * const canvasSnapshotWithProjectIdOnly = await prisma.canvasSnapshot.updateManyAndReturn({
-   *   select: { projectId: true },
+   * // Update zero or more CanvasSnapshots and only return the `fileId`
+   * const canvasSnapshotWithFileIdOnly = await prisma.canvasSnapshot.updateManyAndReturn({
+   *   select: { fileId: true },
    *   where: {
    *     // ... provide filter here
    *   },
@@ -887,7 +881,7 @@ readonly fields: CanvasSnapshotFieldRefs;
  */
 export interface Prisma__CanvasSnapshotClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  project<T extends Prisma.ProjectDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectDefaultArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  file<T extends Prisma.FileDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FileDefaultArgs<ExtArgs>>): Prisma.Prisma__FileClient<runtime.Types.Result.GetResult<Prisma.$FilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -917,9 +911,9 @@ export interface Prisma__CanvasSnapshotClient<T, Null = never, ExtArgs extends r
  * Fields of the CanvasSnapshot model
  */
 export interface CanvasSnapshotFieldRefs {
-  readonly projectId: Prisma.FieldRef<"CanvasSnapshot", 'String'>
+  readonly fileId: Prisma.FieldRef<"CanvasSnapshot", 'String'>
   readonly elements: Prisma.FieldRef<"CanvasSnapshot", 'Json'>
-  readonly viewBackgroundColor: Prisma.FieldRef<"CanvasSnapshot", 'String'>
+  readonly appState: Prisma.FieldRef<"CanvasSnapshot", 'Json'>
   readonly elementCount: Prisma.FieldRef<"CanvasSnapshot", 'Int'>
   readonly syncedAt: Prisma.FieldRef<"CanvasSnapshot", 'DateTime'>
 }

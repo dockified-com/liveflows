@@ -1,0 +1,2137 @@
+{
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/architect/SKILL.md": {
+    "size": 28115,
+    "mtime_ns": 1786180380419782419,
+    "word_count": 4277,
+    "hash": "409ce7dd2dd0825d45325cd95b705462c709908df2d9b0f7d035d4b5513346a5"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/architect/agent-modes/architecture.md": {
+    "size": 6002,
+    "mtime_ns": 1786180380420056294,
+    "word_count": 960,
+    "hash": "d4d41809a61783dda79a7e5bfffc9cac9f701ae9b9bfe519d85cbcc2ce4e1576"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/architect/agent-modes/cross-cutting.md": {
+    "size": 3164,
+    "mtime_ns": 1786180380420084586,
+    "word_count": 491,
+    "hash": "103beaa8ea258b2b2274ac9fdf49277eb7e80f3a58ebb26268bab82338f1667b"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/architect/agent-modes/enhancement.md": {
+    "size": 2941,
+    "mtime_ns": 1786180380420059919,
+    "word_count": 463,
+    "hash": "db5739e7f48b53e90a186e4ce9cfd7d7a3621bec8aa13e4b541aaeb63633123c"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/architect/agent-modes/feature.md": {
+    "size": 6688,
+    "mtime_ns": 1786180380420176878,
+    "word_count": 1035,
+    "hash": "82d20af8878539651e95c27dfb918f808eb3312b209abde7043d7c58a0bc8465"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/architect/agent-prompt.md": {
+    "size": 28520,
+    "mtime_ns": 1786180380419839752,
+    "word_count": 4330,
+    "hash": "a13a33a27f88061824b3a3ed363663f4fff07b7e8b359f8fd4d67a7e21a2ff95"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/architect/agents/openai.yaml": {
+    "size": 519,
+    "mtime_ns": 1786180380420255586,
+    "word_count": 73,
+    "hash": "ebc84fcb76c0ff0159d952bde949e2ff35734c251bd0731baf7eaa102de6e774"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/architect/internal/after-subagent.md": {
+    "size": 14536,
+    "mtime_ns": 1786180380420396836,
+    "word_count": 2386,
+    "hash": "dfb195941712bd8ad3bfedd646c4c0f89cfe0ce69ddef1ede36c8944cc3e55a5"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/architect/internal/design-conversation.md": {
+    "size": 26603,
+    "mtime_ns": 1786180380420337586,
+    "word_count": 4199,
+    "hash": "41dc0bd2374fd34ec5a2345ff1acd8f8b1d7b743536cdb855894687ddf768ffa"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/architect/internal/tool-discovery.md": {
+    "size": 7305,
+    "mtime_ns": 1786180380420444211,
+    "word_count": 1230,
+    "hash": "9538aa100b3c1aae279993d36649c204bb74906e2de68bf9261506213773f124"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/architect/spec-template.md": {
+    "size": 17269,
+    "mtime_ns": 1786180380419842919,
+    "word_count": 2631,
+    "hash": "1623382ff42ce01a91750274fe37793e2e4ae4f2c41ad8777835532cff7c31e6"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/audit/SKILL.md": {
+    "size": 12966,
+    "mtime_ns": 1786180380452961056,
+    "word_count": 1961,
+    "hash": "727fb6d47983698ed607f205ee26cc04fef619997db8085e4e41933e152926c3"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/audit/agent-prompt.md": {
+    "size": 20866,
+    "mtime_ns": 1786180380453013431,
+    "word_count": 3235,
+    "hash": "e62e664baadc03a324c5f96ed7aa0b19e1dede905828a49979071ab02b6f3fd4"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/audit/agents/openai.yaml": {
+    "size": 468,
+    "mtime_ns": 1786180380453336431,
+    "word_count": 68,
+    "hash": "6ad88a5c1f29bd1fac70da33366d56d8801e85e37e5b7088ccae5222d63b584d"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/audit/modes/area.md": {
+    "size": 2373,
+    "mtime_ns": 1786180380453334723,
+    "word_count": 384,
+    "hash": "b04673857c3408139cf9510df64b4f93f4025e2b26565ffd440ce5707f574aa4"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/audit/modes/gapfill.md": {
+    "size": 1573,
+    "mtime_ns": 1786180380453377515,
+    "word_count": 243,
+    "hash": "b58fefdf73f46cc64c468166d8aaade9b9ac057dd38805ef8284e1c78e2e06b6"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/audit/modes/greenfield.md": {
+    "size": 5181,
+    "mtime_ns": 1786180380453603307,
+    "word_count": 775,
+    "hash": "cf4782f5e6ead4c14c2074ad075839e530281a25435e5a25dbfc746a9e843bd5"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/audit/modes/tool-skills.md": {
+    "size": 5573,
+    "mtime_ns": 1786180380453588682,
+    "word_count": 917,
+    "hash": "8b183db193ab368b3d91840a2808ab6b0c70ba1bd01502d75b527694cc49d5b9"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/audit/modes/whole-repo.md": {
+    "size": 1006,
+    "mtime_ns": 1786180380453383640,
+    "word_count": 147,
+    "hash": "47617b4637ef78c5ac6f14a5c37f5367e202fffe6935603fb53dc06d2ebed92a"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/audit/patterns/clean-architecture.md": {
+    "size": 1216,
+    "mtime_ns": 1786180380453682432,
+    "word_count": 170,
+    "hash": "23a1d169b981f180f2cc3ed6d224d3643acfbbf3b9a98e0c5d922c2079cee0ea"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/audit/patterns/domain-driven.md": {
+    "size": 1392,
+    "mtime_ns": 1786180380453687224,
+    "word_count": 197,
+    "hash": "7f633c564beb5d387582460f819e00cf29b6a8d9160ab0ebb7051976609274c4"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/audit/patterns/functional.md": {
+    "size": 1037,
+    "mtime_ns": 1786180380453745807,
+    "word_count": 150,
+    "hash": "8f562da4e8717155dabd75d26d56d9630c1c4909dbd35f53515635fd8a359283"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/audit/patterns/solid-oop.md": {
+    "size": 1353,
+    "mtime_ns": 1786180380453812099,
+    "word_count": 194,
+    "hash": "84dcda8bdf81328303c4878378fb6b1b61db20233859d287b1b1a75727690804"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/check/SKILL.md": {
+    "size": 4262,
+    "mtime_ns": 1786180380472424920,
+    "word_count": 687,
+    "hash": "472c84c8478ef58d719d9374974bca1f9faea4e026f4976e4792089bcecf3dc8"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/check/agents/openai.yaml": {
+    "size": 545,
+    "mtime_ns": 1786180380472537546,
+    "word_count": 87,
+    "hash": "ed71eeeea54f023f828663aac5e33f990cdebbc05ae96522e7702264d36bff3a"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/check/modes/review.md": {
+    "size": 13967,
+    "mtime_ns": 1786180380472603879,
+    "word_count": 2145,
+    "hash": "fe8a0b893bf6c102ddf839ebee466daeec1800e1755e4dd46f4d78dc1d528fba"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/check/modes/verify.md": {
+    "size": 17771,
+    "mtime_ns": 1786180380472660921,
+    "word_count": 2957,
+    "hash": "9deecc5c87ba26c6ad03dd4d50bbd443a8bde58b233cf61fc8922e16e252593e"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/check/review-agent-prompt.md": {
+    "size": 3178,
+    "mtime_ns": 1786180380472535337,
+    "word_count": 508,
+    "hash": "5dec444983080320f591447ff2bcb94eee6975fb6f4dc3381d16aa76bae38a3c"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/check/review-guide.md": {
+    "size": 6445,
+    "mtime_ns": 1786180380472531421,
+    "word_count": 979,
+    "hash": "4a81725056c071764c779906b5fe40e5e94d470dc5e58bba932ce791f5020098"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/debug/SKILL.md": {
+    "size": 7128,
+    "mtime_ns": 1786180380483064229,
+    "word_count": 1188,
+    "hash": "72d140a4445708fcf872c046e027863482b9ad1ef9617f8b4ff38a175dd8ac60"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/debug/agents/openai.yaml": {
+    "size": 468,
+    "mtime_ns": 1786180380483108146,
+    "word_count": 70,
+    "hash": "3db3746b50a9479653cdf544838746fe27bea2d689b7f6b6810288d6e63e65e2"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/develop/SKILL.md": {
+    "size": 15091,
+    "mtime_ns": 1786180380511310525,
+    "word_count": 2353,
+    "hash": "2c81ec43fd3982dc86f5e8933428eb5f76e83a7041b2b90066bc704e3ade7172"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/develop/agents/openai.yaml": {
+    "size": 486,
+    "mtime_ns": 1786180380511561025,
+    "word_count": 71,
+    "hash": "40759c959de14e58cecd7fb374e02c98a4610870dea1045cfcc87bfb6bd35301"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/develop/checklist.md": {
+    "size": 4914,
+    "mtime_ns": 1786180380511409150,
+    "word_count": 848,
+    "hash": "1cf2e1ce4697cec28dc8aee4c14ccf740c03b81f05f52b69fe2ade00a804e1ca"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/develop/flow/build.md": {
+    "size": 22256,
+    "mtime_ns": 1786180380511604609,
+    "word_count": 3544,
+    "hash": "cca6791eee6b2fd6ff6326bf9c8cabe29c484e896b9f1e4fbd7751c343f4aa96"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/develop/flow/git.md": {
+    "size": 2650,
+    "mtime_ns": 1786180380511745942,
+    "word_count": 422,
+    "hash": "fecf86624bcd1931cc7e753aaf2fd3598a077f707458026b00fd0827dbe485fe"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/develop/logical-guide.md": {
+    "size": 9607,
+    "mtime_ns": 1786180380511412400,
+    "word_count": 1522,
+    "hash": "a4807e55c5705331123df781409f8322d3f04d94c12b2e6a8cc62495286231f6"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/develop/ui-guide.md": {
+    "size": 13005,
+    "mtime_ns": 1786180380511446900,
+    "word_count": 2084,
+    "hash": "78686bcf9138c69fc411ae1b183a61b378beb2b78a68f44b1f16e8fe8b42ca47"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/develop/ui/existing.md": {
+    "size": 2339,
+    "mtime_ns": 1786180380511743776,
+    "word_count": 360,
+    "hash": "c9638e355125b1fc1782116578bd78293c9b80f3530ac467ddea9d9f5802072b"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/develop/ui/generate.md": {
+    "size": 9445,
+    "mtime_ns": 1786180380511846359,
+    "word_count": 1536,
+    "hash": "07b2172eed2404302326b1ee645e71b61f2ed03035bae509f567d8762b110931"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/develop/ui/image.md": {
+    "size": 2601,
+    "mtime_ns": 1786180380511775484,
+    "word_count": 402,
+    "hash": "d7453e7296cdffe1d875b28286072da6ea01d3974bb18e119cd0e453ed9af192"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/develop/ui/implementation.md": {
+    "size": 15455,
+    "mtime_ns": 1786180380511696317,
+    "word_count": 2380,
+    "hash": "e4ac190145e190cf6b01247893e3095d1275de94f75571e1503eacff99d329b7"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/develop/ui/mcp.md": {
+    "size": 650,
+    "mtime_ns": 1786180380511866359,
+    "word_count": 104,
+    "hash": "2d49a7ea49b3bc98d3835c82a8ffab92ad8c2eab9afaaf603863acf8bcddef95"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/document/SKILL.md": {
+    "size": 9585,
+    "mtime_ns": 1786180380530841348,
+    "word_count": 1544,
+    "hash": "026ac3f974aac12361d208f92309723e34437a9a3f66287b3588e1b8340e5074"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/document/agent-prompt.md": {
+    "size": 4085,
+    "mtime_ns": 1786180380530828390,
+    "word_count": 635,
+    "hash": "490639e343ea3786cbca4332f850ae78185eef3b9b4ebcdce9481877ee86f440"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/document/agents/openai.yaml": {
+    "size": 482,
+    "mtime_ns": 1786180380531080890,
+    "word_count": 72,
+    "hash": "24a8a7c4828b79127551ac5e62c36074a77758f9b83cebb00362b9cf68cb0386"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/document/templates/changelog.md": {
+    "size": 2028,
+    "mtime_ns": 1786180380531141849,
+    "word_count": 301,
+    "hash": "c5cc7c4ab3d041bc801db7aaad36c8b56fd75a1b981b5311cb54198cfe5436c9"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/document/templates/postmortem.md": {
+    "size": 2280,
+    "mtime_ns": 1786180380531249307,
+    "word_count": 367,
+    "hash": "32143e33d8226d54116883132fc1a5b04ee48b01e46befa382f43acae130b28a"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/document/templates/pr.md": {
+    "size": 1641,
+    "mtime_ns": 1786180380531218307,
+    "word_count": 272,
+    "hash": "e62eaebea8a1cb3cec9af3421dc67fd0295f0874a1145a922e979c2ef8d3246d"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/document/templates/release-note.md": {
+    "size": 1484,
+    "mtime_ns": 1786180380531136557,
+    "word_count": 230,
+    "hash": "49c3eafa8f192e7e7173e2463f1b8eecc63ba36a4ae3321a3029fa50649961a5"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/frontend-design/LICENSE.txt": {
+    "size": 10174,
+    "mtime_ns": 1786544705160039993,
+    "word_count": 1413,
+    "hash": "7c95345d823581157b85d7ba4f166f4d2ad6f8043362e748b1558b3c31f33600"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/frontend-design/SKILL.md": {
+    "size": 8260,
+    "mtime_ns": 1786544705160273075,
+    "word_count": 1336,
+    "hash": "164f90413a921a743d3b8ad39132353f8a8488bd876decf71d966a0259b6e545"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/scope/SKILL.md": {
+    "size": 11164,
+    "mtime_ns": 1786180380562126316,
+    "word_count": 1778,
+    "hash": "a304564751f92dd3308648e20497eb1d9647ce11c7223f65c05ed0a521fc2856"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/scope/agents/openai.yaml": {
+    "size": 496,
+    "mtime_ns": 1786180380562416149,
+    "word_count": 74,
+    "hash": "ff9416599032e9b605c465851e8b6b1a139f9bf9e67595de60be40bdfa137c1d"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/scope/approaches/facade.md": {
+    "size": 2754,
+    "mtime_ns": 1786180380562425233,
+    "word_count": 447,
+    "hash": "f4aaa552b9e6611a69678e91480a59f446f7db96e13a6ec85699bc086142886f"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/scope/approaches/journey.md": {
+    "size": 2672,
+    "mtime_ns": 1786180380562514816,
+    "word_count": 448,
+    "hash": "b1d2183a56eea5beba9d1403d89bff734d0289e67ad1cffccdd329502b4d8442"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/scope/approaches/skateboard.md": {
+    "size": 2637,
+    "mtime_ns": 1786180380562516066,
+    "word_count": 448,
+    "hash": "a9620618e3dad1764260e99d971ab0acdf4cd1a2eb437e38ec7739770d625f59"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/scope/approaches/tracer-bullet.md": {
+    "size": 2657,
+    "mtime_ns": 1786180380562576233,
+    "word_count": 453,
+    "hash": "447db3aaa4805b4c8e84ece0ac82afa0407c0c3e312e73acddbd602963d97ed9"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/scope/modes/add.md": {
+    "size": 1745,
+    "mtime_ns": 1786180380562692066,
+    "word_count": 279,
+    "hash": "f1cdadc9fc96f1f30afdd89ba56f117d6e537d4b91489f4cd00004a0777daf65"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/scope/modes/plan-brownfield.md": {
+    "size": 1637,
+    "mtime_ns": 1786180380562757483,
+    "word_count": 259,
+    "hash": "76ddd32074028052048359db68e61a73cc4eff3e53cff12d0ce58eae10be7451"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/scope/modes/plan-greenfield.md": {
+    "size": 4335,
+    "mtime_ns": 1786180380562690650,
+    "word_count": 656,
+    "hash": "b62f050f4aa19853ba070b2c3db687e441f6200e0f49f68cc9002f7fc47136c9"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/scope/modes/plan-monorepo.md": {
+    "size": 1506,
+    "mtime_ns": 1786180380562868400,
+    "word_count": 211,
+    "hash": "4465c5ebb970220fe744c50b469b817725643b8c9a00c5e7d300b59d0b72b38b"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/scope/modes/plan.md": {
+    "size": 16762,
+    "mtime_ns": 1786180380562827442,
+    "word_count": 2566,
+    "hash": "3c1c9054ad93642792b64b441c745fb7102515c7e0b563ea31d5b55723b7cf7f"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/scope/modes/replan.md": {
+    "size": 2033,
+    "mtime_ns": 1786180380562843067,
+    "word_count": 316,
+    "hash": "50656beab79ab93a8068456e497241ab371e66da7875346eca303e32ee4fcded"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/scope/scope-template.md": {
+    "size": 11411,
+    "mtime_ns": 1786180380562218941,
+    "word_count": 1878,
+    "hash": "78c5b3eea3060ba83e791c504eb13b481f9cfce71b6c36b006731d592554d86e"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/sync/SKILL.md": {
+    "size": 15084,
+    "mtime_ns": 1786180380574275710,
+    "word_count": 2328,
+    "hash": "6ca08b28df3307ad535b2040b726002c8f012d0e74c54138438bdf83ea60cf40"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/sync/agent-prompt.md": {
+    "size": 17061,
+    "mtime_ns": 1786180380574278543,
+    "word_count": 2637,
+    "hash": "ee7d9b45fb448cb9f8a8d09128f881a19e71781f319fd60782132cd0b50dbb6a"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/sync/agents/openai.yaml": {
+    "size": 482,
+    "mtime_ns": 1786180380574324627,
+    "word_count": 71,
+    "hash": "2fe9569416d6f9f00a5e702e403f650796a59123fa4450fb91857ad0cf9daf72"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/test/SKILL.md": {
+    "size": 17976,
+    "mtime_ns": 1786180380589475110,
+    "word_count": 2792,
+    "hash": "565f94cd8770b6cd6301bf244ed806c14c9291d4a3c1dd8231c03ee4586cb9b6"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/test/agent-prompt.md": {
+    "size": 3008,
+    "mtime_ns": 1786180380589583777,
+    "word_count": 453,
+    "hash": "946b093d1a67a2ba02dcad7a9df74faa5a10a5be6216413d06dc1a9adb961cd6"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/test/agents/openai.yaml": {
+    "size": 460,
+    "mtime_ns": 1786180380589572027,
+    "word_count": 66,
+    "hash": "780c6cda244e8adb81637726e7c761d10d0f7d88a5dfa99cbb5c8b6cf2a7ba64"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/test/modes/setup.md": {
+    "size": 5478,
+    "mtime_ns": 1786180380589659943,
+    "word_count": 831,
+    "hash": "7d809dd020c5ece382dfb92793c605ec2d7958a049ec756675dfb94b213958a2"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.agents/skills/test/writing-guide.md": {
+    "size": 10572,
+    "mtime_ns": 1786180380589609610,
+    "word_count": 1585,
+    "hash": "884e107eccc7dfd5e8e87e60738ca72fbaebb4afa6fc3c687ee3328df739ff94"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.github/workflows/ci.yml": {
+    "size": 4248,
+    "mtime_ns": 1786203073428895673,
+    "word_count": 468,
+    "hash": "bc81421f323c6d65b6b2c0d7d61f2f3f4c02abbcdecc9b1b8010e283a6d97654"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/skills/graphify/SKILL.md": {
+    "size": 38220,
+    "mtime_ns": 1786544705165565054,
+    "word_count": 4752,
+    "hash": "a3b3875c88323df7000e8a2c99e27341501160d9962cafd96f4a4ef4f58662f3"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/skills/graphify/references/add-watch.md": {
+    "size": 2486,
+    "mtime_ns": 1786544705165854887,
+    "word_count": 366,
+    "hash": "171b7ecebf27d8affa54cfbb31f7a49cff0dac62bed2dccfc2472882ca27271d"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/skills/graphify/references/exports.md": {
+    "size": 3362,
+    "mtime_ns": 1786544705166097011,
+    "word_count": 470,
+    "hash": "9fdbdbbf37c63200c34b18a752706d2378b54023ae933399c96a4b4280d401f3"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/skills/graphify/references/extraction-spec.md": {
+    "size": 4431,
+    "mtime_ns": 1786544705166357051,
+    "word_count": 536,
+    "hash": "134130b4e34a7b4c80bcf5b8299559be2042aa1f430bbaa10cd77c3e131ecf54"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/skills/graphify/references/github-and-merge.md": {
+    "size": 2177,
+    "mtime_ns": 1786544705166548426,
+    "word_count": 271,
+    "hash": "57bde98b6f41f956ae91108ed46a605fdbc9796fac3429d0d977fd9a9d36ea1e"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/skills/graphify/references/hooks.md": {
+    "size": 1267,
+    "mtime_ns": 1786544705166723717,
+    "word_count": 193,
+    "hash": "77d3c1a4b5cab468abb68615be9f4c49fa216be1644b8f63ad1ca01420b60b57"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/skills/graphify/references/query.md": {
+    "size": 13456,
+    "mtime_ns": 1786544705167087715,
+    "word_count": 1763,
+    "hash": "98243ced7089f66f41eab329a63598c7a1d8ab1593ab906269558ea37c0c2414"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/skills/graphify/references/transcribe.md": {
+    "size": 3173,
+    "mtime_ns": 1786544705167298881,
+    "word_count": 418,
+    "hash": "59bbc77f560af9fff885af5fad8f0e543ff0bf3eb3a89dc6f65f1af76ad1190b"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/skills/graphify/references/update.md": {
+    "size": 9143,
+    "mtime_ns": 1786544705167537797,
+    "word_count": 1011,
+    "hash": "d4c0fcd34a660831027cba7a0ceda5fc5d4062c5aed6f6c09f3f2585afb34973"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/banner-design/SKILL.md": {
+    "size": 8326,
+    "mtime_ns": 1786544705169606747,
+    "word_count": 1115,
+    "hash": "bf5d6324e1734868f3bd4fce41a002703ade7910d35f13cbf63d443d6811211e"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/banner-design/references/banner-sizes-and-styles.md": {
+    "size": 4993,
+    "mtime_ns": 1786544705169876079,
+    "word_count": 851,
+    "hash": "84d6409ac0a2c99e37164f707424a1b6a2c3cdd93821bfc69eea3ddaec09b197"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/brand/SKILL.md": {
+    "size": 2939,
+    "mtime_ns": 1786544705170052703,
+    "word_count": 343,
+    "hash": "6176395282614138df93fd87f866c8b3b68fd9c10ca8a4ae18578a7e2a1043bd"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/brand/references/approval-checklist.md": {
+    "size": 4245,
+    "mtime_ns": 1786544705170275536,
+    "word_count": 783,
+    "hash": "6ef0c5d1b807950a96f29214dd8b00f349d3a6ae9f4311b39d6f9dc0c603304a"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/brand/references/asset-organization.md": {
+    "size": 5110,
+    "mtime_ns": 1786544705170512118,
+    "word_count": 579,
+    "hash": "1ad8c60c1545972a6000d533baf766a093e2524736062eeac10f128973b56e53"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/brand/references/brand-guideline-template.md": {
+    "size": 3572,
+    "mtime_ns": 1786544705170677118,
+    "word_count": 580,
+    "hash": "5000325cd18020970ec4809bae620be6e38e6690a327374ac1ccd02d8e8f1e04"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/brand/references/color-palette-management.md": {
+    "size": 4254,
+    "mtime_ns": 1786544705170881950,
+    "word_count": 590,
+    "hash": "473ecf42cb5285a0cb547f7fa54ce7447e1e26984a5485a45eb6870928b236b6"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/brand/references/consistency-checklist.md": {
+    "size": 1926,
+    "mtime_ns": 1786544705171100199,
+    "word_count": 370,
+    "hash": "12455bc45ed853f3232c2a049b10ed5fdcc79b22bbf57a05e8a3319083123bfc"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/brand/references/logo-usage-rules.md": {
+    "size": 5464,
+    "mtime_ns": 1786544705171354032,
+    "word_count": 797,
+    "hash": "e49c5db0ae16f460bf1c6934661ef238af3c4848e111cd3c82663d8c3aab2e10"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/brand/references/messaging-framework.md": {
+    "size": 1763,
+    "mtime_ns": 1786544705171528406,
+    "word_count": 268,
+    "hash": "7267f06370642972804bcc24c95bfa41c847a32aafda2da713fe6f9208d2cf85"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/brand/references/typography-specifications.md": {
+    "size": 5042,
+    "mtime_ns": 1786544705171751905,
+    "word_count": 805,
+    "hash": "ce84301694f66bb5a021a4f5d42f67dcddb9a81d11ff60572f69718764ddabae"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/brand/references/update.md": {
+    "size": 3365,
+    "mtime_ns": 1786544705171932696,
+    "word_count": 463,
+    "hash": "25e9edcdf0280596800652afabba6eb8a52aa27416f2ea05636c8878ac08e94c"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/brand/references/visual-identity.md": {
+    "size": 1884,
+    "mtime_ns": 1786544705172128404,
+    "word_count": 309,
+    "hash": "7254051001e2ebe5d274c22d9437496940a7174d7aee35a87af90aff270952b3"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/brand/references/voice-framework.md": {
+    "size": 1997,
+    "mtime_ns": 1786544705172295195,
+    "word_count": 281,
+    "hash": "962d7b5861136cba8fbb219b1b4edee23b82c405a96caaf96c3ce0024c0bd0e8"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/brand/scripts/extract-colors.cjs": {
+    "size": 9328,
+    "mtime_ns": 1786544705172551527,
+    "word_count": 1014
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/brand/scripts/inject-brand-context.cjs": {
+    "size": 9677,
+    "mtime_ns": 1786544705172750734,
+    "word_count": 944
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/brand/scripts/sync-brand-to-tokens.cjs": {
+    "size": 9545,
+    "mtime_ns": 1786544705173092733,
+    "word_count": 1004
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/brand/scripts/tests/test_sync_brand_to_tokens.py": {
+    "size": 1970,
+    "mtime_ns": 1786544705173278899,
+    "word_count": 213,
+    "hash": "9acaedad940ceebcf2386eb7e21d2bc66b3c17fe5fec1ed15e5d34e3e8b239a6"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/brand/scripts/validate-asset.cjs": {
+    "size": 10173,
+    "mtime_ns": 1786544705173481940,
+    "word_count": 1048
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/brand/templates/brand-guidelines-starter.md": {
+    "size": 6638,
+    "mtime_ns": 1786544705173748272,
+    "word_count": 1114,
+    "hash": "4cc189b747993335ae5c262013fd201643063861a5062c0b805e46fab858c788"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design-system/SKILL.md": {
+    "size": 6875,
+    "mtime_ns": 1786544705174032771,
+    "word_count": 838,
+    "hash": "51421911f6a8edae53c6dce457ae9d693edf7d59689c8ed6207122830ffed348"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design-system/references/component-specs.md": {
+    "size": 6914,
+    "mtime_ns": 1786544705175907222,
+    "word_count": 936,
+    "hash": "8ea3ff5362379e7b6df8630885a609fe3ee841aab3780410c599648cd0a429af"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design-system/references/states-and-variants.md": {
+    "size": 4771,
+    "mtime_ns": 1786544705176814093,
+    "word_count": 644,
+    "hash": "167f11866d66e5751c740d336bec92757b8dec52c0b12ebf45b4b62434c055b8"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design-system/references/tailwind-integration.md": {
+    "size": 5633,
+    "mtime_ns": 1786544705177024426,
+    "word_count": 584,
+    "hash": "9ee3123bce773697b757c76edcb4ff6969bffe249297e11b7fc3813c6fea39e7"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design-system/scripts/embed-tokens.cjs": {
+    "size": 2558,
+    "mtime_ns": 1786544705177570674,
+    "word_count": 271
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design-system/scripts/fetch-background.py": {
+    "size": 12287,
+    "mtime_ns": 1786544705177813298,
+    "word_count": 862,
+    "hash": "0981e321f09c99a613d086fcb70a429e5bd78f47275b292dca3acfb6adf89b62"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design-system/scripts/generate-slide.py": {
+    "size": 28595,
+    "mtime_ns": 1786544705178057672,
+    "word_count": 1978,
+    "hash": "3d3af2a22ab461642eb6e1f4d5a490dc879422324906b4e9c10dd473b6043a64"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design-system/scripts/generate-tokens.cjs": {
+    "size": 4968,
+    "mtime_ns": 1786544705178319421,
+    "word_count": 620
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design-system/scripts/html-token-validator.py": {
+    "size": 11894,
+    "mtime_ns": 1786544705178585295,
+    "word_count": 1131,
+    "hash": "33556f64ada1e59c14e520dbbdd5703a4adb8a64b5a02b332857fbc2cf51e7c9"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design-system/scripts/search-slides.py": {
+    "size": 9210,
+    "mtime_ns": 1786544705178827627,
+    "word_count": 618,
+    "hash": "59725c25171bbe936474c5bb65af5ef9cf191074dbde991bf43ec421292fec14"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design-system/scripts/slide-token-validator.py": {
+    "size": 973,
+    "mtime_ns": 1786544705179045293,
+    "word_count": 105,
+    "hash": "1286b39a9d0b590845af0103c4dcf5806c339459ddf2a9606b88eebf1f23955b"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design-system/scripts/slide_search_core.py": {
+    "size": 14756,
+    "mtime_ns": 1786544705179323459,
+    "word_count": 1375,
+    "hash": "9cc50301b0319ca83ebae048dafa70dacabe72f7bddfc4f87baf693698c352e7"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design-system/scripts/tests/test_validate_tokens.py": {
+    "size": 1619,
+    "mtime_ns": 1786544705179549208,
+    "word_count": 183,
+    "hash": "e9d42471dcfb6495959d9803eff98fb4857c9367f0a50bc187e364edefa90bd2"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design-system/scripts/validate-tokens.cjs": {
+    "size": 5942,
+    "mtime_ns": 1786544705179840665,
+    "word_count": 689
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design-system/templates/design-tokens-starter.json": {
+    "size": 7184,
+    "mtime_ns": 1786544705180098456,
+    "word_count": 801,
+    "hash": "3d69c216e1a55e55765e3a05dd9e5cca597914d75f4f611397e1ba10d8701703"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design/SKILL.md": {
+    "size": 12322,
+    "mtime_ns": 1786544705180398329,
+    "word_count": 1546,
+    "hash": "6d4c89425fb386187ce63de69c8560e86db85de6df3379a9e27f1952703e0629"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design/references/banner-sizes-and-styles.md": {
+    "size": 4993,
+    "mtime_ns": 1786544705182340447,
+    "word_count": 851,
+    "hash": "73b68a79e4c50bf8996c1efbc19233dfeec0ad923cd61afe362ba3def9323c0f"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design/references/cip-deliverable-guide.md": {
+    "size": 1735,
+    "mtime_ns": 1786544705182531071,
+    "word_count": 276,
+    "hash": "2ca6b289bfb9bb85705a1808352864e2e403444aa287f6d25121195238dff1e3"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design/references/cip-design.md": {
+    "size": 4589,
+    "mtime_ns": 1786544705182688696,
+    "word_count": 554,
+    "hash": "84b143605c1684827883e1116170030c2356b44eeb23d16b918ee1275b3725f7"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design/references/cip-prompt-engineering.md": {
+    "size": 2493,
+    "mtime_ns": 1786544705182823278,
+    "word_count": 329,
+    "hash": "2f4473eead7fd20047cf45d6921b09ad1af3205a7caff9a18f95f3a77dc65cef"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design/references/cip-style-guide.md": {
+    "size": 2357,
+    "mtime_ns": 1786544705182975028,
+    "word_count": 297,
+    "hash": "38b37e152243c1291eb5e4c1921cf01363085ab32e852b809e8a0820805ea24f"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design/references/design-routing.md": {
+    "size": 5826,
+    "mtime_ns": 1786544705183169485,
+    "word_count": 885,
+    "hash": "bf2de5680de2e2ca2006d95c5b0f2c88e3542e0d677af1e7d77aded19e8a8d05"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design/references/icon-design.md": {
+    "size": 4343,
+    "mtime_ns": 1786544705183330318,
+    "word_count": 669,
+    "hash": "5be2c0dac72791727b2df196d55d8a57a078e51723284ebd17cd76548280ac09"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design/references/logo-color-psychology.md": {
+    "size": 3341,
+    "mtime_ns": 1786544705183483692,
+    "word_count": 468,
+    "hash": "d3623eafb5654b22a5593c4c969cb821619193665ba1b766107a059245c7ca1c"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design/references/logo-design.md": {
+    "size": 3163,
+    "mtime_ns": 1786544705183633775,
+    "word_count": 410,
+    "hash": "2c8bdaa7190db294149a51b7f69e3b0c1f49fcc7296a41a5e61bc1e116561c3f"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design/references/logo-prompt-engineering.md": {
+    "size": 4314,
+    "mtime_ns": 1786544705183872608,
+    "word_count": 556,
+    "hash": "174985a010c15fd65285e7a93de9be87089059bb110fa3f0318cac581fa9cc0b"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design/references/logo-style-guide.md": {
+    "size": 3435,
+    "mtime_ns": 1786544705184005232,
+    "word_count": 502,
+    "hash": "e7a5c8346636ad4e8c72c147248298dc3e584b15beb0c70d03a92ea127df2d62"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design/references/slides-copywriting-formulas.md": {
+    "size": 2604,
+    "mtime_ns": 1786544705184148898,
+    "word_count": 378,
+    "hash": "06498b261fb3ef68a409b1072d2b286f63fc90747df1a210d3a3cfc7cc2f3841"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design/references/slides-create.md": {
+    "size": 153,
+    "mtime_ns": 1786544705184296356,
+    "word_count": 20,
+    "hash": "fa8b9d39eece1a9990be63f785ba3dde05646a58fbfd280bccdc304f19273971"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design/references/slides-html-template.md": {
+    "size": 9004,
+    "mtime_ns": 1786544705184542563,
+    "word_count": 883,
+    "hash": "60a1d5a9a8eda733069ae144bbafeea674fd8c973f3d1cba086d2b3e878942fe"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design/references/slides-layout-patterns.md": {
+    "size": 3691,
+    "mtime_ns": 1786544705184711771,
+    "word_count": 522,
+    "hash": "6f97717d18bd7ac0ffca8fb59d919e024a83235b56f6b50e3280d933c5002aee"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design/references/slides-strategies.md": {
+    "size": 2715,
+    "mtime_ns": 1786544705184875520,
+    "word_count": 426,
+    "hash": "8a028b836f47f1cf531781430c318e1dad5e8ce24299570387b3526dc70d5ccc"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design/references/slides.md": {
+    "size": 1742,
+    "mtime_ns": 1786544705185029645,
+    "word_count": 216,
+    "hash": "9724c2866ef1445324ab9429fc0aaf86c15c13f689a6918ec24160f279bf4ad2"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design/references/social-photos-design.md": {
+    "size": 11251,
+    "mtime_ns": 1786544705185344435,
+    "word_count": 1566,
+    "hash": "94ec6a2cbf03ae345c3fe907271119996c8f7b073c0e868c9e64689002b91ca9"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design/scripts/cip/core.py": {
+    "size": 8062,
+    "mtime_ns": 1786544705185644767,
+    "word_count": 810,
+    "hash": "ef37ac7df6dbcaec9a247999e60596c087dcc4bac36fd8ec11be4130ae58b2c2"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design/scripts/cip/generate.py": {
+    "size": 19430,
+    "mtime_ns": 1786544705185880183,
+    "word_count": 1773,
+    "hash": "c1e86abf58b03cfbf36ab1c0c9c5c62a1707c02742e38ac51f3d9a65c8b987d0"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design/scripts/cip/render-html.py": {
+    "size": 13941,
+    "mtime_ns": 1786544705186144807,
+    "word_count": 1180,
+    "hash": "c25905539187c8a711f25ddaee9e0479d6fefcb4c20f1501d80ac768e9d4f785"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design/scripts/cip/search.py": {
+    "size": 4524,
+    "mtime_ns": 1786544705186384931,
+    "word_count": 342,
+    "hash": "afb42aeae85a34c0e558f96b736753d3cacf908f39435cef20269b8e7bb18b5e"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design/scripts/icon/generate.py": {
+    "size": 17151,
+    "mtime_ns": 1786544705186642138,
+    "word_count": 1624,
+    "hash": "b041032a707e41fc315c2a0594525593aa0ef0e2f19f351d5cf506d080043840"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design/scripts/logo/core.py": {
+    "size": 6023,
+    "mtime_ns": 1786544705186935512,
+    "word_count": 649,
+    "hash": "1aaf8d261248452c2c85f19a5d7917a2d356375105228e9a550f463503f37ba4"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design/scripts/logo/generate.py": {
+    "size": 14630,
+    "mtime_ns": 1786544705187160678,
+    "word_count": 1307,
+    "hash": "d0e6a81619e2d3ec5297e1f6cf1cf7c2993608d22f6a67140fb8368dcbc4a5c1"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/design/scripts/logo/search.py": {
+    "size": 4745,
+    "mtime_ns": 1786544705187374427,
+    "word_count": 375,
+    "hash": "c41417b0f1f9d0869dfe28e9eb0fde6df606f160e77ea6b32bf3aa591aafb523"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/graphify.md": {
+    "size": 504,
+    "mtime_ns": 1786544705187648759,
+    "word_count": 67,
+    "hash": "81974af23b739489559c7ecbeee08228c80d23f2b94b006a1a82c6a5153f82e6"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/slides/SKILL.md": {
+    "size": 1137,
+    "mtime_ns": 1786544705187880883,
+    "word_count": 136,
+    "hash": "af180a05340a0685e6a54f5cd05f07f7273224531d4b91457f144149a2a54f0b"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/slides/references/copywriting-formulas.md": {
+    "size": 2604,
+    "mtime_ns": 1786544705188055216,
+    "word_count": 378,
+    "hash": "8534b9312e59165e721be62620d50d13da8443c4843a06d8b598c8f7fcf23fab"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/slides/references/create.md": {
+    "size": 153,
+    "mtime_ns": 1786544705188160507,
+    "word_count": 20,
+    "hash": "865ea5fa40459ce854de942986283ebc18cf32a3d6c69035ebfd704c8a5899d9"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/slides/references/html-template.md": {
+    "size": 9004,
+    "mtime_ns": 1786544705188287382,
+    "word_count": 883,
+    "hash": "db8b338394a874593463fc03b0471de6dabbdc239da104bc6f445123c39c20f9"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/slides/references/layout-patterns.md": {
+    "size": 3691,
+    "mtime_ns": 1786544705188422465,
+    "word_count": 522,
+    "hash": "788c1934ca59770401eff13f4fbab1c66d09f6637dccb285e31bab3c4756a3b7"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/slides/references/slide-strategies.md": {
+    "size": 2715,
+    "mtime_ns": 1786544705188541548,
+    "word_count": 426,
+    "hash": "189b998d3f31a87c8e806d0edf0907703dadf3fb0663bbe70b16734cbb33cc26"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/ui-styling/LICENSE.txt": {
+    "size": 11357,
+    "mtime_ns": 1786544705188844671,
+    "word_count": 1581,
+    "hash": "adb67cb8d6200e220c3e83157b619ad44650a16e2739a811cf96f7ffadb41ab8"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/ui-styling/SKILL.md": {
+    "size": 10045,
+    "mtime_ns": 1786544705189057420,
+    "word_count": 1149,
+    "hash": "ec34b933cfa230d7903d6b817f0195e513da758139b22bf21a00b6b3211bd138"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/ui-styling/references/canvas-design-system.md": {
+    "size": 7888,
+    "mtime_ns": 1786544705189424877,
+    "word_count": 1146,
+    "hash": "e3562b3b4c741290fd05f103446d31567b547fc987b2f1bf58eb058ecd443950"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/ui-styling/references/shadcn-accessibility.md": {
+    "size": 9976,
+    "mtime_ns": 1786544705189616793,
+    "word_count": 1083,
+    "hash": "dc73eab02b2dc1f448efc57c5bc468586f7f0e92bf00ad1c2fd2adbcacf30f10"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/ui-styling/references/shadcn-components.md": {
+    "size": 11155,
+    "mtime_ns": 1786544705189842626,
+    "word_count": 959,
+    "hash": "9d239d34a0c6bc907d87dfb5b50f94b907b7c9f5e29e817826614b23ff764f84"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/ui-styling/references/shadcn-theming.md": {
+    "size": 8672,
+    "mtime_ns": 1786544705190051625,
+    "word_count": 956,
+    "hash": "3aff9a118d1683e22ddd9000d00d3e4c074aaee9fa88509fe2ee1f769cad8c87"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/ui-styling/references/tailwind-customization.md": {
+    "size": 10171,
+    "mtime_ns": 1786544705190251124,
+    "word_count": 1026,
+    "hash": "3f77d24a1c006e0383cf3ce08518ff647202e6c687e5b978d58f15453658b72b"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/ui-styling/references/tailwind-responsive.md": {
+    "size": 8270,
+    "mtime_ns": 1786544705190455415,
+    "word_count": 1031,
+    "hash": "1306a855f628bd6bf05fe6d8b634599369399733934ce94d90a3a36ec4b5fcbf"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/ui-styling/references/tailwind-utilities.md": {
+    "size": 9980,
+    "mtime_ns": 1786544705190665831,
+    "word_count": 914,
+    "hash": "1ba4be200600f9e9e4fd69b99c27ec889a74cf72efbd10c91bb27452b91dc192"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/ui-styling/scripts/requirements.txt": {
+    "size": 444,
+    "mtime_ns": 1786544705190833622,
+    "word_count": 64,
+    "hash": "8f3f0e6715ae639c158292d1a8b8f6b9f39c6b203fcde90190642f40be923ba2"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/ui-styling/scripts/shadcn_add.py": {
+    "size": 8799,
+    "mtime_ns": 1786544705191015288,
+    "word_count": 773,
+    "hash": "7095605119d17126adb4dbe5aa3ea3b884254273bbd922d1666c237da0c20a4b"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/ui-styling/scripts/tailwind_config_gen.py": {
+    "size": 14418,
+    "mtime_ns": 1786544705191288703,
+    "word_count": 1163,
+    "hash": "960b00c97e4077cd08c1f523429df2b042032cd463b19e1c61235b34651c50be"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/ui-styling/scripts/tests/coverage-ui.json": {
+    "size": 35121,
+    "mtime_ns": 1786544705191482661,
+    "word_count": 3752,
+    "hash": "6107a7f8868681089bce46f34d5dd4c25d6898df867d2592296e3f45fa6d7cba"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/ui-styling/scripts/tests/requirements.txt": {
+    "size": 52,
+    "mtime_ns": 1786544705191646869,
+    "word_count": 3,
+    "hash": "f8d8ca13dee84c0b2a3f6966e6f00b650fa51a026f5e57a353506588a06a0ecf"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/ui-styling/scripts/tests/test_shadcn_add.py": {
+    "size": 9919,
+    "mtime_ns": 1786544705191866201,
+    "word_count": 809,
+    "hash": "2741f882a555720b72299b9e9b66b5e63757a45c0bc590e049b4e4b2e49506d4"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/ui-styling/scripts/tests/test_tailwind_config_gen.py": {
+    "size": 14658,
+    "mtime_ns": 1786544705192080158,
+    "word_count": 1127,
+    "hash": "fd6d7a4145001d4f920d9db7a3bc504712e9b7d854f5a1d9daaea9da1d5a2242"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/ui-ux-pro-max/SKILL.md": {
+    "size": 22751,
+    "mtime_ns": 1786544705192379241,
+    "word_count": 3187,
+    "hash": "f9f1b9b5a55bc81bb2b424a3eee13915fac29268f3a18a9fe803df20ffa38a32"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/ui-ux-pro-max/scripts/core.py": {
+    "size": 18801,
+    "mtime_ns": 1786544705204490693,
+    "word_count": 1938,
+    "hash": "6d149f4f1865beb2f77091bea1f77ae7b6b310052437f5c3a2a7fa1d913af15f"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/ui-ux-pro-max/scripts/design_system.py": {
+    "size": 63694,
+    "mtime_ns": 1786544705204859483,
+    "word_count": 5760,
+    "hash": "dbb6d9ff5a350455c863fd972de1a078da88a8a8bb9656bd92a87f59b66d356c"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/ui-ux-pro-max/scripts/search.py": {
+    "size": 8687,
+    "mtime_ns": 1786544705205122232,
+    "word_count": 749,
+    "hash": "556fbc83d0331595960471fb5892f5b7ba40ea1f33f749e74130858872a97b9e"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/ui-ux-pro-max/scripts/tests/test_core.py": {
+    "size": 5901,
+    "mtime_ns": 1786544705205387398,
+    "word_count": 442,
+    "hash": "51f8c532f029f87a48c734840f150b43c52f4bba8b385eba21778bcb43d13d8b"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/ui-ux-pro-max/scripts/tests/test_design_system_mode.py": {
+    "size": 6345,
+    "mtime_ns": 1786544705205582022,
+    "word_count": 420,
+    "hash": "bc8db55a7bb45863c012cb64abc134c5e05861eb4c0b4bcdff22819b42aa8825"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/steering/ui-ux-pro-max/scripts/validate_data.py": {
+    "size": 4185,
+    "mtime_ns": 1786544705205904396,
+    "word_count": 451,
+    "hash": "947769ca8b28b72e495e548b00c793f27f3365302d0a148f15802d1ee6738bd4"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/AGENTS.md": {
+    "size": 9083,
+    "mtime_ns": 1786430743312130109,
+    "word_count": 1182,
+    "hash": "275543ec4bca56cdf53cdae13c86732ed1eff469988f6a721e2795467717812f"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/CLAUDE.md": {
+    "size": 11,
+    "mtime_ns": 1786180274571583776,
+    "word_count": 1,
+    "hash": "1bc407b3dec76c32f03d0e5e2d064ceae04ede1709e79f8ce2383f5b4092e7a6"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/README.md": {
+    "size": 1450,
+    "mtime_ns": 1786180158829712086,
+    "word_count": 155,
+    "hash": "0b44daaa94766d385f056c95e8aabb30ad6e49ef3aa9c7eb9e32606055f4eaf2"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/biome.json": {
+    "size": 775,
+    "mtime_ns": 1786203073431526467,
+    "word_count": 73,
+    "hash": "19b2e2e4663b0ca57f74b63ce9a03d348efb01438fb69fb5252b8438965ac69b"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docker-compose.test.yml": {
+    "size": 370,
+    "mtime_ns": 1786203073431747467,
+    "word_count": 31,
+    "hash": "65129028fd1320816e33e3bf44f8b06530c1c1dbcb8a5072cde54d780cb796ad"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/UI-design/final-light-saas/canvas-page.html": {
+    "size": 4549,
+    "mtime_ns": 1786430743312744288,
+    "word_count": 225,
+    "hash": "3244c1b164aada648c64cfee26d65f78aad01bfc7d38c0480733f4277f6805fb"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/UI-design/final-light-saas/index.html": {
+    "size": 4447,
+    "mtime_ns": 1786430743313020710,
+    "word_count": 419,
+    "hash": "3711fd48fbe2796c3de9a678cf11e1fabfd1df9854e850de5531574dfd0a6b8e"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/UI-design/final-light-saas/workspace-shell.html": {
+    "size": 10859,
+    "mtime_ns": 1786430743313435136,
+    "word_count": 469,
+    "hash": "edbf85b4f86437204594c169dbb5d67d85233295730a190002cb0d54afe9d20a"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/UI-design/shotgun-2026-08-09-v2/index.html": {
+    "size": 3568,
+    "mtime_ns": 1786266967218990444,
+    "word_count": 279,
+    "hash": "b284ebdb52f2c99eb1d6a3507b9665e2e786c10f56d760997725eadeb6e8a5e6"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/UI-design/shotgun-2026-08-09-v2/variant-D-neon-terminal.html": {
+    "size": 7739,
+    "mtime_ns": 1786266887192492732,
+    "word_count": 302,
+    "hash": "b5304abba3345ec1c489441d006b3d3b69c330f4864df2eb334102d352e3a94a"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/UI-design/shotgun-2026-08-09-v2/variant-E-slate-green.html": {
+    "size": 8018,
+    "mtime_ns": 1786266916846247049,
+    "word_count": 334,
+    "hash": "a4bebb217c895ec8ed39d1afbb9aa0fe3c3cde3cecc0c0108de3acfdcbf8eaad"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/UI-design/shotgun-2026-08-09-v2/variant-F-brutalist-mono.html": {
+    "size": 7534,
+    "mtime_ns": 1786266947258325864,
+    "word_count": 310,
+    "hash": "dd4f22b751109e598575cd3926729db84220e7d1a5d9e7b836682309682b7c77"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/UI-design/shotgun-2026-08-09/index.html": {
+    "size": 2987,
+    "mtime_ns": 1786266439532406222,
+    "word_count": 222,
+    "hash": "f4f86f84aae90a8456a2ab0818ac0c3b3253f0be1c025796de85c236e1d50838"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/UI-design/shotgun-2026-08-09/variant-A-console-tight.html": {
+    "size": 8004,
+    "mtime_ns": 1786266261381527394,
+    "word_count": 310,
+    "hash": "4e119c2659432329690d9287b1d2a7761916695c65dc14a7e17cd982f1bd9371"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/UI-design/shotgun-2026-08-09/variant-B-console-comfortable.html": {
+    "size": 8228,
+    "mtime_ns": 1786266382785635115,
+    "word_count": 330,
+    "hash": "5f6a3991d654bc190017ebb0cced556b03ce163cf07ff408be8b34a324e99b23"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/UI-design/shotgun-2026-08-09/variant-C-console-warm-accent.html": {
+    "size": 10326,
+    "mtime_ns": 1786266421853259818,
+    "word_count": 400,
+    "hash": "75fa356a9b26831507ca17db7ff5406a8a5b6fe157535584b2c2c7752e421107"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/inspiration/diagram-component.png": {
+    "size": 361018,
+    "mtime_ns": 1786430743314702787,
+    "word_count": 15643,
+    "hash": "b9e203fe1e1d9742d28409b8501f19fe8a07dde04b8c650452ae25836f23e672"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/inspiration/diagram-design.png": {
+    "size": 581268,
+    "mtime_ns": 1786430743316819289,
+    "word_count": 23157,
+    "hash": "c653f2d9aa92269c469eb9d2268a105d37ac7536b14c63576ec5c6bd69fbc859"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/inspiration/document-diagram-screen-inspiration.png": {
+    "size": 196414,
+    "mtime_ns": 1786430743317560096,
+    "word_count": 11723,
+    "hash": "a163d7cd268371521e0c4c8b4663327d478a4359c37f58f6c994f9c974aff612"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/scope/scope.md": {
+    "size": 15306,
+    "mtime_ns": 1786544705206862642,
+    "word_count": 2281,
+    "hash": "42decd35a48655995d124f4d4096f597bd91b0bf5656fee699b576c4eecc7400"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/superpowers/plans/2026-08-08-liveflows-delivery-graph.md": {
+    "size": 20117,
+    "mtime_ns": 1786189561630369358,
+    "word_count": 2958,
+    "hash": "918e1ef6ff45b25061e219a9ae1f028bbefed7a10488420542b0767049a6242a"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/superpowers/plans/2026-08-08-liveflows-spikes.md": {
+    "size": 33683,
+    "mtime_ns": 1786189607364276453,
+    "word_count": 4648,
+    "hash": "07d892d8f145e61b8bbce42c532a91072fe09428c3d9b1c0c49c1df34118d5c9"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/superpowers/specs/2026-08-08-liveflows-design.md": {
+    "size": 35873,
+    "mtime_ns": 1786189561636034866,
+    "word_count": 4989,
+    "hash": "9341198ec80df1dc0f8aed9463816ed6844f14612000ff97bfe15801f10b28d7"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/e2e/fixtures.ts": {
+    "size": 1302,
+    "mtime_ns": 1786203073434599219,
+    "word_count": 185
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/e2e/global.setup.ts": {
+    "size": 471,
+    "mtime_ns": 1786203073434772219,
+    "word_count": 70
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/e2e/harness.spec.ts": {
+    "size": 4828,
+    "mtime_ns": 1786203073435000719,
+    "word_count": 611
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/e2e/helpers/assert-not-stubbed.ts": {
+    "size": 1742,
+    "mtime_ns": 1786203073435230678,
+    "word_count": 237
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/e2e/helpers/clerk-auth.ts": {
+    "size": 1995,
+    "mtime_ns": 1786203073435425053,
+    "word_count": 273
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/e2e/helpers/liveblocks-network.ts": {
+    "size": 1372,
+    "mtime_ns": 1786203073435616886,
+    "word_count": 173
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/next.config.ts": {
+    "size": 156,
+    "mtime_ns": 1786180158831102889,
+    "word_count": 23
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/package.json": {
+    "size": 1511,
+    "mtime_ns": 1786547260210572294,
+    "word_count": 112,
+    "hash": "5891aae479dc242ad34d47f267f6bc4b1c6131f4fdfd3af29ccf9d8ef4ad9361"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/playwright.config.ts": {
+    "size": 844,
+    "mtime_ns": 1786203073436112512,
+    "word_count": 100
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/pnpm-workspace.yaml": {
+    "size": 276,
+    "mtime_ns": 1786203073437362554,
+    "word_count": 22,
+    "hash": "cfff4beb987b4728696f08b623c5c5c9500d63faee59c9de251794a88a6489dd"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/postcss.config.mjs": {
+    "size": 94,
+    "mtime_ns": 1786180158830252049,
+    "word_count": 13
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/prisma.config.ts": {
+    "size": 582,
+    "mtime_ns": 1786203073437607096,
+    "word_count": 68
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/prisma/migrations/20260808133121_init/migration.sql": {
+    "size": 3268,
+    "mtime_ns": 1786203073438052472,
+    "word_count": 349,
+    "hash": "d87b65dad1cb7ee95400f3ba0f1667d84e1e039bad18988466d3163a85fd1fee"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/prisma/migrations/20260808140043_canvas_snapshot_background_only/migration.sql": {
+    "size": 277,
+    "mtime_ns": 1786203073438347722,
+    "word_count": 41,
+    "hash": "b9099d12097bfedc96b2df0b2a455cdd9c1d5b7abf560243df854a2c11e919a4"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/public/file.svg": {
+    "size": 391,
+    "mtime_ns": 1786180158830466259,
+    "word_count": 50,
+    "hash": "52163ecb5257da6ecb3ddf8967f0d51a0da93d79d48caa09e9d307ea1c1d3f17"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/public/globe.svg": {
+    "size": 1035,
+    "mtime_ns": 1786180158830398133,
+    "word_count": 154,
+    "hash": "8c99baedee05ada37bd392e179350c9a8e893c25c08cb2e1a8ec25f4f8a33868"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/public/next.svg": {
+    "size": 1375,
+    "mtime_ns": 1786180158829710377,
+    "word_count": 183,
+    "hash": "9caa34ac82b48d59fd2add4c0dbf6fcceaf3c3904254c3ccd89dd00644b375ad"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/public/vercel.svg": {
+    "size": 128,
+    "mtime_ns": 1786180158830461592,
+    "word_count": 12,
+    "hash": "dd579ec801cede14607350aa14a79bf784424d7144e1b63dbcbc4b9e32c12474"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/public/window.svg": {
+    "size": 385,
+    "mtime_ns": 1786180158830460425,
+    "word_count": 63,
+    "hash": "58d233ee9a0b0231d74f31667bfd20bc006b78d64d40f6521293bd71f06d435e"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/skills-lock.json": {
+    "size": 2318,
+    "mtime_ns": 1786544705229345679,
+    "word_count": 117,
+    "hash": "6d3c5465840c00e677a930f11bbe2c22081d7169b0131a6acff5e693b4030b70"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/__tests__/proxy.test.ts": {
+    "size": 3378,
+    "mtime_ns": 1786203073439176306,
+    "word_count": 264
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/(app)/dashboard/page.tsx": {
+    "size": 446,
+    "mtime_ns": 1786544705229802469,
+    "word_count": 43
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/(app)/layout.test.tsx": {
+    "size": 647,
+    "mtime_ns": 1786547260211581084,
+    "word_count": 63
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/(app)/layout.tsx": {
+    "size": 177,
+    "mtime_ns": 1786547260211872667,
+    "word_count": 20
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/(app)/w/[workspaceSlug]/actions.test.ts": {
+    "size": 2452,
+    "mtime_ns": 1786544705230766340,
+    "word_count": 232
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/(app)/w/[workspaceSlug]/actions.ts": {
+    "size": 1064,
+    "mtime_ns": 1786203073440437807,
+    "word_count": 115
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/(app)/w/[workspaceSlug]/loading.tsx": {
+    "size": 1083,
+    "mtime_ns": 1786547260212359958,
+    "word_count": 90
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/(app)/w/[workspaceSlug]/p/[projectId]/page.tsx": {
+    "size": 527,
+    "mtime_ns": 1786550185765888503,
+    "word_count": 56
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/(app)/w/[workspaceSlug]/page.tsx": {
+    "size": 1014,
+    "mtime_ns": 1786547260212558333,
+    "word_count": 90
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/(auth)/sign-in/[[...sign-in]]/page.tsx": {
+    "size": 194,
+    "mtime_ns": 1786203073441566391,
+    "word_count": 23
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/(auth)/sign-up/[[...sign-up]]/page.tsx": {
+    "size": 194,
+    "mtime_ns": 1786203073441844683,
+    "word_count": 23
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/api/liveblocks-auth/route.test.ts": {
+    "size": 4225,
+    "mtime_ns": 1786203073442134267,
+    "word_count": 397
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/api/liveblocks-auth/route.ts": {
+    "size": 1724,
+    "mtime_ns": 1786203073442326850,
+    "word_count": 231
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/api/webhooks/clerk/__tests__/route.test.ts": {
+    "size": 14387,
+    "mtime_ns": 1786203073442754017,
+    "word_count": 1198
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/api/webhooks/clerk/route.ts": {
+    "size": 4769,
+    "mtime_ns": 1786203073442959101,
+    "word_count": 551
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/canvas/[roomId]/page.tsx": {
+    "size": 339,
+    "mtime_ns": 1786203073443285309,
+    "word_count": 48
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/layout.tsx": {
+    "size": 1019,
+    "mtime_ns": 1786547260213193665,
+    "word_count": 96
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/page.tsx": {
+    "size": 9612,
+    "mtime_ns": 1786544705233389413,
+    "word_count": 651
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/session-tasks/choose-organization/client.tsx": {
+    "size": 482,
+    "mtime_ns": 1786203073444072352,
+    "word_count": 60
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/session-tasks/choose-organization/page.tsx": {
+    "size": 607,
+    "mtime_ns": 1786203073444257727,
+    "word_count": 85
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/components/app-nav.test.tsx": {
+    "size": 2055,
+    "mtime_ns": 1786203073445159352,
+    "word_count": 211
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/components/app-nav.tsx": {
+    "size": 2750,
+    "mtime_ns": 1786547260213452915,
+    "word_count": 184
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/components/create-project-modal.test.tsx": {
+    "size": 1604,
+    "mtime_ns": 1786203073445583061,
+    "word_count": 147
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/components/create-project-modal.tsx": {
+    "size": 1854,
+    "mtime_ns": 1786547260215052620,
+    "word_count": 152
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/components/delete-project-dialog.test.tsx": {
+    "size": 1494,
+    "mtime_ns": 1786203073445988145,
+    "word_count": 143
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/components/delete-project-dialog.tsx": {
+    "size": 1759,
+    "mtime_ns": 1786547260215263037,
+    "word_count": 160
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/components/project-list.test.tsx": {
+    "size": 3469,
+    "mtime_ns": 1786547260216273785,
+    "word_count": 334
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/components/project-list.tsx": {
+    "size": 5647,
+    "mtime_ns": 1786547260216539410,
+    "word_count": 546
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/features/canvas/canvas-room.tsx": {
+    "size": 9419,
+    "mtime_ns": 1786549723232795949,
+    "word_count": 926
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/features/canvas/element-sync.ts": {
+    "size": 1794,
+    "mtime_ns": 1786203073447038021,
+    "word_count": 234
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/features/canvas/index.ts": {
+    "size": 167,
+    "mtime_ns": 1786203073447212271,
+    "word_count": 20
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/generated/prisma/browser.ts": {
+    "size": 1511,
+    "mtime_ns": 1786544705238635767,
+    "word_count": 223
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/generated/prisma/client.ts": {
+    "size": 2459,
+    "mtime_ns": 1786544705238854892,
+    "word_count": 330
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/generated/prisma/commonInputTypes.ts": {
+    "size": 21455,
+    "mtime_ns": 1786544705239060016,
+    "word_count": 1610
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/generated/prisma/enums.ts": {
+    "size": 336,
+    "mtime_ns": 1786447137412310106,
+    "word_count": 61
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/generated/prisma/internal/class.ts": {
+    "size": 53655,
+    "mtime_ns": 1786544705239390515,
+    "word_count": 1426
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/generated/prisma/internal/prismaNamespace.ts": {
+    "size": 54788,
+    "mtime_ns": 1786544705239711138,
+    "word_count": 4567
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/generated/prisma/internal/prismaNamespaceBrowser.ts": {
+    "size": 6484,
+    "mtime_ns": 1786544705240002512,
+    "word_count": 675
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/generated/prisma/models.ts": {
+    "size": 733,
+    "mtime_ns": 1786544705240212720,
+    "word_count": 104
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/generated/prisma/models/CanvasSnapshot.ts": {
+    "size": 50720,
+    "mtime_ns": 1786544705240494052,
+    "word_count": 4670
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/generated/prisma/models/ProcessedWebhook.ts": {
+    "size": 41215,
+    "mtime_ns": 1786447137413551063,
+    "word_count": 3949
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/generated/prisma/models/Project.ts": {
+    "size": 61429,
+    "mtime_ns": 1786544705241745755,
+    "word_count": 5606
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/generated/prisma/models/User.ts": {
+    "size": 51962,
+    "mtime_ns": 1786544705242052004,
+    "word_count": 5213
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/generated/prisma/models/Workspace.ts": {
+    "size": 53648,
+    "mtime_ns": 1786447137413136730,
+    "word_count": 5097
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/generated/prisma/models/WorkspaceMember.ts": {
+    "size": 59205,
+    "mtime_ns": 1786447137413151105,
+    "word_count": 4962
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/proxy.ts": {
+    "size": 1331,
+    "mtime_ns": 1786203073451115940,
+    "word_count": 157
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/dal/__tests__/projects.test.ts": {
+    "size": 5601,
+    "mtime_ns": 1786544705242341211,
+    "word_count": 556
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/dal/__tests__/workspaces.test.ts": {
+    "size": 4210,
+    "mtime_ns": 1786203073451635899,
+    "word_count": 434
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/dal/errors.ts": {
+    "size": 294,
+    "mtime_ns": 1786203073451816066,
+    "word_count": 33
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/dal/index.ts": {
+    "size": 823,
+    "mtime_ns": 1786547260223429482,
+    "word_count": 87
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/dal/projects.ts": {
+    "size": 3938,
+    "mtime_ns": 1786544705243441707,
+    "word_count": 492
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/dal/workspaces.ts": {
+    "size": 1719,
+    "mtime_ns": 1786203073452484608,
+    "word_count": 240
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/db.ts": {
+    "size": 651,
+    "mtime_ns": 1786203073452682442,
+    "word_count": 73
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/liveblocks-lifecycle.test.ts": {
+    "size": 3646,
+    "mtime_ns": 1786544705243643790,
+    "word_count": 309
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/liveblocks.ts": {
+    "size": 1950,
+    "mtime_ns": 1786544705243960205,
+    "word_count": 236
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/stores/ui.test.ts": {
+    "size": 1577,
+    "mtime_ns": 1786544705251936424,
+    "word_count": 148
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/stores/ui.ts": {
+    "size": 738,
+    "mtime_ns": 1786544705253421751,
+    "word_count": 101
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/tsconfig.json": {
+    "size": 670,
+    "mtime_ns": 1786180158831293974,
+    "word_count": 56,
+    "hash": "9b970091c97632397c54f36044cd1474be3b53104e9c4bd66fe636f0081c0852"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/vitest.config.ts": {
+    "size": 1361,
+    "mtime_ns": 1786544705253955541,
+    "word_count": 101
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/vitest.global-setup.ts": {
+    "size": 1049,
+    "mtime_ns": 1786203073454420193,
+    "word_count": 131
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/vitest.setup.ts": {
+    "size": 43,
+    "mtime_ns": 1786203073454618068,
+    "word_count": 2
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/vitest.unit.config.ts": {
+    "size": 2111,
+    "mtime_ns": 1786203073454828860,
+    "word_count": 274
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.claude/settings.json": {
+    "size": 67,
+    "mtime_ns": 1786544705160597115,
+    "word_count": 7,
+    "hash": "92fd222daaf03835708a7ac222ce59743b701a2e4f98020a91e0982208107cbe"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.claude/settings.local.json": {
+    "size": 2019,
+    "mtime_ns": 1786549756225538771,
+    "word_count": 119,
+    "hash": "5264895247865a45c9c6ab0ce73683b245bb4d166d434479aed4ed7182542d8c"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.gstack/claude-available.json": {
+    "size": 184,
+    "mtime_ns": 1786547260206760425,
+    "word_count": 10,
+    "hash": "93792ce3abb7c72a39f2c8081321626453fac8ee5fad873387b5096230429d20"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.gstack/design-reports/design-audit-local-20260811/design-audit-localhost.md": {
+    "size": 1461,
+    "mtime_ns": 1786547260207050508,
+    "word_count": 201,
+    "hash": "cde7027f92dfcb363b7c197693d5c8cc9ab2404c0ba78f2151649aeb5d6431a4"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.gstack/design-reports/design-audit-local-20260811/screenshots/final-after.png": {
+    "size": 123865,
+    "mtime_ns": 1786547260207934173,
+    "word_count": 3601,
+    "hash": "f397db771ddf24a2b2d00f52efbce188548b2ac26ca04722386f5d88fb35845b"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.gstack/design-reports/design-audit-local-20260811/screenshots/finding-001-after.png": {
+    "size": 123865,
+    "mtime_ns": 1786547260208346631,
+    "word_count": 3601,
+    "hash": "d4c625a3965d6192bddb72427cfcb109447b0543591af20b8e432a7d77bc7424"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.gstack/design-reports/design-audit-local-20260811/screenshots/first-impression-domcontentloaded.png": {
+    "size": 145968,
+    "mtime_ns": 1786547260209117338,
+    "word_count": 5055,
+    "hash": "9ef146ff0d17002af12721aedf2eb6fc9a51b46aec0450995348bd8262a47b03"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/specs/mcp-agent-server/requirements.md": {
+    "size": 8965,
+    "mtime_ns": 1786544705168245586,
+    "word_count": 1388,
+    "hash": "435cf40377905c8112d66aa54ad70550031a7b646df11f71b8231aeeb14e7bfe"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/specs/rayu-worker-agent/design.md": {
+    "size": 26620,
+    "mtime_ns": 1786544705168749958,
+    "word_count": 3589,
+    "hash": "0977b36981da87ffd5148a75990652bdeccf06214eb22e5ab8336f592489b6d6"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/specs/rayu-worker-agent/requirements.md": {
+    "size": 17735,
+    "mtime_ns": 1786544705169001833,
+    "word_count": 2717,
+    "hash": "9f1d38afed9735c3947b830dd865574e3ddefee755894e971fc137115c232c7b"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/.kiro/specs/rayu-worker-agent/tasks.md": {
+    "size": 16353,
+    "mtime_ns": 1786544705169279581,
+    "word_count": 2293,
+    "hash": "067b234e21fe38a84f3aba11d9e00743dbb7454e8bbf9ae5072b9c3627c96d0f"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/DESIGN.md": {
+    "size": 10069,
+    "mtime_ns": 1786547260209528213,
+    "word_count": 1432,
+    "hash": "e6ac8757a8e83cb2bf1033a4f479608661912218973fd0e95c908580bcbbafca"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/HANDOFF.md": {
+    "size": 10682,
+    "mtime_ns": 1786430743312474491,
+    "word_count": 1470,
+    "hash": "dae83cce5d20243b878afeb5e09df4b655c3dc23b70764e1b9ed893eab8bd139"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/UI-design/final-light-saas/project-file-tabs.html": {
+    "size": 17810,
+    "mtime_ns": 1786430743313206589,
+    "word_count": 1104,
+    "hash": "7bc7866f0e5b5d91b065e8f5f1258ef81c4f7c5e3a98120be3b34c1a9d1cdb0e"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/specs/0001-multi-file-projects.md": {
+    "size": 15275,
+    "mtime_ns": 1786430743319281174,
+    "word_count": 2407,
+    "hash": "b0e219348af990532bb5a9ec1086eba9ebdbf7f6f64ab957790e48bdf478a015"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/specs/0002-mcp-server.md": {
+    "size": 6471,
+    "mtime_ns": 1786544705207098266,
+    "word_count": 963,
+    "hash": "3d35e832efeed63e59c10732cbbe92f6b0add89f541251c8e82dbee99ebff878"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/specs/0003-liveblocks-outage-fallback.md": {
+    "size": 2644,
+    "mtime_ns": 1786544705207273849,
+    "word_count": 369,
+    "hash": "c693cc05c3951cd53ff71317c90baaa96a64d26e504a23afce017f4cf90bb972"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/specs/0004-storage-ceiling-warning-ui.md": {
+    "size": 1805,
+    "mtime_ns": 1786544705207464057,
+    "word_count": 260,
+    "hash": "735c3cd0d172403de8fef0a23b78bcde77377f398488e8749c47876973997538"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/specs/2026-08-11-final-light-saas-implementation-plan.md": {
+    "size": 82135,
+    "mtime_ns": 1786547260209913879,
+    "word_count": 10979,
+    "hash": "50ca343c8c84aba2ece2d642b5cd261c7f4961de411363b6e4129d4346c1dce2"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/superpowers/specs/2026-08-10-multi-file-projects-implementation-design.md": {
+    "size": 13573,
+    "mtime_ns": 1786430743319507220,
+    "word_count": 1726,
+    "hash": "a46f42c7d914290e2387b725f184bcd2e2f2818b4f8e8874c3f2172dc1dfff77"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/superpowers/specs/2026-08-11-canvas-mirror-webhook-design.md": {
+    "size": 3056,
+    "mtime_ns": 1786544705208315720,
+    "word_count": 397,
+    "hash": "7d702129ec80bcbb6b0d8e0a342b2ef3a21f33bfc8aa719be04e2dbd2bb7c2cf"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/superpowers/specs/2026-08-11-task-k-fallback-design.md": {
+    "size": 992,
+    "mtime_ns": 1786544705208505803,
+    "word_count": 134,
+    "hash": "b42912bbe7f8535739f726287d280245e3dceec6817212f5900aa04892fe5fbd"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/superpowers/specs/2026-08-11-task-l-warning-design.md": {
+    "size": 728,
+    "mtime_ns": 1786544705208670927,
+    "word_count": 111,
+    "hash": "4f6075f0d2deb7a26626578884f3ddb4131861cc32f001c16072f047b8430ede"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/docs/superpowers/specs/2026-08-11-task-m-landing-design.md": {
+    "size": 791,
+    "mtime_ns": 1786544705208890259,
+    "word_count": 114,
+    "hash": "42164233f7d0e5afed684c70b636b3e384a5c113ef366e3c64c1467ea109bdc2"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/e2e/canvas-visual.spec.ts": {
+    "size": 945,
+    "mtime_ns": 1786547260210141587,
+    "word_count": 85
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/e2e/workspace-state.spec.ts": {
+    "size": 954,
+    "mtime_ns": 1786547260210335211,
+    "word_count": 101
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/prisma/migrations/20260811111806_add_personal_access_token/migration.sql": {
+    "size": 1040,
+    "mtime_ns": 1786544705227270312,
+    "word_count": 115,
+    "hash": "ca9c7176d8486aa57f60582ef00e16e8c9a0c0708718858f75ebac88191014e4"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/prisma/migrations/20260811144545_multi_file_projects/migration.sql": {
+    "size": 3653,
+    "mtime_ns": 1786544705227622394,
+    "word_count": 423,
+    "hash": "96de57395388986c742edf58380bd1c1cab1ef7e6e5012d50b45b864035af99a"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/prisma/migrations/multi_file_projects.sql": {
+    "size": 0,
+    "mtime_ns": 1786544705227655269,
+    "word_count": 0,
+    "hash": "6755e0345786d01db2c3ac3b6605862b570e76523fc8667715cb9442746a679e"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/rayu-test.txt": {
+    "size": 5,
+    "mtime_ns": 1786544705228550182,
+    "word_count": 1,
+    "hash": "93f14f0bb7296176a43b3a7266a537507e6d3be8056cfca592a6503e610faca6"
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/run-test.ts": {
+    "size": 118,
+    "mtime_ns": 1786544705228782598,
+    "word_count": 14
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/(app)/dashboard/actions.ts": {
+    "size": 771,
+    "mtime_ns": 1786544705229573011,
+    "word_count": 93
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/(app)/dashboard/token-manager.tsx": {
+    "size": 3904,
+    "mtime_ns": 1786544705230019801,
+    "word_count": 329
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/(app)/w/[workspaceSlug]/error.tsx": {
+    "size": 757,
+    "mtime_ns": 1786547260212077542,
+    "word_count": 83
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/(app)/w/[workspaceSlug]/f/[fileId]/page.tsx": {
+    "size": 1431,
+    "mtime_ns": 1786549987455201545,
+    "word_count": 119
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/(app)/w/[workspaceSlug]/p/[projectId]/actions.ts": {
+    "size": 3115,
+    "mtime_ns": 1786550238806873428,
+    "word_count": 365
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/(app)/w/[workspaceSlug]/p/[projectId]/create-forms.tsx": {
+    "size": 2769,
+    "mtime_ns": 1786544705231338880,
+    "word_count": 226
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/(app)/w/[workspaceSlug]/p/[projectId]/project-workspace-view.tsx": {
+    "size": 13080,
+    "mtime_ns": 1786550251336228064,
+    "word_count": 1052
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/(app)/w/[workspaceSlug]/workspace-states.test.tsx": {
+    "size": 1699,
+    "mtime_ns": 1786547260212773416,
+    "word_count": 156
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/api/mcp/message/route.ts": {
+    "size": 2396,
+    "mtime_ns": 1786544705231730753,
+    "word_count": 303
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/api/mcp/sse/route.ts": {
+    "size": 2181,
+    "mtime_ns": 1786544705231955085,
+    "word_count": 218
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/api/webhooks/liveblocks/__tests__/route.test.ts": {
+    "size": 10992,
+    "mtime_ns": 1786544705232281251,
+    "word_count": 911
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/api/webhooks/liveblocks/route.ts": {
+    "size": 3383,
+    "mtime_ns": 1786544705232419375,
+    "word_count": 409
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/app/page.test.tsx": {
+    "size": 837,
+    "mtime_ns": 1786544705233144706,
+    "word_count": 85
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/components/app-rail.tsx": {
+    "size": 4915,
+    "mtime_ns": 1786547260213753664,
+    "word_count": 526
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/components/app-shell.test.tsx": {
+    "size": 4366,
+    "mtime_ns": 1786547260214105289,
+    "word_count": 353
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/components/app-shell.tsx": {
+    "size": 2352,
+    "mtime_ns": 1786547260214503038,
+    "word_count": 229
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/components/create-item-dialog.tsx": {
+    "size": 6212,
+    "mtime_ns": 1786547260214810954,
+    "word_count": 479
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/components/file-navigation.test.tsx": {
+    "size": 2539,
+    "mtime_ns": 1786547260215505578,
+    "word_count": 228
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/components/file-tree.tsx": {
+    "size": 7112,
+    "mtime_ns": 1786547260215752869,
+    "word_count": 597
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/components/mobile-drawer.tsx": {
+    "size": 2300,
+    "mtime_ns": 1786547260216009369,
+    "word_count": 199
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/components/topbar.tsx": {
+    "size": 5012,
+    "mtime_ns": 1786547260216765410,
+    "word_count": 398
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/components/ui/button.tsx": {
+    "size": 2042,
+    "mtime_ns": 1786547260217073617,
+    "word_count": 166
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/components/ui/empty-state.tsx": {
+    "size": 935,
+    "mtime_ns": 1786547260217270200,
+    "word_count": 89
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/components/ui/icon.tsx": {
+    "size": 1200,
+    "mtime_ns": 1786547260218799948,
+    "word_count": 124
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/components/ui/inline-error.tsx": {
+    "size": 1461,
+    "mtime_ns": 1786547260219035156,
+    "word_count": 125
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/components/ui/input.tsx": {
+    "size": 1486,
+    "mtime_ns": 1786547260219219572,
+    "word_count": 122
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/components/ui/modal-dialog.tsx": {
+    "size": 2477,
+    "mtime_ns": 1786547260219383655,
+    "word_count": 215
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/components/ui/primitives-demo.tsx": {
+    "size": 3372,
+    "mtime_ns": 1786547260219531863,
+    "word_count": 286
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/components/ui/status-pill.tsx": {
+    "size": 1543,
+    "mtime_ns": 1786547260219734738,
+    "word_count": 142
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/components/ui/ui-primitives.test.tsx": {
+    "size": 4683,
+    "mtime_ns": 1786547260219941196,
+    "word_count": 432
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/components/workspace-sidebar.tsx": {
+    "size": 6175,
+    "mtime_ns": 1786547260220195071,
+    "word_count": 441
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/features/canvas/canvas-room.test.tsx": {
+    "size": 4693,
+    "mtime_ns": 1786547260220479445,
+    "word_count": 462
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/features/document/document-editor.tsx": {
+    "size": 5336,
+    "mtime_ns": 1786550249275905014,
+    "word_count": 384
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/features/project-workspace/editor-pane-router.test.tsx": {
+    "size": 1750,
+    "mtime_ns": 1786547260221353694,
+    "word_count": 153
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/features/project-workspace/editor-pane-router.tsx": {
+    "size": 1764,
+    "mtime_ns": 1786547260221554027,
+    "word_count": 159
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/features/project-workspace/persistence.ts": {
+    "size": 3080,
+    "mtime_ns": 1786547260221763402,
+    "word_count": 303
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/features/project-workspace/split-container.tsx": {
+    "size": 3774,
+    "mtime_ns": 1786547260221932401,
+    "word_count": 328
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/features/project-workspace/tab-bar.tsx": {
+    "size": 4720,
+    "mtime_ns": 1786547260222163776,
+    "word_count": 382
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/features/project-workspace/tab-split.test.tsx": {
+    "size": 3303,
+    "mtime_ns": 1786547260222387859,
+    "word_count": 259
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/features/project-workspace/workspace-state.property.test.ts": {
+    "size": 4311,
+    "mtime_ns": 1786547260222638067,
+    "word_count": 408
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/features/project-workspace/workspace-state.test.ts": {
+    "size": 3772,
+    "mtime_ns": 1786547260222815900,
+    "word_count": 413
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/features/project-workspace/workspace-state.ts": {
+    "size": 8325,
+    "mtime_ns": 1786547260223055025,
+    "word_count": 911
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/features/project-workspace/workspace-store.tsx": {
+    "size": 3242,
+    "mtime_ns": 1786547260223207774,
+    "word_count": 301
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/generated/prisma/models/DocumentSnapshot.ts": {
+    "size": 47800,
+    "mtime_ns": 1786544705240715593,
+    "word_count": 4378
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/generated/prisma/models/File.ts": {
+    "size": 72656,
+    "mtime_ns": 1786544705240966717,
+    "word_count": 6513
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/generated/prisma/models/Folder.ts": {
+    "size": 69027,
+    "mtime_ns": 1786544705241240257,
+    "word_count": 6140
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/generated/prisma/models/PersonalAccessToken.ts": {
+    "size": 58395,
+    "mtime_ns": 1786544705241461173,
+    "word_count": 5067
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/dal/files.ts": {
+    "size": 6356,
+    "mtime_ns": 1786549983517555788,
+    "word_count": 770
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/dal/folders.ts": {
+    "size": 4686,
+    "mtime_ns": 1786544705242772626,
+    "word_count": 617
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/dal/pats.ts": {
+    "size": 1956,
+    "mtime_ns": 1786544705243231999,
+    "word_count": 230
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/dal/project-workspace.ts": {
+    "size": 1660,
+    "mtime_ns": 1786550230899369759,
+    "word_count": 199
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/mcp.ts": {
+    "size": 5561,
+    "mtime_ns": 1786544705244180746,
+    "word_count": 623
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/rayu/__tests__/config.test.ts": {
+    "size": 10151,
+    "mtime_ns": 1786544705244492786,
+    "word_count": 866
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/rayu/__tests__/file-snapshot.test.ts": {
+    "size": 7695,
+    "mtime_ns": 1786544705244839118,
+    "word_count": 625
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/rayu/__tests__/git-state.test.ts": {
+    "size": 3683,
+    "mtime_ns": 1786544705245015826,
+    "word_count": 380
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/rayu/__tests__/index.test.ts": {
+    "size": 6378,
+    "mtime_ns": 1786544705245235241,
+    "word_count": 503
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/rayu/__tests__/instruction-builder.test.ts": {
+    "size": 11403,
+    "mtime_ns": 1786544705246327321,
+    "word_count": 946
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/rayu/__tests__/logger.test.ts": {
+    "size": 2862,
+    "mtime_ns": 1786544705246535361,
+    "word_count": 221
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/rayu/__tests__/process-runner.test.ts": {
+    "size": 7630,
+    "mtime_ns": 1786544705247995356,
+    "word_count": 642
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/rayu/__tests__/queue.test.ts": {
+    "size": 2369,
+    "mtime_ns": 1786544705248167980,
+    "word_count": 234
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/rayu/config.ts": {
+    "size": 4044,
+    "mtime_ns": 1786544705248323979,
+    "word_count": 465
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/rayu/file-snapshot.ts": {
+    "size": 3846,
+    "mtime_ns": 1786544705248543645,
+    "word_count": 429
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/rayu/git-state.ts": {
+    "size": 1636,
+    "mtime_ns": 1786544705248738811,
+    "word_count": 204
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/rayu/index.ts": {
+    "size": 8275,
+    "mtime_ns": 1786544705249079851,
+    "word_count": 760
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/rayu/instruction-builder.ts": {
+    "size": 5822,
+    "mtime_ns": 1786544705249291517,
+    "word_count": 596
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/rayu/logger.ts": {
+    "size": 1573,
+    "mtime_ns": 1786544705249660349,
+    "word_count": 189
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/rayu/process-runner.ts": {
+    "size": 6080,
+    "mtime_ns": 1786544705249908140,
+    "word_count": 578
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/rayu/queue.ts": {
+    "size": 709,
+    "mtime_ns": 1786544705250099764,
+    "word_count": 82
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/src/server/rayu/types.ts": {
+    "size": 2818,
+    "mtime_ns": 1786544705250390346,
+    "word_count": 380
+  },
+  "/Users/lyyeakkhai/workspace/dockified/liveflows/test-liveblocks.js": {
+    "size": 116,
+    "mtime_ns": 1786544705253648792,
+    "word_count": 13
+  }
+}

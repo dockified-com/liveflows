@@ -37,6 +37,12 @@
       "skillPath": "skills/document/SKILL.md",
       "computedHash": "90933443f204d2ed29c84730be87b7b5470f6819fccde6129aedad1df517fb92"
     },
+    "frontend-design": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-design/SKILL.md",
+      "computedHash": "4eabc66183767153e404b39d1b839b1c37f2d82d86f0a0d7e880a579d8d62336"
+    },
     "scope": {
       "source": "jsmastery-pro/skills",
       "sourceType": "github",

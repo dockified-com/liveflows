@@ -11,7 +11,11 @@ vi.mock("@clerk/nextjs/webhooks", () => ({
 
 vi.mock("@/server/db", () => ({
   db: {
-    processedWebhook: { create: vi.fn() },
+    processedWebhook: {
+      findUnique: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+    },
     user: { upsert: vi.fn(), delete: vi.fn() },
     workspace: { upsert: vi.fn(), findUnique: vi.fn() },
     workspaceMember: { upsert: vi.fn(), deleteMany: vi.fn() },
@@ -23,7 +27,9 @@ import { db } from "@/server/db";
 import { POST } from "../route";
 
 const mockVerify = vi.mocked(verifyWebhook);
+const mockProcessedFindUnique = vi.mocked(db.processedWebhook.findUnique);
 const mockProcessedCreate = vi.mocked(db.processedWebhook.create);
+const mockProcessedUpdate = vi.mocked(db.processedWebhook.update);
 const mockUserUpsert = vi.mocked(db.user.upsert);
 const mockUserDelete = vi.mocked(db.user.delete);
 const mockWsUpsert = vi.mocked(db.workspace.upsert);
@@ -48,6 +54,13 @@ function makeRequest(body: object = {}, svixId = "msg_test123"): NextRequest {
   });
 }
 
+/** Default setup: no existing row → fresh insert path */
+function setupFreshDelivery() {
+  mockProcessedFindUnique.mockResolvedValue(null);
+  mockProcessedCreate.mockResolvedValue({} as never);
+  mockProcessedUpdate.mockResolvedValue({} as never);
+}
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
@@ -55,7 +68,7 @@ function makeRequest(body: object = {}, svixId = "msg_test123"): NextRequest {
 describe("POST /api/webhooks/clerk", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockProcessedCreate.mockResolvedValue({} as never);
+    setupFreshDelivery();
   });
 
   // =========================================================================
@@ -63,43 +76,59 @@ describe("POST /api/webhooks/clerk", () => {
   // =========================================================================
 
   describe("signature verification", () => {
-    it("returns 400 when signature verification fails (invalid signature)", async () => {
+    it("returns 400 when signature verification fails", async () => {
       mockVerify.mockRejectedValue(new Error("Invalid signature"));
       const req = makeRequest();
       const res = await POST(req);
       expect(res.status).toBe(400);
       expect(await res.text()).toBe("Bad signature");
-      // No DB mutations happen
-      expect(mockProcessedCreate).not.toHaveBeenCalled();
+      expect(mockProcessedFindUnique).not.toHaveBeenCalled();
       expect(mockUserUpsert).not.toHaveBeenCalled();
     });
   });
 
   // =========================================================================
-  // IDEMPOTENCY: Duplicate delivery
+  // IDEMPOTENCY (D44): Duplicate delivery
   // =========================================================================
 
-  describe("idempotency", () => {
-    it("returns 200 and skips handler when svix-id was already processed", async () => {
+  describe("idempotency (D44)", () => {
+    it("returns 200 immediately when status=completed (already processed)", async () => {
       mockVerify.mockResolvedValue({
         type: "user.created",
         data: { id: "u1" },
       } as never);
-      // Simulate unique constraint violation
-      mockProcessedCreate.mockRejectedValue(
-        new Error("Unique constraint failed on the fields: (`id`)"),
-      );
+      mockProcessedFindUnique.mockResolvedValue({
+        status: "completed",
+        leaseUntil: null,
+      } as never);
 
       const req = makeRequest({}, "msg_duplicate");
       const res = await POST(req);
 
       expect(res.status).toBe(200);
       expect(await res.text()).toBe("Already processed");
-      // Handler was NOT called — state mutated only once
       expect(mockUserUpsert).not.toHaveBeenCalled();
     });
 
-    it("processes the event on first delivery (processedWebhook.create succeeds)", async () => {
+    it("returns 409 when status=processing and lease is still active", async () => {
+      mockVerify.mockResolvedValue({
+        type: "user.created",
+        data: { id: "u1" },
+      } as never);
+      const futureDate = new Date(Date.now() + 20_000);
+      mockProcessedFindUnique.mockResolvedValue({
+        status: "processing",
+        leaseUntil: futureDate,
+      } as never);
+
+      const req = makeRequest({}, "msg_leased");
+      const res = await POST(req);
+
+      expect(res.status).toBe(409);
+      expect(mockUserUpsert).not.toHaveBeenCalled();
+    });
+
+    it("processes event on first delivery (no existing row)", async () => {
       mockVerify.mockResolvedValue({
         type: "user.created",
         data: {
@@ -116,9 +145,53 @@ describe("POST /api/webhooks/clerk", () => {
       const res = await POST(req);
 
       expect(res.status).toBe(200);
-      expect(mockProcessedCreate).toHaveBeenCalledWith({
-        data: { id: "msg_first", source: "clerk" },
-      });
+      expect(mockProcessedCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            id: "msg_first",
+            source: "clerk",
+            status: "processing",
+          }),
+        }),
+      );
+      expect(mockUserUpsert).toHaveBeenCalled();
+      // Marks completed on success
+      expect(mockProcessedUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: "msg_first" },
+          data: expect.objectContaining({ status: "completed" }),
+        }),
+      );
+    });
+
+    it("retries when previous status=failed (expired or errored)", async () => {
+      mockVerify.mockResolvedValue({
+        type: "user.created",
+        data: {
+          id: "user_retry",
+          email_addresses: [{ id: "ea_1", email_address: "r@b.com" }],
+          primary_email_address_id: "ea_1",
+          first_name: "R",
+          last_name: null,
+          image_url: null,
+        },
+      } as never);
+      mockProcessedFindUnique.mockResolvedValue({
+        status: "failed",
+        leaseUntil: null,
+      } as never);
+
+      const req = makeRequest({}, "msg_retry");
+      const res = await POST(req);
+
+      expect(res.status).toBe(200);
+      // Should update (take over lease) then process
+      expect(mockProcessedUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: "msg_retry" },
+          data: expect.objectContaining({ status: "processing" }),
+        }),
+      );
       expect(mockUserUpsert).toHaveBeenCalled();
     });
   });
@@ -180,11 +253,7 @@ describe("POST /api/webhooks/clerk", () => {
       expect(res.status).toBe(200);
       expect(mockUserUpsert).toHaveBeenCalledWith({
         where: { id: "user_abc" },
-        update: {
-          email: "new@example.com",
-          name: "Updated",
-          avatarUrl: null,
-        },
+        update: { email: "new@example.com", name: "Updated", avatarUrl: null },
         create: {
           id: "user_abc",
           email: "new@example.com",
@@ -226,7 +295,6 @@ describe("POST /api/webhooks/clerk", () => {
       const req = makeRequest({}, "msg_del2");
       const res = await POST(req);
 
-      // Should still return 200, error is swallowed
       expect(res.status).toBe(200);
     });
   });
@@ -280,7 +348,7 @@ describe("POST /api/webhooks/clerk", () => {
   // =========================================================================
 
   describe("organizationMembership.created / updated", () => {
-    it("upserts membership with opaque role string on membership.created", async () => {
+    it("upserts membership with opaque role string", async () => {
       mockVerify.mockResolvedValue({
         type: "organizationMembership.created",
         data: {
@@ -353,15 +421,12 @@ describe("POST /api/webhooks/clerk", () => {
       const req = makeRequest({}, "msg_mem3");
       await POST(req);
 
-      // Workspace upsert creates placeholder if not exists
       expect(mockWsUpsert).toHaveBeenCalledWith({
         where: { clerkOrgId: "org_new" },
         update: {},
         create: { clerkOrgId: "org_new", name: "org_new", slug: "org_new" },
         select: { id: true },
       });
-
-      // User upsert creates placeholder if not exists
       expect(mockUserUpsert).toHaveBeenCalledWith({
         where: { id: "user_new" },
         update: {},

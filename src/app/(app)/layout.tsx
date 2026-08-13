@@ -1,10 +1,5 @@
-import { AppNav } from "@/components/app-nav";
+import { AppShell } from "@/components/app-shell";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex h-full flex-col">
-      <AppNav />
-      <main className="flex-1">{children}</main>
-    </div>
-  );
+  return <AppShell>{children}</AppShell>;
 }

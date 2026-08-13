@@ -1,24 +1,20 @@
 "use client";
 
+import "@excalidraw/excalidraw/index.css";
 import type { ExcalidrawElement } from "@excalidraw/excalidraw/element/types";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 import { createClient, LiveMap, LiveObject } from "@liveblocks/client";
 import { createRoomContext } from "@liveblocks/react";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { StatusPill } from "@/components/ui/status-pill";
+import { PaneHeader } from "@/features/project-workspace/pane-header";
+import { useUiStore } from "@/stores/ui";
 import { collectLocalChanges, mergeIncoming } from "./element-sync";
 
 // --- Liveblocks client & room context ---
 
 const client = createClient({
-  // The production auth endpoint. It issues a Liveblocks ID token carrying the
-  // user's id, the workspace id as a group, and the Clerk org id. Room access
-  // is then resolved by Liveblocks against the room's own groupsAccesses, which
-  // provisionRoom sets to { [workspaceId]: ["*:write"] }.
-  //
-  // Pointing this at the spike endpoint under /spike/api/ yields websocket
-  // close code 4001 "You have no access to this room", because that path is
-  // not the route that grants workspace group access.
   authEndpoint: "/api/liveblocks-auth",
 });
 
@@ -29,17 +25,21 @@ const client = createClient({
 const { RoomProvider, useMutation, useStorage, useOthers, useStatus } =
   createRoomContext(client);
 
-// --- Dynamic Excalidraw import (SSR-unsafe: touches window at module scope) ---
+// --- Dynamic Excalidraw import ---
 
 const Excalidraw = dynamic(
   async () => (await import("@excalidraw/excalidraw")).Excalidraw,
-  { ssr: false, loading: () => <p>Loading canvas…</p> },
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-full w-full items-center justify-center bg-[var(--surface)] text-xs text-[var(--ink-tertiary)]">
+        Loading canvas…
+      </div>
+    ),
+  },
 );
 
-// CaptureUpdateAction.NEVER — imported as string to avoid SSR module-scope crash
 const CAPTURE_NEVER = "NEVER" as const;
-
-// --- Throttle interval for onChange (ms) ---
 const THROTTLE_MS = 100;
 
 // --- Inner Canvas component ---
@@ -53,20 +53,39 @@ function Canvas({
   const ledger = useRef(new Map<string, number>());
   const pointerDown = useRef(false);
   const pending = useRef<ExcalidrawElement[] | null>(null);
+  const latestSceneRef = useRef<readonly ExcalidrawElement[] | null>(null);
   const status = useStatus();
   const others = useOthers();
+  const setElementCount = useUiStore((s) => s.setElementCount);
 
-  // Read elements from Liveblocks storage as a plain array snapshot
+  // Read elements from Liveblocks storage
   // biome-ignore lint/suspicious/noExplicitAny: Liveblocks loose storage typing
   const remoteElements = useStorage((root: any) => {
     const map = root.elements;
     if (!map) return null;
     const result: ExcalidrawElement[] = [];
-    for (const [, liveObj] of map.entries()) {
-      result.push(liveObj.toImmutable());
+
+    if (typeof map.entries === "function") {
+      for (const [, liveObj] of map.entries()) {
+        result.push(liveObj.toImmutable ? liveObj.toImmutable() : liveObj);
+      }
+    } else {
+      for (const liveObj of Object.values(map)) {
+        result.push(
+          (liveObj as any).toImmutable
+            ? (liveObj as any).toImmutable()
+            : liveObj,
+        );
+      }
     }
     return result;
   });
+
+  const elementCount = remoteElements?.length ?? fallbackElements?.length ?? 0;
+
+  useEffect(() => {
+    setElementCount(elementCount);
+  }, [elementCount, setElementCount]);
 
   // Push local changes into Liveblocks storage
   // biome-ignore lint/suspicious/noExplicitAny: Liveblocks loose storage typing
@@ -88,29 +107,22 @@ function Canvas({
     }
   }, []);
 
-  /**
-   * Apply remote elements to the scene.
-   * CRITICAL: records to ledger BEFORE updateScene so the resulting onChange
-   * finds nothing to echo back (echo suppression).
-   */
   const applyRemote = useCallback(
     (incoming: ExcalidrawElement[]) => {
       if (!api) return;
       const local =
         api.getSceneElementsIncludingDeleted() as ExcalidrawElement[];
       const merged = mergeIncoming(local, incoming);
-      // Record BEFORE applying so the resulting onChange sends nothing back
       for (const el of merged) ledger.current.set(el.id, el.version);
       api.updateScene({
         elements: merged,
         captureUpdate: CAPTURE_NEVER,
-        // biome-ignore lint/suspicious/noExplicitAny: captureUpdate not in Excalidraw's public updateScene types
+        // biome-ignore lint/suspicious/noExplicitAny: captureUpdate not in Excalidraw types
       } as any);
     },
     [api],
   );
 
-  // Apply remote updates, gated by pointer state (mechanic #2)
   useEffect(() => {
     if (!remoteElements || !api) return;
     const incoming = remoteElements as unknown as ExcalidrawElement[];
@@ -123,18 +135,16 @@ function Canvas({
     applyRemote(incoming);
   }, [remoteElements, api, applyRemote]);
 
-  // Apply fallback elements on initial load (when no remote elements exist yet)
   useEffect(() => {
     if (!api || !fallbackElements || fallbackElements.length === 0) return;
     if (remoteElements && remoteElements.length > 0) return;
     api.updateScene({
       elements: fallbackElements as ExcalidrawElement[],
       captureUpdate: CAPTURE_NEVER,
-      // biome-ignore lint/suspicious/noExplicitAny: captureUpdate not in Excalidraw's public updateScene types
+      // biome-ignore lint/suspicious/noExplicitAny: captureUpdate not in Excalidraw types
     } as any);
   }, [api, fallbackElements, remoteElements]);
 
-  // Pointer gate: buffer remote updates during drags (mechanic #2)
   useEffect(() => {
     const down = () => {
       pointerDown.current = true;
@@ -154,23 +164,50 @@ function Canvas({
     };
   }, [applyRemote]);
 
-  // Throttled onChange → push local changes (mechanic #1)
+  // Trailing flush scheduler (D36)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const onChange = useCallback(
-    (elements: readonly ExcalidrawElement[]) => {
-      if (timer.current) return;
-      timer.current = setTimeout(() => {
-        timer.current = null;
-        const changed = collectLocalChanges(elements, ledger.current);
-        if (changed.length === 0) return;
+
+  const flushLatest = useCallback(() => {
+    if (!latestSceneRef.current || remoteElements === null) return;
+    const changed = collectLocalChanges(latestSceneRef.current, ledger.current);
+    if (changed.length > 0) {
+      try {
         for (const el of changed) ledger.current.set(el.id, el.version);
         push(changed);
+      } catch (err) {
+        console.warn(
+          "Failed to push storage mutation (storage loading/disconnected):",
+          err,
+        );
+      }
+    }
+  }, [push, remoteElements]);
+
+  const onChange = useCallback(
+    (elements: readonly ExcalidrawElement[]) => {
+      latestSceneRef.current = elements;
+      if (timer.current) {
+        clearTimeout(timer.current);
+      }
+      timer.current = setTimeout(() => {
+        timer.current = null;
+        flushLatest();
       }, THROTTLE_MS);
     },
-    [push],
+    [flushLatest],
   );
 
-  // Expose API for Playwright test handles — inside useEffect, not during render
+  // Unmount flush boundary (D15/D27)
+  useEffect(() => {
+    return () => {
+      if (timer.current) {
+        clearTimeout(timer.current);
+        timer.current = null;
+      }
+      flushLatest();
+    };
+  }, [flushLatest]);
+
   useEffect(() => {
     if (api) {
       (
@@ -184,25 +221,75 @@ function Canvas({
     };
   }, [api]);
 
+  const mappedConnectionStatus =
+    status === "connected"
+      ? "connected"
+      : status === "reconnecting"
+        ? "reconnecting"
+        : status === "disconnected"
+          ? "offline"
+          : "loading";
+
   return (
-    <div style={{ height: "100vh", width: "100vw" }}>
-      <div
-        style={{
-          position: "absolute",
-          zIndex: 10,
-          top: 4,
-          left: 4,
-          background: "#fff",
-          padding: "2px 6px",
-          fontSize: 12,
-        }}
-      >
-        <span data-testid="status">{status}</span> · others: {others.length}
+    <div className="flex h-full w-full flex-col overflow-hidden">
+      <PaneHeader fileType="canvas" connectionStatus={mappedConnectionStatus} />
+      <div className="relative flex-1 min-h-0 w-full overflow-hidden">
+        {/* Light SaaS Chrome Overlay */}
+        <div className="absolute top-3 right-3 z-20 flex items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--surface-elevated)]/90 px-3 py-1.5 backdrop-blur-xs shadow-xs text-xs font-sans select-none">
+          <StatusPill
+            status={
+              status === "connected"
+                ? "synced"
+                : status === "reconnecting"
+                  ? "reconnecting"
+                  : "disconnected"
+            }
+            label={
+              status === "connected"
+                ? "Live"
+                : status === "reconnecting"
+                  ? "Connecting..."
+                  : "Offline"
+            }
+          />
+
+          <div className="h-3 w-px bg-[var(--border)]" />
+
+          <span className="text-[var(--ink-secondary)]">
+            Collaborators:{" "}
+            <strong className="text-[var(--ink)]">{others.length}</strong>
+          </span>
+
+          {elementCount > 3000 && (
+            <span
+              data-testid="storage-warning"
+              data-severity={elementCount > 5000 ? "critical" : "warning"}
+              className={`rounded px-1.5 py-0.5 font-medium ${
+                elementCount > 5000
+                  ? "bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300"
+                  : "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
+              }`}
+            >
+              {elementCount > 5000 ? "Critical Size" : "Large Canvas"}
+            </span>
+          )}
+        </div>
+
+        {status === "disconnected" && (
+          <div
+            data-testid="outage-banner"
+            className="absolute top-0 inset-x-0 z-30 flex items-center justify-center bg-rose-600 px-4 py-2 text-xs font-medium text-white shadow-md"
+          >
+            Liveblocks is unreachable. Rendering read-only snapshot.
+          </div>
+        )}
+
+        <Excalidraw
+          excalidrawAPI={(instance) => setApi(instance)}
+          onChange={onChange}
+          viewModeEnabled={status === "disconnected"}
+        />
       </div>
-      <Excalidraw
-        excalidrawAPI={(instance) => setApi(instance)}
-        onChange={onChange}
-      />
     </div>
   );
 }
@@ -214,15 +301,6 @@ export interface CanvasRoomProps {
   fallbackElements?: readonly ExcalidrawElement[];
 }
 
-/**
- * CanvasRoom — the collaborative canvas component.
- *
- * Renders a full-viewport Excalidraw canvas connected to a Liveblocks room.
- * Storage shape: { elements: LiveMap, meta: LiveObject<{ viewBackgroundColor }> }
- *
- * Only viewBackgroundColor is shared. Everything else in appState
- * (zoom, scroll, selection) is per-user.
- */
 export function CanvasRoom({ roomId, fallbackElements }: CanvasRoomProps) {
   return (
     <RoomProvider

@@ -7,6 +7,7 @@ describe("useUiStore", () => {
     useUiStore.setState({
       sidebarOpen: true,
       modal: null,
+      elementCount: 0,
     });
   });
 
@@ -42,5 +43,11 @@ describe("useUiStore", () => {
       kind: "delete-project",
       id: "proj_456",
     });
+  });
+
+  it("updates elementCount", () => {
+    const { setElementCount } = useUiStore.getState();
+    setElementCount(3500);
+    expect(useUiStore.getState().elementCount).toBe(3500);
   });
 });

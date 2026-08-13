@@ -1,11 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { notFound } from "next/navigation";
 import { db } from "../db";
-import {
-  decommissionRoom,
-  provisionRoom,
-  roomIdForProject,
-} from "../liveblocks";
+import { decommissionRoom } from "../liveblocks";
 import { requireWorkspace } from "./workspaces";
 
 export type ProjectListItem = {
@@ -14,7 +10,7 @@ export type ProjectListItem = {
   updatedAt: Date;
 };
 
-export type ProjectDetail = ProjectListItem & { liveblocksRoomId: string };
+export type ProjectDetail = ProjectListItem;
 
 /**
  * Lists all projects in the workspace. Proves membership via requireWorkspace.
@@ -46,7 +42,7 @@ export async function getProject(
 
   const project = await db.project.findFirst({
     where: { id: projectId, workspaceId: workspace.id },
-    select: { id: true, name: true, updatedAt: true, liveblocksRoomId: true },
+    select: { id: true, name: true, updatedAt: true },
   });
 
   if (!project) {
@@ -57,17 +53,16 @@ export async function getProject(
 }
 
 /**
- * Creates a project and provisions its Liveblocks room.
- * If room provisioning fails, rolls back the Project row to avoid orphaned rooms.
+ * Creates a project.
  */
 export async function createProject(
   workspaceSlug: string,
   name: string,
 ): Promise<ProjectDetail> {
   const workspace = await requireWorkspace(workspaceSlug);
-  const { orgId, userId } = await auth();
+  const { userId } = await auth();
 
-  if (!orgId || !userId) {
+  if (!userId) {
     notFound();
   }
 
@@ -75,34 +70,12 @@ export async function createProject(
     data: {
       name,
       workspaceId: workspace.id,
-      liveblocksRoomId: "", // placeholder, updated after provisionRoom
       createdById: userId,
     },
-    select: { id: true, name: true, updatedAt: true, liveblocksRoomId: true },
+    select: { id: true, name: true, updatedAt: true },
   });
 
-  const roomId = roomIdForProject(project.id);
-
-  try {
-    await provisionRoom({
-      roomId,
-      workspaceId: workspace.id,
-      clerkOrgId: orgId,
-    });
-
-    // Update the project with the real room ID
-    const updated = await db.project.update({
-      where: { id: project.id },
-      data: { liveblocksRoomId: roomId },
-      select: { id: true, name: true, updatedAt: true, liveblocksRoomId: true },
-    });
-
-    return updated;
-  } catch (error) {
-    // Roll back: delete the project row if room provisioning fails
-    await db.project.delete({ where: { id: project.id } });
-    throw error;
-  }
+  return project;
 }
 
 /**
@@ -117,69 +90,82 @@ export async function deleteProject(
 
   const project = await db.project.findFirst({
     where: { id: projectId, workspaceId: workspace.id },
-    select: { id: true, liveblocksRoomId: true },
+    select: { id: true },
   });
 
   if (!project) {
     notFound();
   }
 
-  // Decommission room first — best effort
-  try {
-    await decommissionRoom(project.liveblocksRoomId);
-  } catch (error) {
-    console.warn(
-      `Failed to decommission room ${project.liveblocksRoomId}:`,
-      error,
-    );
+  const files = await db.file.findMany({
+    where: { projectId: project.id },
+    select: { liveblocksRoomId: true },
+  });
+
+  for (const file of files) {
+    if (file.liveblocksRoomId) {
+      try {
+        await decommissionRoom(file.liveblocksRoomId);
+      } catch (error) {
+        console.warn(
+          `Failed to decommission room ${file.liveblocksRoomId}:`,
+          error,
+        );
+      }
+    }
   }
 
   await db.project.delete({ where: { id: project.id } });
 }
 
-/**
- * Gets a project with its canvas snapshot elements for the read-only outage fallback.
- * Returns snapshotElements (defaulting to []) for CanvasRoom's fallbackElements prop.
- *
- * ADDITION TO FROZEN CONTRACT (plan-fix-time 2026-08-08): This function was not in
- * the original delivery graph §6 frozen interface. It is required by Echo E2 to satisfy
- * DoD criterion 6 (Liveblocks-outage read-only path). Added here so that both Charlie
- * (producer) and Echo (consumer) code against an identical signature.
- */
-export type ProjectWithSnapshot = {
-  id: string;
-  name: string;
-  updatedAt: Date;
-  liveblocksRoomId: string;
-  snapshotElements: unknown[]; // CanvasSnapshot.elements — may be [] if never synced
+export type ProjectContents = {
+  files: {
+    id: string;
+    name: string;
+    type: string;
+    updatedAt: Date;
+    folderId: string | null;
+  }[];
+  folders: {
+    id: string;
+    name: string;
+    parentId: string | null;
+    updatedAt: Date;
+  }[];
 };
 
-export async function getProjectWithSnapshot(
+export async function listProjectContents(
   workspaceSlug: string,
   projectId: string,
-): Promise<ProjectWithSnapshot> {
+): Promise<ProjectContents> {
   const workspace = await requireWorkspace(workspaceSlug);
 
   const project = await db.project.findFirst({
     where: { id: projectId, workspaceId: workspace.id },
-    select: {
-      id: true,
-      name: true,
-      updatedAt: true,
-      liveblocksRoomId: true,
-      canvas: { select: { elements: true } },
-    },
+    select: { id: true },
   });
 
   if (!project) {
     notFound();
   }
 
-  return {
-    id: project.id,
-    name: project.name,
-    updatedAt: project.updatedAt,
-    liveblocksRoomId: project.liveblocksRoomId,
-    snapshotElements: (project.canvas?.elements as unknown[]) ?? [],
-  };
+  const files = await db.file.findMany({
+    where: { projectId: project.id },
+    select: {
+      id: true,
+      name: true,
+      type: true,
+      updatedAt: true,
+      folderId: true,
+    },
+    orderBy: { name: "asc" },
+  });
+
+  const folders = await db.folder.findMany({
+    where: { projectId: project.id },
+    select: { id: true, name: true, parentId: true, updatedAt: true },
+    orderBy: { name: "asc" },
+  });
+
+  return { files, folders };
 }

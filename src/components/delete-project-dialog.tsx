@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
 import { useUiStore } from "@/stores/ui";
 
 export function DeleteProjectDialog({
@@ -29,35 +30,27 @@ export function DeleteProjectDialog({
       ref={dialogRef}
       onClose={closeModal}
       aria-labelledby="delete-project-title"
-      className="rounded-lg p-0 backdrop:bg-black/50"
+      className="w-96 max-w-[calc(100vw-2rem)] rounded-xl border border-[var(--line)] bg-[var(--card)] p-0 text-[var(--ink)] shadow-xl backdrop:bg-slate-900/40"
     >
-      <form
-        action={deleteAction}
-        onSubmit={() => closeModal()}
-        className="p-6 w-80"
-      >
-        <h2 id="delete-project-title" className="text-lg font-semibold mb-2">
+      <form action={deleteAction} onSubmit={() => closeModal()} className="p-6">
+        <h2
+          id="delete-project-title"
+          className="mb-2 text-[17px] font-semibold text-[var(--ink)]"
+        >
           Delete project?
         </h2>
-        <p className="text-sm text-gray-600 mb-4">
+        <p className="mb-4 text-[13.5px] text-[var(--ink-soft)]">
           This will permanently delete the project and its canvas. This action
           cannot be undone.
         </p>
         <input type="hidden" name="projectId" value={projectId ?? ""} />
-        <div className="flex justify-end gap-2">
-          <button
-            type="button"
-            onClick={closeModal}
-            className="rounded px-3 py-2 text-sm hover:bg-gray-100"
-          >
+        <div className="flex justify-end gap-2.5">
+          <Button variant="secondary" size="md" onClick={closeModal}>
             Cancel
-          </button>
-          <button
-            type="submit"
-            className="rounded bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
-          >
+          </Button>
+          <Button variant="destructive" size="md" type="submit">
             Delete
-          </button>
+          </Button>
         </div>
       </form>
     </dialog>

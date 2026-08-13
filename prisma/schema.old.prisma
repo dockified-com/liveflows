@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id          String            @id
+  email       String            @unique
+  name        String?
+  avatarUrl   String?
+  memberships WorkspaceMember[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+}
+
+model Workspace {
+  id         String            @id @default(cuid())
+  clerkOrgId String            @unique
+  name       String
+  slug       String            @unique
+  members    WorkspaceMember[]
+  projects   Project[]
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+}
+
+model WorkspaceMember {
+  id          String    @id @default(cuid())
+  userId      String
+  workspaceId String
+  role        String    @default("org:member")
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workspaceId])
+  @@index([workspaceId])
+}
+
+model Project {
+  id               String          @id @default(cuid())
+  name             String
+  workspaceId      String
+  liveblocksRoomId String          @unique
+  createdById      String
+  workspace        Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  canvas           CanvasSnapshot?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@index([workspaceId, updatedAt])
+}
+
+model CanvasSnapshot {
+  projectId    String   @id
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  elements     Json     @default("[]")
+  appState     Json     @default("{}")
+  elementCount Int      @default(0)
+  syncedAt     DateTime @default(now())
+}
+
+model ProcessedWebhook {
+  id         String   @id
+  source     String
+  receivedAt DateTime @default(now())
+
+  @@index([receivedAt])
+}

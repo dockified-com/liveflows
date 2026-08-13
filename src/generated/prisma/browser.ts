@@ -38,12 +38,32 @@ export type WorkspaceMember = Prisma.WorkspaceMemberModel
  */
 export type Project = Prisma.ProjectModel
 /**
+ * Model Folder
+ * 
+ */
+export type Folder = Prisma.FolderModel
+/**
+ * Model File
+ * 
+ */
+export type File = Prisma.FileModel
+/**
  * Model CanvasSnapshot
  * 
  */
 export type CanvasSnapshot = Prisma.CanvasSnapshotModel
 /**
+ * Model DocumentSnapshot
+ * 
+ */
+export type DocumentSnapshot = Prisma.DocumentSnapshotModel
+/**
  * Model ProcessedWebhook
  * 
  */
 export type ProcessedWebhook = Prisma.ProcessedWebhookModel
+/**
+ * Model PersonalAccessToken
+ * 
+ */
+export type PersonalAccessToken = Prisma.PersonalAccessTokenModel
