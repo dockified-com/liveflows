@@ -58,3 +58,6 @@ tsconfig.tsbuildinfo
 graphify-out/
 scratch/
 .gstack/
+.kiro/
+.superpowers/
+
