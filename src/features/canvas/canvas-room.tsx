@@ -8,6 +8,7 @@ import { createRoomContext } from "@liveblocks/react";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { StatusPill } from "@/components/ui/status-pill";
+import { PaneHeader } from "@/features/project-workspace/pane-header";
 import { useUiStore } from "@/stores/ui";
 import { collectLocalChanges, mergeIncoming } from "./element-sync";
 
@@ -168,16 +169,16 @@ function Canvas({
 
   const flushLatest = useCallback(() => {
     if (!latestSceneRef.current || remoteElements === null) return;
-    const changed = collectLocalChanges(
-      latestSceneRef.current,
-      ledger.current,
-    );
+    const changed = collectLocalChanges(latestSceneRef.current, ledger.current);
     if (changed.length > 0) {
       try {
         for (const el of changed) ledger.current.set(el.id, el.version);
         push(changed);
       } catch (err) {
-        console.warn("Failed to push storage mutation (storage loading/disconnected):", err);
+        console.warn(
+          "Failed to push storage mutation (storage loading/disconnected):",
+          err,
+        );
       }
     }
   }, [push, remoteElements]);
@@ -185,7 +186,9 @@ function Canvas({
   const onChange = useCallback(
     (elements: readonly ExcalidrawElement[]) => {
       latestSceneRef.current = elements;
-      if (timer.current) return;
+      if (timer.current) {
+        clearTimeout(timer.current);
+      }
       timer.current = setTimeout(() => {
         timer.current = null;
         flushLatest();
@@ -218,62 +221,75 @@ function Canvas({
     };
   }, [api]);
 
+  const mappedConnectionStatus =
+    status === "connected"
+      ? "connected"
+      : status === "reconnecting"
+        ? "reconnecting"
+        : status === "disconnected"
+          ? "offline"
+          : "loading";
+
   return (
-    <div className="relative h-full w-full overflow-hidden">
-      {/* Light SaaS Chrome Header */}
-      <div className="absolute top-3 right-3 z-20 flex items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--surface-elevated)]/90 px-3 py-1.5 backdrop-blur-xs shadow-xs text-xs font-sans select-none">
-        <StatusPill
-          status={
-            status === "connected"
-              ? "synced"
-              : status === "reconnecting"
-                ? "reconnecting"
-                : "disconnected"
-          }
-          label={
-            status === "connected"
-              ? "Live"
-              : status === "reconnecting"
-                ? "Connecting..."
-                : "Offline"
-          }
-        />
+    <div className="flex h-full w-full flex-col overflow-hidden">
+      <PaneHeader fileType="canvas" connectionStatus={mappedConnectionStatus} />
+      <div className="relative flex-1 min-h-0 w-full overflow-hidden">
+        {/* Light SaaS Chrome Overlay */}
+        <div className="absolute top-3 right-3 z-20 flex items-center gap-2 rounded-md border border-[var(--border)] bg-[var(--surface-elevated)]/90 px-3 py-1.5 backdrop-blur-xs shadow-xs text-xs font-sans select-none">
+          <StatusPill
+            status={
+              status === "connected"
+                ? "synced"
+                : status === "reconnecting"
+                  ? "reconnecting"
+                  : "disconnected"
+            }
+            label={
+              status === "connected"
+                ? "Live"
+                : status === "reconnecting"
+                  ? "Connecting..."
+                  : "Offline"
+            }
+          />
 
-        <div className="h-3 w-px bg-[var(--border)]" />
+          <div className="h-3 w-px bg-[var(--border)]" />
 
-        <span className="text-[var(--ink-secondary)]">
-          Collaborators: <strong className="text-[var(--ink)]">{others.length}</strong>
-        </span>
-
-        {elementCount > 3000 && (
-          <span
-            data-testid="storage-warning"
-            data-severity={elementCount > 5000 ? "critical" : "warning"}
-            className={`rounded px-1.5 py-0.5 font-medium ${
-              elementCount > 5000
-                ? "bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300"
-                : "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
-            }`}
-          >
-            {elementCount > 5000 ? "Critical Size" : "Large Canvas"}
+          <span className="text-[var(--ink-secondary)]">
+            Collaborators:{" "}
+            <strong className="text-[var(--ink)]">{others.length}</strong>
           </span>
-        )}
-      </div>
 
-      {status === "disconnected" && (
-        <div
-          data-testid="outage-banner"
-          className="absolute top-0 inset-x-0 z-30 flex items-center justify-center bg-rose-600 px-4 py-2 text-xs font-medium text-white shadow-md"
-        >
-          Liveblocks is unreachable. Rendering read-only snapshot.
+          {elementCount > 3000 && (
+            <span
+              data-testid="storage-warning"
+              data-severity={elementCount > 5000 ? "critical" : "warning"}
+              className={`rounded px-1.5 py-0.5 font-medium ${
+                elementCount > 5000
+                  ? "bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300"
+                  : "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
+              }`}
+            >
+              {elementCount > 5000 ? "Critical Size" : "Large Canvas"}
+            </span>
+          )}
         </div>
-      )}
 
-      <Excalidraw
-        excalidrawAPI={(instance) => setApi(instance)}
-        onChange={onChange}
-        viewModeEnabled={status === "disconnected"}
-      />
+        {status === "disconnected" && (
+          <div
+            data-testid="outage-banner"
+            className="absolute top-0 inset-x-0 z-30 flex items-center justify-center bg-rose-600 px-4 py-2 text-xs font-medium text-white shadow-md"
+          >
+            Liveblocks is unreachable. Rendering read-only snapshot.
+          </div>
+        )}
+
+        <Excalidraw
+          excalidrawAPI={(instance) => setApi(instance)}
+          onChange={onChange}
+          viewModeEnabled={status === "disconnected"}
+        />
+      </div>
     </div>
   );
 }

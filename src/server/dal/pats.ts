@@ -1,6 +1,6 @@
-import { db } from "../db";
 import { auth } from "@clerk/nextjs/server";
-import { randomBytes, createHash } from "crypto";
+import { createHash, randomBytes } from "crypto";
+import { db } from "../db";
 import { NotFoundError, UnauthorizedError } from "./errors";
 
 function hashToken(token: string) {

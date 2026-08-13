@@ -12,9 +12,6 @@ export default async function ProjectPage({
   const metadata = await getProjectWorkspace(workspaceSlug, projectId);
 
   return (
-    <ProjectWorkspaceView
-      workspaceSlug={workspaceSlug}
-      metadata={metadata}
-    />
+    <ProjectWorkspaceView workspaceSlug={workspaceSlug} metadata={metadata} />
   );
 }

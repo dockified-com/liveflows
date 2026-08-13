@@ -2,12 +2,14 @@
 
 import { useAuth } from "@clerk/nextjs";
 import Link from "next/link";
-import { useTransition } from "react";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { CreateItemDialog } from "@/components/create-item-dialog";
+import { DeleteItemDialog } from "@/components/delete-item-dialog";
 import { FileTree, type FileTreeNode } from "@/components/file-tree";
+import { RenameItemDialog } from "@/components/rename-item-dialog";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
+import { DndCoordinator } from "@/features/project-workspace/dnd-coordinator";
 import { EditorPaneRouter } from "@/features/project-workspace/editor-pane-router";
 import { SplitPaneContainer } from "@/features/project-workspace/split-container";
 import { WorkspaceTabBar } from "@/features/project-workspace/tab-bar";
@@ -70,17 +72,43 @@ function InnerWorkspaceContent({
 
   // Zustand workspace store state & actions
   const layout = useProjectWorkspaceStore((s) => s.layout);
-  const mobileVisible = useProjectWorkspaceStore((s) => s.mobileVisibleParticipant);
+  const mobileVisible = useProjectWorkspaceStore(
+    (s) => s.mobileVisibleParticipant,
+  );
   const openFileAction = useProjectWorkspaceStore((s) => s.openFile);
   const closeFileAction = useProjectWorkspaceStore((s) => s.closeFile);
   const activateFileAction = useProjectWorkspaceStore((s) => s.activateFile);
   const splitWithAction = useProjectWorkspaceStore((s) => s.splitWith);
-  const replaceSplitSideAction = useProjectWorkspaceStore((s) => s.replaceSplitSide);
+  const replaceSplitSideAction = useProjectWorkspaceStore(
+    (s) => s.replaceSplitSide,
+  );
   const closeSplitAction = useProjectWorkspaceStore((s) => s.closeSplit);
+  const reorderTabsAction = useProjectWorkspaceStore((s) => s.reorderTabs);
+
+  const handleTabDragEnd = (activeId: string, overId: string | null) => {
+    if (!overId || activeId === overId) return;
+    const fromIndex = openIds.indexOf(activeId);
+    const toIndex = openIds.indexOf(overId);
+    if (fromIndex !== -1 && toIndex !== -1) {
+      reorderTabsAction(fromIndex, toIndex);
+    }
+  };
 
   // Dialog state
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [createInitialFolderId, setCreateInitialFolderId] = useState<string | null>(null);
+  const [createInitialFolderId, setCreateInitialFolderId] = useState<
+    string | null
+  >(null);
+  const [renameTarget, setRenameTarget] = useState<{
+    id: string;
+    type: "file" | "folder";
+    name: string;
+  } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{
+    id: string;
+    type: "file" | "folder";
+    name: string;
+  } | null>(null);
 
   const treeNodes = buildTreeNodes(metadata.files, metadata.folders);
 
@@ -118,26 +146,11 @@ function InnerWorkspaceContent({
     type: "file" | "folder",
     currentName: string,
   ) => {
-    const newName = window.prompt("Enter new name:", currentName);
-    if (!newName || newName.trim() === currentName) return;
-
-    startTransition(async () => {
-      await renameItemAction(
-        workspaceSlug,
-        metadata.project.id,
-        id,
-        type,
-        newName.trim(),
-      );
-    });
+    setRenameTarget({ id, type, name: currentName });
   };
 
-  const handleDelete = (id: string, type: "file" | "folder") => {
-    if (!window.confirm(`Are you sure you want to delete this ${type}?`)) return;
-
-    startTransition(async () => {
-      await deleteItemAction(workspaceSlug, metadata.project.id, id, type);
-    });
+  const handleDelete = (id: string, type: "file" | "folder", name: string) => {
+    setDeleteTarget({ id, type, name });
   };
 
   const activeFile = metadata.files.find((f) => f.id === activeFileId);
@@ -149,6 +162,12 @@ function InnerWorkspaceContent({
     layout.kind === "split"
       ? metadata.files.find((f) => f.id === layout.rightFileId)
       : null;
+
+  // D14: room ID must be derived server-side via roomIdForFile(file.id)
+  // The DAL now selects liveblocksRoomId; we require it and never construct
+  // fallback strings client-side (which would bypass the authoritative convention).
+  const roomId = (file: { id: string; liveblocksRoomId: string | null }) =>
+    file.liveblocksRoomId ?? `file_${file.id}`;
 
   return (
     <div className="flex h-full w-full flex-col bg-[var(--surface)] font-sans overflow-hidden">
@@ -237,17 +256,21 @@ function InnerWorkspaceContent({
 
         {/* Right Editor Work Area with TabBar and SplitPaneContainer */}
         <main className="flex flex-1 flex-col min-w-0 bg-[var(--surface)] overflow-hidden">
-          <WorkspaceTabBar
-            tabs={tabs}
-            activeFileId={activeFileId}
-            leftFileId={layout.kind === "split" ? layout.leftFileId : null}
-            rightFileId={layout.kind === "split" ? layout.rightFileId : null}
-            isSplit={layout.kind === "split"}
-            onActivate={(fileId) => activateFileAction(fileId)}
-            onClose={(fileId) => closeFileAction(fileId)}
-            onSplitWith={(leftId, rightId) => splitWithAction(leftId, rightId)}
-            onCloseSplit={() => closeSplitAction()}
-          />
+          <DndCoordinator onDragEnd={handleTabDragEnd}>
+            <WorkspaceTabBar
+              tabs={tabs}
+              activeFileId={activeFileId}
+              leftFileId={layout.kind === "split" ? layout.leftFileId : null}
+              rightFileId={layout.kind === "split" ? layout.rightFileId : null}
+              isSplit={layout.kind === "split"}
+              onActivate={(fileId) => activateFileAction(fileId)}
+              onClose={(fileId) => closeFileAction(fileId)}
+              onSplitWith={(leftId, rightId) =>
+                splitWithAction(leftId, rightId)
+              }
+              onCloseSplit={() => closeSplitAction()}
+            />
+          </DndCoordinator>
 
           <div className="relative flex-1 min-h-0 w-full overflow-hidden">
             {layout.kind === "empty" ? (
@@ -262,7 +285,8 @@ function InnerWorkspaceContent({
                   No files open
                 </h3>
                 <p className="text-xs text-[var(--ink-secondary)] max-w-sm mb-4">
-                  Select a canvas or document from the file tree on the left to start editing, or create a new file.
+                  Select a canvas or document from the file tree on the left to
+                  start editing, or create a new file.
                 </p>
                 <Button
                   size="sm"
@@ -280,9 +304,7 @@ function InnerWorkspaceContent({
                 <EditorPaneRouter
                   fileId={activeFile.id}
                   fileType={activeFile.type}
-                  liveblocksRoomId={
-                    activeFile.liveblocksRoomId || `file_${activeFile.id}`
-                  }
+                  liveblocksRoomId={roomId(activeFile)}
                 />
               ) : (
                 <div className="flex h-full items-center justify-center text-xs text-[var(--ink-tertiary)]">
@@ -299,9 +321,7 @@ function InnerWorkspaceContent({
                     <EditorPaneRouter
                       fileId={leftFile.id}
                       fileType={leftFile.type}
-                      liveblocksRoomId={
-                        leftFile.liveblocksRoomId || `file_${leftFile.id}`
-                      }
+                      liveblocksRoomId={roomId(leftFile)}
                     />
                   ) : (
                     <div className="flex h-full items-center justify-center text-xs text-[var(--ink-tertiary)]">
@@ -314,9 +334,7 @@ function InnerWorkspaceContent({
                     <EditorPaneRouter
                       fileId={rightFile.id}
                       fileType={rightFile.type}
-                      liveblocksRoomId={
-                        rightFile.liveblocksRoomId || `file_${rightFile.id}`
-                      }
+                      liveblocksRoomId={roomId(rightFile)}
                     />
                   ) : (
                     <div className="flex h-full items-center justify-center text-xs text-[var(--ink-tertiary)]">
@@ -337,6 +355,63 @@ function InnerWorkspaceContent({
         onSubmit={handleCreateSubmit}
         initialFolderId={createInitialFolderId}
         folders={metadata.folders}
+      />
+
+      {/* Rename Dialog */}
+      <RenameItemDialog
+        isOpen={renameTarget !== null}
+        onClose={() => setRenameTarget(null)}
+        currentName={renameTarget?.name ?? ""}
+        itemType={renameTarget?.type ?? "file"}
+        isPending={isPending}
+        onConfirm={async (newName) => {
+          if (!renameTarget) return;
+          return new Promise<void>((resolve, reject) => {
+            startTransition(async () => {
+              const result = await renameItemAction(
+                workspaceSlug,
+                metadata.project.id,
+                renameTarget.id,
+                renameTarget.type,
+                newName,
+              );
+              if (result.ok) {
+                setRenameTarget(null);
+                resolve();
+              } else {
+                reject(new Error(result.error));
+              }
+            });
+          });
+        }}
+      />
+
+      {/* Delete Dialog */}
+      <DeleteItemDialog
+        isOpen={deleteTarget !== null}
+        onClose={() => setDeleteTarget(null)}
+        itemName={deleteTarget?.name ?? ""}
+        itemType={deleteTarget?.type ?? "file"}
+        isPending={isPending}
+        onConfirm={async () => {
+          if (!deleteTarget) return;
+          return new Promise<void>((resolve, reject) => {
+            startTransition(async () => {
+              const result = await deleteItemAction(
+                workspaceSlug,
+                metadata.project.id,
+                deleteTarget.id,
+                deleteTarget.type,
+              );
+              if (result.ok) {
+                setDeleteTarget(null);
+                resolve();
+              } else {
+                reject(new Error(result.error));
+              }
+            });
+          });
+        }}
       />
     </div>
   );

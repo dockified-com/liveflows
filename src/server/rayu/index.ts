@@ -173,10 +173,7 @@ export async function dispatchTask(
         };
 
         try {
-          await appendLog(
-            path.join(options.workspaceDir, ".kiro/logs"),
-            logEntry,
-          );
+          await appendLog(logEntry, options.workspaceDir);
         } catch (e) {
           // ignore logging failures
         }

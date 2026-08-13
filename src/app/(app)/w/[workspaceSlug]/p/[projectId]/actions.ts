@@ -1,57 +1,22 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { unstable_rethrow } from "next/navigation";
 import {
   createFile,
   createFolder,
   deleteFile,
   deleteFolder,
+  moveFile,
+  moveFolder,
   renameFile,
   renameFolder,
 } from "@/server/dal";
 
-export async function createFileAction(
-  workspaceSlug: string,
-  projectId: string,
-  folderId: string | null,
-  prevState: { error?: string } | null,
-  formData: FormData,
-) {
-  const name = formData.get("name");
-  const type = formData.get("type");
-
-  if (typeof name !== "string" || !name) return { error: "Name is required" };
-  if (type !== "canvas" && type !== "document")
-    return { error: "Invalid file type" };
-
-  try {
-    await createFile(workspaceSlug, projectId, folderId, name, type);
-    revalidatePath(`/w/${workspaceSlug}/p/${projectId}`);
-    return { error: undefined };
-  } catch (error: any) {
-    return { error: error.message || "Failed to create file" };
-  }
-}
-
-export async function createFolderAction(
-  workspaceSlug: string,
-  projectId: string,
-  parentId: string | null,
-  prevState: { error?: string } | null,
-  formData: FormData,
-) {
-  const name = formData.get("name");
-
-  if (typeof name !== "string" || !name) return { error: "Name is required" };
-
-  try {
-    await createFolder(workspaceSlug, projectId, parentId, name);
-    revalidatePath(`/w/${workspaceSlug}/p/${projectId}`);
-    return { error: undefined };
-  } catch (error: any) {
-    return { error: error.message || "Failed to create folder" };
-  }
-}
+// Discriminated mutation result contract (D22)
+export type MutationResult<T = undefined> =
+  | { ok: true; data?: T }
+  | { ok: false; error: string };
 
 export async function createItemAction(
   workspaceSlug: string,
@@ -61,7 +26,7 @@ export async function createItemAction(
     type: "canvas" | "document" | "folder";
     destinationFolderId: string | null;
   },
-) {
+): Promise<MutationResult> {
   try {
     if (data.type === "folder") {
       await createFolder(
@@ -80,9 +45,13 @@ export async function createItemAction(
       );
     }
     revalidatePath(`/w/${workspaceSlug}/p/${projectId}`);
-    return { success: true };
-  } catch (error: any) {
-    throw new Error(error.message || "Failed to create item");
+    return { ok: true };
+  } catch (error: unknown) {
+    unstable_rethrow(error);
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : "Failed to create item",
+    };
   }
 }
 
@@ -92,7 +61,7 @@ export async function renameItemAction(
   id: string,
   type: "file" | "folder",
   newName: string,
-) {
+): Promise<MutationResult> {
   try {
     if (type === "folder") {
       await renameFolder(workspaceSlug, id, newName);
@@ -100,9 +69,13 @@ export async function renameItemAction(
       await renameFile(workspaceSlug, id, newName);
     }
     revalidatePath(`/w/${workspaceSlug}/p/${projectId}`);
-    return { success: true };
-  } catch (error: any) {
-    throw new Error(error.message || "Failed to rename item");
+    return { ok: true };
+  } catch (error: unknown) {
+    unstable_rethrow(error);
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : "Failed to rename item",
+    };
   }
 }
 
@@ -111,7 +84,7 @@ export async function deleteItemAction(
   projectId: string,
   id: string,
   type: "file" | "folder",
-) {
+): Promise<MutationResult> {
   try {
     if (type === "folder") {
       await deleteFolder(workspaceSlug, id);
@@ -119,8 +92,50 @@ export async function deleteItemAction(
       await deleteFile(workspaceSlug, id);
     }
     revalidatePath(`/w/${workspaceSlug}/p/${projectId}`);
-    return { success: true };
-  } catch (error: any) {
-    throw new Error(error.message || "Failed to delete item");
+    return { ok: true };
+  } catch (error: unknown) {
+    unstable_rethrow(error);
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : "Failed to delete item",
+    };
+  }
+}
+
+export async function moveFolderAction(
+  workspaceSlug: string,
+  projectId: string,
+  folderId: string,
+  newParentId: string | null,
+): Promise<MutationResult> {
+  try {
+    await moveFolder(workspaceSlug, folderId, newParentId);
+    revalidatePath(`/w/${workspaceSlug}/p/${projectId}`);
+    return { ok: true };
+  } catch (error: unknown) {
+    unstable_rethrow(error);
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : "Failed to move folder",
+    };
+  }
+}
+
+export async function moveFileAction(
+  workspaceSlug: string,
+  projectId: string,
+  fileId: string,
+  newFolderId: string | null,
+): Promise<MutationResult> {
+  try {
+    await moveFile(workspaceSlug, fileId, newFolderId);
+    revalidatePath(`/w/${workspaceSlug}/p/${projectId}`);
+    return { ok: true };
+  } catch (error: unknown) {
+    unstable_rethrow(error);
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : "Failed to move file",
+    };
   }
 }

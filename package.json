@@ -13,6 +13,9 @@
   },
   "dependencies": {
     "@clerk/nextjs": "7.7.1",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@excalidraw/excalidraw": "0.18.1",
     "@liveblocks/client": "3.23.1",
     "@liveblocks/node": "3.23.1",
@@ -43,13 +46,15 @@
     "@types/pg": "8.21.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "axe-core": "^4.13.0",
     "babel-plugin-react-compiler": "1.0.0",
     "fast-check": "^4.9.0",
     "jsdom": "26.1.0",
     "prisma": "7.9.1",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "4.1.10"
+    "vitest": "4.1.10",
+    "vitest-axe": "^0.1.0"
   },
   "packageManager": "pnpm@11.20.0"
 }

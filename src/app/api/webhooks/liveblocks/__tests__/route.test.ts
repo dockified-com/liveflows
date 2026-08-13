@@ -20,7 +20,11 @@ vi.mock("@liveblocks/node", () => ({
 
 vi.mock("@/server/db", () => ({
   db: {
-    processedWebhook: { create: vi.fn() },
+    processedWebhook: {
+      findUnique: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+    },
     file: { findUnique: vi.fn() },
     canvasSnapshot: { upsert: vi.fn() },
   },
@@ -36,7 +40,9 @@ import { db } from "@/server/db";
 import { liveblocks } from "@/server/liveblocks";
 import { POST } from "../route";
 
+const mockProcessedFindUnique = vi.mocked(db.processedWebhook.findUnique);
 const mockProcessedCreate = vi.mocked(db.processedWebhook.create);
+const mockProcessedUpdate = vi.mocked(db.processedWebhook.update);
 const mockFileFindUnique = vi.mocked(db.file.findUnique);
 const mockCanvasUpsert = vi.mocked(db.canvasSnapshot.upsert);
 const mockGetStorage = vi.mocked(liveblocks.getStorageDocument);
@@ -66,6 +72,13 @@ function setupStorageDoc(elements: Record<string, unknown>, meta = {}) {
   } as never);
 }
 
+/** Default setup: no existing row → fresh insert path */
+function setupFreshDelivery() {
+  mockProcessedFindUnique.mockResolvedValue(null);
+  mockProcessedCreate.mockResolvedValue({} as never);
+  mockProcessedUpdate.mockResolvedValue({} as never);
+}
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
@@ -73,7 +86,7 @@ function setupStorageDoc(elements: Record<string, unknown>, meta = {}) {
 describe("POST /api/webhooks/liveblocks", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockProcessedCreate.mockResolvedValue({} as never);
+    setupFreshDelivery();
   });
 
   // =========================================================================
@@ -91,29 +104,24 @@ describe("POST /api/webhooks/liveblocks", () => {
 
       expect(res.status).toBe(400);
       expect(await res.text()).toBe("Bad signature");
-      expect(mockProcessedCreate).not.toHaveBeenCalled();
+      expect(mockProcessedFindUnique).not.toHaveBeenCalled();
     });
   });
 
   // =========================================================================
-  // IDEMPOTENCY: Duplicate delivery
+  // IDEMPOTENCY (D44): Duplicate delivery
   // =========================================================================
 
-  describe("idempotency", () => {
-    it("returns 200 and skips handler when svix-id was already processed", async () => {
+  describe("idempotency (D44)", () => {
+    it("returns 200 immediately when status=completed (already processed)", async () => {
       mockVerifyRequest.mockReturnValue({
         type: "storageUpdated",
-        data: {
-          roomId: "proj_1",
-          projectId: "proj",
-          updatedAt: new Date().toISOString(),
-        },
+        data: { roomId: "proj_1", updatedAt: new Date().toISOString() },
       });
-
-      // Simulate unique constraint violation
-      mockProcessedCreate.mockRejectedValue(
-        new Error("Unique constraint failed on the fields: (`id`)"),
-      );
+      mockProcessedFindUnique.mockResolvedValue({
+        status: "completed",
+        leaseUntil: null,
+      } as never);
 
       const req = makeRequest({}, "msg_duplicate");
       const res = await POST(req);
@@ -121,6 +129,102 @@ describe("POST /api/webhooks/liveblocks", () => {
       expect(res.status).toBe(200);
       expect(await res.text()).toBe("Already processed");
       expect(mockFileFindUnique).not.toHaveBeenCalled();
+    });
+
+    it("returns 409 when status=processing and lease is still active", async () => {
+      mockVerifyRequest.mockReturnValue({
+        type: "storageUpdated",
+        data: { roomId: "proj_1", updatedAt: new Date().toISOString() },
+      });
+      const futureDate = new Date(Date.now() + 30_000);
+      mockProcessedFindUnique.mockResolvedValue({
+        status: "processing",
+        leaseUntil: futureDate,
+      } as never);
+
+      const req = makeRequest({}, "msg_leased");
+      const res = await POST(req);
+
+      expect(res.status).toBe(409);
+      expect(mockFileFindUnique).not.toHaveBeenCalled();
+    });
+
+    it("processes event on first delivery (no existing row)", async () => {
+      const roomId = "proj_first";
+      mockVerifyRequest.mockReturnValue({
+        type: "storageUpdated",
+        data: { roomId, updatedAt: new Date().toISOString() },
+      });
+      mockFileFindUnique.mockResolvedValue({
+        id: "f1",
+        type: "canvas",
+      } as never);
+      setupStorageDoc({});
+
+      const req = makeRequest({}, "msg_first");
+      const res = await POST(req);
+
+      expect(res.status).toBe(200);
+      expect(mockProcessedCreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            id: "msg_first",
+            source: "liveblocks",
+            status: "processing",
+          }),
+        }),
+      );
+      expect(mockProcessedUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: "msg_first" },
+          data: expect.objectContaining({ status: "completed" }),
+        }),
+      );
+    });
+
+    it("race condition: 409 when create throws (another replica won)", async () => {
+      mockVerifyRequest.mockReturnValue({
+        type: "storageUpdated",
+        data: { roomId: "proj_race", updatedAt: new Date().toISOString() },
+      });
+      mockProcessedCreate.mockRejectedValue(
+        new Error("Unique constraint failed on the fields: (`id`)"),
+      );
+
+      const req = makeRequest({}, "msg_race");
+      const res = await POST(req);
+
+      expect(res.status).toBe(409);
+      expect(mockFileFindUnique).not.toHaveBeenCalled();
+    });
+
+    it("retries when previous status=failed (expired or errored)", async () => {
+      const roomId = "proj_retry";
+      mockVerifyRequest.mockReturnValue({
+        type: "storageUpdated",
+        data: { roomId, updatedAt: new Date().toISOString() },
+      });
+      mockProcessedFindUnique.mockResolvedValue({
+        status: "failed",
+        leaseUntil: null,
+      } as never);
+      mockFileFindUnique.mockResolvedValue({
+        id: "f_retry",
+        type: "canvas",
+      } as never);
+      setupStorageDoc({});
+
+      const req = makeRequest({}, "msg_retry");
+      const res = await POST(req);
+
+      expect(res.status).toBe(200);
+      // Takes over lease before processing
+      expect(mockProcessedUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: "msg_retry" },
+          data: expect.objectContaining({ status: "processing" }),
+        }),
+      );
     });
   });
 
@@ -160,23 +264,36 @@ describe("POST /api/webhooks/liveblocks", () => {
   });
 
   // =========================================================================
-  // MISSING PROJECT: Room not in Postgres
+  // MISSING FILE: Room not in Postgres
   // =========================================================================
 
-  describe("missing project", () => {
-    it("returns 200 when no project matches the roomId", async () => {
+  describe("missing file", () => {
+    it("returns 200 when no file matches the roomId", async () => {
       mockVerifyRequest.mockReturnValue({
         type: "storageUpdated",
-        data: {
-          roomId: "proj_orphan",
-          projectId: "orphan",
-          updatedAt: new Date().toISOString(),
-        },
+        data: { roomId: "proj_orphan", updatedAt: new Date().toISOString() },
       });
-
       mockFileFindUnique.mockResolvedValue(null);
 
       const req = makeRequest({}, "msg_orphan");
+      const res = await POST(req);
+
+      expect(res.status).toBe(200);
+      expect(await res.text()).toBe("OK");
+      expect(mockGetStorage).not.toHaveBeenCalled();
+    });
+
+    it("returns 200 and skips mirror for non-canvas file types", async () => {
+      mockVerifyRequest.mockReturnValue({
+        type: "storageUpdated",
+        data: { roomId: "proj_doc", updatedAt: new Date().toISOString() },
+      });
+      mockFileFindUnique.mockResolvedValue({
+        id: "f_doc",
+        type: "document",
+      } as never);
+
+      const req = makeRequest({}, "msg_doc");
       const res = await POST(req);
 
       expect(res.status).toBe(200);
@@ -196,17 +313,13 @@ describe("POST /api/webhooks/liveblocks", () => {
 
       mockVerifyRequest.mockReturnValue({
         type: "storageUpdated",
-        data: {
-          roomId,
-          projectId: "proj",
-          updatedAt: new Date().toISOString(),
-        },
+        data: { roomId, updatedAt: new Date().toISOString() },
       });
 
       mockFileFindUnique.mockResolvedValue({
         id: projectId,
         type: "canvas",
-      } as any);
+      } as never);
 
       const elements = {
         elem1: { id: "elem1", type: "rectangle", isDeleted: false },
@@ -259,17 +372,13 @@ describe("POST /api/webhooks/liveblocks", () => {
 
       mockVerifyRequest.mockReturnValue({
         type: "storageUpdated",
-        data: {
-          roomId,
-          projectId: "proj",
-          updatedAt: new Date().toISOString(),
-        },
+        data: { roomId, updatedAt: new Date().toISOString() },
       });
 
       mockFileFindUnique.mockResolvedValue({
         id: projectId,
         type: "canvas",
-      } as any);
+      } as never);
 
       setupStorageDoc({}, {});
 
@@ -295,17 +404,13 @@ describe("POST /api/webhooks/liveblocks", () => {
 
       mockVerifyRequest.mockReturnValue({
         type: "storageUpdated",
-        data: {
-          roomId,
-          projectId: "proj",
-          updatedAt: new Date().toISOString(),
-        },
+        data: { roomId, updatedAt: new Date().toISOString() },
       });
 
       mockFileFindUnique.mockResolvedValue({
         id: projectId,
         type: "canvas",
-      } as any);
+      } as never);
 
       // doc without meta key
       mockGetStorage.mockResolvedValue({
@@ -325,6 +430,31 @@ describe("POST /api/webhooks/liveblocks", () => {
         }),
       );
     });
+
+    it("marks webhook completed after successful mirror", async () => {
+      mockVerifyRequest.mockReturnValue({
+        type: "storageUpdated",
+        data: { roomId: "proj_done", updatedAt: new Date().toISOString() },
+      });
+      mockFileFindUnique.mockResolvedValue({
+        id: "f_done",
+        type: "canvas",
+      } as never);
+      setupStorageDoc({}, {});
+
+      const req = makeRequest({}, "msg_done");
+      await POST(req);
+
+      expect(mockProcessedUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: "msg_done" },
+          data: expect.objectContaining({
+            status: "completed",
+            leaseUntil: null,
+          }),
+        }),
+      );
+    });
   });
 
   // =========================================================================
@@ -332,22 +462,18 @@ describe("POST /api/webhooks/liveblocks", () => {
   // =========================================================================
 
   describe("handler errors", () => {
-    it("returns 500 when storage fetch throws", async () => {
+    it("returns 500 and marks failed when storage fetch throws", async () => {
       const roomId = "proj_fail";
 
       mockVerifyRequest.mockReturnValue({
         type: "storageUpdated",
-        data: {
-          roomId,
-          projectId: "proj",
-          updatedAt: new Date().toISOString(),
-        },
+        data: { roomId, updatedAt: new Date().toISOString() },
       });
 
       mockFileFindUnique.mockResolvedValue({
         id: "p_fail",
         type: "canvas",
-      } as any);
+      } as never);
 
       mockGetStorage.mockRejectedValue(new Error("Network error"));
 
@@ -356,6 +482,14 @@ describe("POST /api/webhooks/liveblocks", () => {
 
       expect(res.status).toBe(500);
       expect(await res.text()).toBe("Handler error");
+
+      // Should mark the lease as failed
+      expect(mockProcessedUpdate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: "msg_fail" },
+          data: expect.objectContaining({ status: "failed", leaseUntil: null }),
+        }),
+      );
     });
   });
 });

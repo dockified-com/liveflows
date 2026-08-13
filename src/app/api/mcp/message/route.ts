@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 import { verifyPersonalAccessToken } from "@/server/dal/pats";
 import { activeTransports } from "@/server/mcp";
 
@@ -45,7 +45,6 @@ export async function POST(req: NextRequest) {
 
     const simulatedReq = {
       body,
-      // @ts-ignore
       on: (event: string, callback: (data: any) => void) => {
         if (event === "data") callback(Buffer.from(JSON.stringify(body)));
         if (event === "end") callback(undefined);
@@ -58,7 +57,7 @@ export async function POST(req: NextRequest) {
       end: () => {},
     };
 
-    // @ts-ignore
+    // @ts-expect-error
     await transport.handlePostMessage(simulatedReq, simulatedRes);
 
     return new Response("Accepted", { status: 202 });

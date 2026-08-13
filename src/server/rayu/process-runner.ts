@@ -124,15 +124,16 @@ export function runProcess(options: RunOptions): Promise<RunResult> {
         }, 5000);
       }, options.timeoutMs);
 
-      child!.stdin?.on("error", (e: any) => {
+      child?.stdin?.on("error", (e: unknown) => {
         cleanupTimers();
         if (!resolved) {
           resolved = true;
-          child!.kill("SIGKILL");
+          child?.kill("SIGKILL");
+          const msg = e instanceof Error ? e.message : String(e);
           reject(
             new DispatchError(
               "STDIN_WRITE_FAILED",
-              `Failed to write stdin: ${e.message}`,
+              `Failed to write stdin: ${msg}`,
             ),
           );
         }
@@ -140,18 +141,19 @@ export function runProcess(options: RunOptions): Promise<RunResult> {
 
       try {
         if (options.stdinContent) {
-          child!.stdin?.write(options.stdinContent);
+          child?.stdin?.write(options.stdinContent);
         }
-        child!.stdin?.end();
-      } catch (e: any) {
+        child?.stdin?.end();
+      } catch (e: unknown) {
         cleanupTimers();
         if (!resolved) {
           resolved = true;
-          child!.kill("SIGKILL");
+          child?.kill("SIGKILL");
+          const msg = e instanceof Error ? e.message : String(e);
           reject(
             new DispatchError(
               "STDIN_WRITE_FAILED",
-              `Failed to write stdin: ${e.message}`,
+              `Failed to write stdin: ${msg}`,
             ),
           );
         }
@@ -178,7 +180,7 @@ export function runProcess(options: RunOptions): Promise<RunResult> {
     let stdoutSize = 0;
     let stderrSize = 0;
     const threshold = 16384;
-    child!.stdout?.on("data", (chunk) => {
+    child?.stdout?.on("data", (chunk) => {
       stdoutChunks.push(chunk);
       stdoutSize += chunk.length;
       while (
@@ -190,7 +192,7 @@ export function runProcess(options: RunOptions): Promise<RunResult> {
       }
     });
 
-    child!.stderr?.on("data", (chunk) => {
+    child?.stderr?.on("data", (chunk) => {
       stderrChunks.push(chunk);
       stderrSize += chunk.length;
       while (
@@ -202,7 +204,7 @@ export function runProcess(options: RunOptions): Promise<RunResult> {
       }
     });
 
-    child!.on("close", (code, signal) => {
+    child?.on("close", (code, signal) => {
       cleanupTimers();
       if (resolved) return;
       resolved = true;

@@ -24,7 +24,7 @@ export function CreateItemDialog({
   onSubmit,
   initialType = "canvas",
   initialFolderId = null,
-  folders,
+  folders = [],
 }: CreateItemDialogProps) {
   const [name, setName] = useState("");
   const [type, setType] = useState<"canvas" | "document" | "folder">(

@@ -89,7 +89,7 @@ describe("process-runner", () => {
         stdinContent: "test input",
         timeoutMs: 5000,
         maxOutputBytes: 1000,
-        env: {},
+        env: {} as any,
       });
 
       mockChild.emit("spawn");
@@ -115,7 +115,7 @@ describe("process-runner", () => {
         stdinContent: "",
         timeoutMs: 5000,
         maxOutputBytes: 1000,
-        env: {},
+        env: {} as any,
       });
 
       mockChild.emit("error", { code: "ENOENT", message: "spawn ENOENT" });
@@ -136,7 +136,7 @@ describe("process-runner", () => {
         stdinContent: "",
         timeoutMs: 5000,
         maxOutputBytes: 1000,
-        env: {},
+        env: {} as any,
       });
 
       vi.advanceTimersByTime(10000);
@@ -161,7 +161,7 @@ describe("process-runner", () => {
         stdinContent: "",
         timeoutMs: 5000,
         maxOutputBytes: 1000,
-        env: {},
+        env: {} as any,
       });
 
       mockChild.emit("spawn");
@@ -202,7 +202,7 @@ describe("process-runner", () => {
         stdinContent: "data",
         timeoutMs: 5000,
         maxOutputBytes: 1000,
-        env: {},
+        env: {} as any,
       });
 
       mockChild.emit("spawn");
@@ -240,7 +240,7 @@ describe("process-runner", () => {
         stdinContent: "",
         timeoutMs: 5000,
         maxOutputBytes: 1000,
-        env: {},
+        env: {} as any,
       });
 
       mockChild.emit("spawn");

@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon } from "@/components/ui/icon";
-import { useUiStore } from "@/stores/ui";
 
 export interface RailItem {
   id: string;
@@ -61,7 +60,6 @@ const footerRailItems: RailItem[] = [
 
 export function AppRail() {
   const pathname = usePathname();
-  const { toggleSidebar } = useUiStore();
 
   const isProjectsActive =
     pathname.startsWith("/w/") || pathname === "/" || pathname === "/dashboard";

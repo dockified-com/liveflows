@@ -11,6 +11,14 @@ export type FolderDetail = {
   updatedAt: Date;
 };
 
+/** Build the D37 directoryKey for a folder: "<projectId>:<parentId|ROOT>" */
+function folderDirectoryKey(
+  projectId: string,
+  parentId: string | null,
+): string {
+  return `${projectId}:${parentId ?? "ROOT"}`;
+}
+
 export async function createFolder(
   workspaceSlug: string,
   projectId: string,
@@ -31,17 +39,16 @@ export async function createFolder(
     if (!parentFolder) notFound();
   }
 
-  // Check unique name in same directory (same parentId)
-  // Wait, does the spec say Folder needs unique name check like File?
-  // "Two files in the same folder (or both at the project root) cannot share a name. Two files in different folders can."
-  // Wait, schema does not have a unique constraint on Folder [parentId, name], but I will enforce it just in case, or rather just create it.
-  // The spec says "A project can contain any number of folders, nested to any depth".
+  const normalizedName = name.trim().toLowerCase();
+  const directoryKey = folderDirectoryKey(projectId, parentId);
 
   return db.folder.create({
     data: {
       projectId,
       parentId,
-      name,
+      name: name.trim(),
+      normalizedName,
+      directoryKey,
     },
     select: {
       id: true,
@@ -67,7 +74,11 @@ export async function renameFolder(
 
   return db.folder.update({
     where: { id: folderId },
-    data: { name: newName },
+    data: {
+      name: newName.trim(),
+      normalizedName: newName.trim().toLowerCase(),
+      // directoryKey is stable across renames (parent doesn't change)
+    },
     select: {
       id: true,
       projectId: true,
@@ -95,33 +106,50 @@ export async function moveFolder(
       where: { id: newParentId, projectId: folder.projectId },
     });
     if (!destFolder) notFound();
-
-    // Cycle check: walk up from newParentId to root, ensuring folderId is not in the path
-    let currentId: string | null = newParentId;
-    while (currentId) {
-      if (currentId === folderId) {
-        throw new Error("Cannot move a folder into its own child");
-      }
-      const parent: { parentId: string | null } | null =
-        await db.folder.findUnique({
-          where: { id: currentId },
-          select: { parentId: true },
-        });
-      if (!parent) break;
-      currentId = parent.parentId;
-    }
   }
 
-  return db.folder.update({
-    where: { id: folderId },
-    data: { parentId: newParentId },
-    select: {
-      id: true,
-      projectId: true,
-      parentId: true,
-      name: true,
-      updatedAt: true,
-    },
+  // D43: Postgres advisory lock scoped to the project to prevent concurrent
+  // cycle-check races. pg_try_advisory_xact_lock acquires within the current
+  // transaction and releases automatically on commit/rollback.
+  return db.$transaction(async (tx) => {
+    // Lock key: hash of "liveflows:move-folder:<projectId>" — use hashtext() for
+    // a stable 32-bit int from the string. Acquire inside the transaction so it
+    // lives for the duration of the write.
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('liveflows:move-folder:' || ${folder.projectId}))`;
+
+    // Cycle check: walk up from newParentId to root — folderId must not appear
+    if (newParentId) {
+      let currentId: string | null = newParentId;
+      while (currentId) {
+        if (currentId === folderId) {
+          throw new Error("Cannot move a folder into its own child");
+        }
+        const parent: { parentId: string | null } | null =
+          await tx.folder.findUnique({
+            where: { id: currentId },
+            select: { parentId: true },
+          });
+        if (!parent) break;
+        currentId = parent.parentId;
+      }
+    }
+
+    const newDirectoryKey = folderDirectoryKey(folder.projectId, newParentId);
+
+    return tx.folder.update({
+      where: { id: folderId },
+      data: {
+        parentId: newParentId,
+        directoryKey: newDirectoryKey,
+      },
+      select: {
+        id: true,
+        projectId: true,
+        parentId: true,
+        name: true,
+        updatedAt: true,
+      },
+    });
   });
 }
 
@@ -136,9 +164,7 @@ export async function deleteFolder(
   });
   if (!folder) notFound();
 
-  // Recursively gather all files to decommission
-  // Using a CTE or manual graph traversal. Prisma doesn't have recursive queries out of the box,
-  // so we can use a raw query to find all descendant folders.
+  // Gather all descendant folder IDs via recursive CTE
   const descendantFolders = await db.$queryRaw<{ id: string }[]>`
     WITH RECURSIVE FolderTree AS (
       SELECT id FROM "Folder" WHERE id = ${folderId}
@@ -163,6 +189,6 @@ export async function deleteFolder(
     }
   }
 
-  // Delete the root folder; Cascade delete handles the rest in PG
+  // Cascade delete handles child folders and files in PG
   await db.folder.delete({ where: { id: folderId } });
 }

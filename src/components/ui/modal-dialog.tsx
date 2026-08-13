@@ -43,6 +43,8 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-150"
       aria-modal="true"
       role="dialog"
+      aria-labelledby="modal-dialog-title"
+      aria-describedby={description ? "modal-dialog-description" : undefined}
     >
       <button
         type="button"
@@ -56,11 +58,17 @@ export const ModalDialog: React.FC<ModalDialogProps> = ({
       >
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h2 className="text-[17px] font-semibold text-[var(--ink)]">
+            <h2
+              id="modal-dialog-title"
+              className="text-[17px] font-semibold text-[var(--ink)]"
+            >
               {title}
             </h2>
             {description ? (
-              <p className="text-[13.5px] text-[var(--ink-faint)] mt-1">
+              <p
+                id="modal-dialog-description"
+                className="text-[13.5px] text-[var(--ink-faint)] mt-1"
+              >
                 {description}
               </p>
             ) : null}

@@ -53,3 +53,7 @@ e2e/.clerk/
 playwright-report/
 test-results/
 tsconfig.tsbuildinfo
+
+# analysis & scratch outputs
+graphify-out/
+scratch/

@@ -75,6 +75,7 @@ export function TokenManager({ tokens }: { tokens: Token[] }) {
                   </div>
                 </div>
                 <button
+                  type="button"
                   onClick={() => handleDelete(pat.id)}
                   className="text-red-600 text-sm hover:text-red-800"
                 >

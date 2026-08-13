@@ -29,6 +29,8 @@ export type FileMinAggregateOutputType = {
   projectId: string | null
   folderId: string | null
   name: string | null
+  normalizedName: string | null
+  directoryKey: string | null
   type: string | null
   liveblocksRoomId: string | null
   createdById: string | null
@@ -41,6 +43,8 @@ export type FileMaxAggregateOutputType = {
   projectId: string | null
   folderId: string | null
   name: string | null
+  normalizedName: string | null
+  directoryKey: string | null
   type: string | null
   liveblocksRoomId: string | null
   createdById: string | null
@@ -53,6 +57,8 @@ export type FileCountAggregateOutputType = {
   projectId: number
   folderId: number
   name: number
+  normalizedName: number
+  directoryKey: number
   type: number
   liveblocksRoomId: number
   createdById: number
@@ -67,6 +73,8 @@ export type FileMinAggregateInputType = {
   projectId?: true
   folderId?: true
   name?: true
+  normalizedName?: true
+  directoryKey?: true
   type?: true
   liveblocksRoomId?: true
   createdById?: true
@@ -79,6 +87,8 @@ export type FileMaxAggregateInputType = {
   projectId?: true
   folderId?: true
   name?: true
+  normalizedName?: true
+  directoryKey?: true
   type?: true
   liveblocksRoomId?: true
   createdById?: true
@@ -91,6 +101,8 @@ export type FileCountAggregateInputType = {
   projectId?: true
   folderId?: true
   name?: true
+  normalizedName?: true
+  directoryKey?: true
   type?: true
   liveblocksRoomId?: true
   createdById?: true
@@ -176,6 +188,8 @@ export type FileGroupByOutputType = {
   projectId: string
   folderId: string | null
   name: string
+  normalizedName: string
+  directoryKey: string
   type: string
   liveblocksRoomId: string | null
   createdById: string
@@ -209,6 +223,8 @@ export type FileWhereInput = {
   projectId?: Prisma.StringFilter<"File"> | string
   folderId?: Prisma.StringNullableFilter<"File"> | string | null
   name?: Prisma.StringFilter<"File"> | string
+  normalizedName?: Prisma.StringFilter<"File"> | string
+  directoryKey?: Prisma.StringFilter<"File"> | string
   type?: Prisma.StringFilter<"File"> | string
   liveblocksRoomId?: Prisma.StringNullableFilter<"File"> | string | null
   createdById?: Prisma.StringFilter<"File"> | string
@@ -225,6 +241,8 @@ export type FileOrderByWithRelationInput = {
   projectId?: Prisma.SortOrder
   folderId?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrder
+  normalizedName?: Prisma.SortOrder
+  directoryKey?: Prisma.SortOrder
   type?: Prisma.SortOrder
   liveblocksRoomId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdById?: Prisma.SortOrder
@@ -239,13 +257,15 @@ export type FileOrderByWithRelationInput = {
 export type FileWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   liveblocksRoomId?: string
-  folderId_name?: Prisma.FileFolderIdNameCompoundUniqueInput
+  directoryKey_normalizedName?: Prisma.FileDirectoryKeyNormalizedNameCompoundUniqueInput
   AND?: Prisma.FileWhereInput | Prisma.FileWhereInput[]
   OR?: Prisma.FileWhereInput[]
   NOT?: Prisma.FileWhereInput | Prisma.FileWhereInput[]
   projectId?: Prisma.StringFilter<"File"> | string
   folderId?: Prisma.StringNullableFilter<"File"> | string | null
   name?: Prisma.StringFilter<"File"> | string
+  normalizedName?: Prisma.StringFilter<"File"> | string
+  directoryKey?: Prisma.StringFilter<"File"> | string
   type?: Prisma.StringFilter<"File"> | string
   createdById?: Prisma.StringFilter<"File"> | string
   createdAt?: Prisma.DateTimeFilter<"File"> | Date | string
@@ -254,13 +274,15 @@ export type FileWhereUniqueInput = Prisma.AtLeast<{
   folder?: Prisma.XOR<Prisma.FolderNullableScalarRelationFilter, Prisma.FolderWhereInput> | null
   canvas?: Prisma.XOR<Prisma.CanvasSnapshotNullableScalarRelationFilter, Prisma.CanvasSnapshotWhereInput> | null
   document?: Prisma.XOR<Prisma.DocumentSnapshotNullableScalarRelationFilter, Prisma.DocumentSnapshotWhereInput> | null
-}, "id" | "liveblocksRoomId" | "folderId_name">
+}, "id" | "liveblocksRoomId" | "directoryKey_normalizedName">
 
 export type FileOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
   folderId?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrder
+  normalizedName?: Prisma.SortOrder
+  directoryKey?: Prisma.SortOrder
   type?: Prisma.SortOrder
   liveblocksRoomId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdById?: Prisma.SortOrder
@@ -279,6 +301,8 @@ export type FileScalarWhereWithAggregatesInput = {
   projectId?: Prisma.StringWithAggregatesFilter<"File"> | string
   folderId?: Prisma.StringNullableWithAggregatesFilter<"File"> | string | null
   name?: Prisma.StringWithAggregatesFilter<"File"> | string
+  normalizedName?: Prisma.StringWithAggregatesFilter<"File"> | string
+  directoryKey?: Prisma.StringWithAggregatesFilter<"File"> | string
   type?: Prisma.StringWithAggregatesFilter<"File"> | string
   liveblocksRoomId?: Prisma.StringNullableWithAggregatesFilter<"File"> | string | null
   createdById?: Prisma.StringWithAggregatesFilter<"File"> | string
@@ -289,6 +313,8 @@ export type FileScalarWhereWithAggregatesInput = {
 export type FileCreateInput = {
   id?: string
   name: string
+  normalizedName: string
+  directoryKey: string
   type: string
   liveblocksRoomId?: string | null
   createdById: string
@@ -305,6 +331,8 @@ export type FileUncheckedCreateInput = {
   projectId: string
   folderId?: string | null
   name: string
+  normalizedName: string
+  directoryKey: string
   type: string
   liveblocksRoomId?: string | null
   createdById: string
@@ -317,6 +345,8 @@ export type FileUncheckedCreateInput = {
 export type FileUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
+  directoryKey?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   liveblocksRoomId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -333,6 +363,8 @@ export type FileUncheckedUpdateInput = {
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   folderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
+  directoryKey?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   liveblocksRoomId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -347,6 +379,8 @@ export type FileCreateManyInput = {
   projectId: string
   folderId?: string | null
   name: string
+  normalizedName: string
+  directoryKey: string
   type: string
   liveblocksRoomId?: string | null
   createdById: string
@@ -357,6 +391,8 @@ export type FileCreateManyInput = {
 export type FileUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
+  directoryKey?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   liveblocksRoomId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -369,6 +405,8 @@ export type FileUncheckedUpdateManyInput = {
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   folderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
+  directoryKey?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   liveblocksRoomId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -386,9 +424,9 @@ export type FileOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type FileFolderIdNameCompoundUniqueInput = {
-  folderId: string
-  name: string
+export type FileDirectoryKeyNormalizedNameCompoundUniqueInput = {
+  directoryKey: string
+  normalizedName: string
 }
 
 export type FileCountOrderByAggregateInput = {
@@ -396,6 +434,8 @@ export type FileCountOrderByAggregateInput = {
   projectId?: Prisma.SortOrder
   folderId?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  normalizedName?: Prisma.SortOrder
+  directoryKey?: Prisma.SortOrder
   type?: Prisma.SortOrder
   liveblocksRoomId?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
@@ -408,6 +448,8 @@ export type FileMaxOrderByAggregateInput = {
   projectId?: Prisma.SortOrder
   folderId?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  normalizedName?: Prisma.SortOrder
+  directoryKey?: Prisma.SortOrder
   type?: Prisma.SortOrder
   liveblocksRoomId?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
@@ -420,6 +462,8 @@ export type FileMinOrderByAggregateInput = {
   projectId?: Prisma.SortOrder
   folderId?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  normalizedName?: Prisma.SortOrder
+  directoryKey?: Prisma.SortOrder
   type?: Prisma.SortOrder
   liveblocksRoomId?: Prisma.SortOrder
   createdById?: Prisma.SortOrder
@@ -547,6 +591,8 @@ export type FileUpdateOneRequiredWithoutDocumentNestedInput = {
 export type FileCreateWithoutProjectInput = {
   id?: string
   name: string
+  normalizedName: string
+  directoryKey: string
   type: string
   liveblocksRoomId?: string | null
   createdById: string
@@ -561,6 +607,8 @@ export type FileUncheckedCreateWithoutProjectInput = {
   id?: string
   folderId?: string | null
   name: string
+  normalizedName: string
+  directoryKey: string
   type: string
   liveblocksRoomId?: string | null
   createdById: string
@@ -604,6 +652,8 @@ export type FileScalarWhereInput = {
   projectId?: Prisma.StringFilter<"File"> | string
   folderId?: Prisma.StringNullableFilter<"File"> | string | null
   name?: Prisma.StringFilter<"File"> | string
+  normalizedName?: Prisma.StringFilter<"File"> | string
+  directoryKey?: Prisma.StringFilter<"File"> | string
   type?: Prisma.StringFilter<"File"> | string
   liveblocksRoomId?: Prisma.StringNullableFilter<"File"> | string | null
   createdById?: Prisma.StringFilter<"File"> | string
@@ -614,6 +664,8 @@ export type FileScalarWhereInput = {
 export type FileCreateWithoutFolderInput = {
   id?: string
   name: string
+  normalizedName: string
+  directoryKey: string
   type: string
   liveblocksRoomId?: string | null
   createdById: string
@@ -628,6 +680,8 @@ export type FileUncheckedCreateWithoutFolderInput = {
   id?: string
   projectId: string
   name: string
+  normalizedName: string
+  directoryKey: string
   type: string
   liveblocksRoomId?: string | null
   createdById: string
@@ -666,6 +720,8 @@ export type FileUpdateManyWithWhereWithoutFolderInput = {
 export type FileCreateWithoutCanvasInput = {
   id?: string
   name: string
+  normalizedName: string
+  directoryKey: string
   type: string
   liveblocksRoomId?: string | null
   createdById: string
@@ -681,6 +737,8 @@ export type FileUncheckedCreateWithoutCanvasInput = {
   projectId: string
   folderId?: string | null
   name: string
+  normalizedName: string
+  directoryKey: string
   type: string
   liveblocksRoomId?: string | null
   createdById: string
@@ -708,6 +766,8 @@ export type FileUpdateToOneWithWhereWithoutCanvasInput = {
 export type FileUpdateWithoutCanvasInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
+  directoryKey?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   liveblocksRoomId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -723,6 +783,8 @@ export type FileUncheckedUpdateWithoutCanvasInput = {
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   folderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
+  directoryKey?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   liveblocksRoomId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -734,6 +796,8 @@ export type FileUncheckedUpdateWithoutCanvasInput = {
 export type FileCreateWithoutDocumentInput = {
   id?: string
   name: string
+  normalizedName: string
+  directoryKey: string
   type: string
   liveblocksRoomId?: string | null
   createdById: string
@@ -749,6 +813,8 @@ export type FileUncheckedCreateWithoutDocumentInput = {
   projectId: string
   folderId?: string | null
   name: string
+  normalizedName: string
+  directoryKey: string
   type: string
   liveblocksRoomId?: string | null
   createdById: string
@@ -776,6 +842,8 @@ export type FileUpdateToOneWithWhereWithoutDocumentInput = {
 export type FileUpdateWithoutDocumentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
+  directoryKey?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   liveblocksRoomId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -791,6 +859,8 @@ export type FileUncheckedUpdateWithoutDocumentInput = {
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   folderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
+  directoryKey?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   liveblocksRoomId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -803,6 +873,8 @@ export type FileCreateManyProjectInput = {
   id?: string
   folderId?: string | null
   name: string
+  normalizedName: string
+  directoryKey: string
   type: string
   liveblocksRoomId?: string | null
   createdById: string
@@ -813,6 +885,8 @@ export type FileCreateManyProjectInput = {
 export type FileUpdateWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
+  directoryKey?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   liveblocksRoomId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -827,6 +901,8 @@ export type FileUncheckedUpdateWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   folderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
+  directoryKey?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   liveblocksRoomId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -840,6 +916,8 @@ export type FileUncheckedUpdateManyWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   folderId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
+  directoryKey?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   liveblocksRoomId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -851,6 +929,8 @@ export type FileCreateManyFolderInput = {
   id?: string
   projectId: string
   name: string
+  normalizedName: string
+  directoryKey: string
   type: string
   liveblocksRoomId?: string | null
   createdById: string
@@ -861,6 +941,8 @@ export type FileCreateManyFolderInput = {
 export type FileUpdateWithoutFolderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
+  directoryKey?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   liveblocksRoomId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -875,6 +957,8 @@ export type FileUncheckedUpdateWithoutFolderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
+  directoryKey?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   liveblocksRoomId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -888,6 +972,8 @@ export type FileUncheckedUpdateManyWithoutFolderInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  normalizedName?: Prisma.StringFieldUpdateOperationsInput | string
+  directoryKey?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   liveblocksRoomId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdById?: Prisma.StringFieldUpdateOperationsInput | string
@@ -902,6 +988,8 @@ export type FileSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   projectId?: boolean
   folderId?: boolean
   name?: boolean
+  normalizedName?: boolean
+  directoryKey?: boolean
   type?: boolean
   liveblocksRoomId?: boolean
   createdById?: boolean
@@ -918,6 +1006,8 @@ export type FileSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   projectId?: boolean
   folderId?: boolean
   name?: boolean
+  normalizedName?: boolean
+  directoryKey?: boolean
   type?: boolean
   liveblocksRoomId?: boolean
   createdById?: boolean
@@ -932,6 +1022,8 @@ export type FileSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   projectId?: boolean
   folderId?: boolean
   name?: boolean
+  normalizedName?: boolean
+  directoryKey?: boolean
   type?: boolean
   liveblocksRoomId?: boolean
   createdById?: boolean
@@ -946,6 +1038,8 @@ export type FileSelectScalar = {
   projectId?: boolean
   folderId?: boolean
   name?: boolean
+  normalizedName?: boolean
+  directoryKey?: boolean
   type?: boolean
   liveblocksRoomId?: boolean
   createdById?: boolean
@@ -953,7 +1047,7 @@ export type FileSelectScalar = {
   updatedAt?: boolean
 }
 
-export type FileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "projectId" | "folderId" | "name" | "type" | "liveblocksRoomId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["file"]>
+export type FileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "projectId" | "folderId" | "name" | "normalizedName" | "directoryKey" | "type" | "liveblocksRoomId" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["file"]>
 export type FileInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   folder?: boolean | Prisma.File$folderArgs<ExtArgs>
@@ -982,6 +1076,8 @@ export type $FilePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     projectId: string
     folderId: string | null
     name: string
+    normalizedName: string
+    directoryKey: string
     type: string
     liveblocksRoomId: string | null
     createdById: string
@@ -1418,6 +1514,8 @@ export interface FileFieldRefs {
   readonly projectId: Prisma.FieldRef<"File", 'String'>
   readonly folderId: Prisma.FieldRef<"File", 'String'>
   readonly name: Prisma.FieldRef<"File", 'String'>
+  readonly normalizedName: Prisma.FieldRef<"File", 'String'>
+  readonly directoryKey: Prisma.FieldRef<"File", 'String'>
   readonly type: Prisma.FieldRef<"File", 'String'>
   readonly liveblocksRoomId: Prisma.FieldRef<"File", 'String'>
   readonly createdById: Prisma.FieldRef<"File", 'String'>

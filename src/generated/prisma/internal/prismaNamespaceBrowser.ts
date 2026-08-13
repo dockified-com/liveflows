@@ -130,6 +130,8 @@ export const FolderScalarFieldEnum = {
   projectId: 'projectId',
   parentId: 'parentId',
   name: 'name',
+  normalizedName: 'normalizedName',
+  directoryKey: 'directoryKey',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -142,6 +144,8 @@ export const FileScalarFieldEnum = {
   projectId: 'projectId',
   folderId: 'folderId',
   name: 'name',
+  normalizedName: 'normalizedName',
+  directoryKey: 'directoryKey',
   type: 'type',
   liveblocksRoomId: 'liveblocksRoomId',
   createdById: 'createdById',
@@ -175,6 +179,10 @@ export type DocumentSnapshotScalarFieldEnum = (typeof DocumentSnapshotScalarFiel
 export const ProcessedWebhookScalarFieldEnum = {
   id: 'id',
   source: 'source',
+  status: 'status',
+  leaseUntil: 'leaseUntil',
+  attemptCount: 'attemptCount',
+  completedAt: 'completedAt',
   receivedAt: 'receivedAt'
 } as const
 

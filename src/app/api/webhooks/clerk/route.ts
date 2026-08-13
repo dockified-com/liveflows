@@ -7,9 +7,16 @@ import { db } from "@/server/db";
  * Clerk webhook handler — keeps Postgres in sync with Clerk user/org/membership events.
  *
  * Security: every request is verified via `verifyWebhook` (Svix signature check).
- * Idempotency: deduplicated via ProcessedWebhook table keyed on svix-id header.
+ * Idempotency (D44): deduplicated via ProcessedWebhook table keyed on svix-id.
+ *   - status="pending"    → row exists, another instance is processing (lease-based)
+ *   - status="completed"  → already processed successfully; return 200 immediately
+ *   - status="failed"     → previous attempt errored; retry is allowed
+ * Lease columns (leaseUntil, attemptCount, completedAt) are durable across restarts.
  * Roles: stored as opaque strings — never validated against a closed set.
  */
+
+const LEASE_SECONDS = 30;
+
 export async function POST(req: NextRequest) {
   // 1. Verify signature — rejects spoofed requests
   let evt: Awaited<ReturnType<typeof verifyWebhook>>;
@@ -20,19 +27,59 @@ export async function POST(req: NextRequest) {
     return new Response("Bad signature", { status: 400 });
   }
 
-  // 2. Idempotency: deduplicate on svix-id header
+  // 2. Idempotency / lease acquisition (D44)
   const svixId = req.headers.get("svix-id");
   if (!svixId) {
     return new Response("Missing svix-id", { status: 400 });
   }
 
-  try {
-    await db.processedWebhook.create({
-      data: { id: svixId, source: "clerk" },
+  const now = new Date();
+  const leaseUntil = new Date(now.getTime() + LEASE_SECONDS * 1000);
+
+  // Try to insert a "pending" row. If the row already exists and is either
+  // "completed" or still within its lease window, skip processing.
+  const existing = await db.processedWebhook.findUnique({
+    where: { id: svixId },
+    select: { status: true, leaseUntil: true },
+  });
+
+  if (existing) {
+    if (existing.status === "completed") {
+      // Already processed successfully — idempotent no-op
+      return new Response("Already processed", { status: 200 });
+    }
+    if (
+      existing.status === "processing" &&
+      existing.leaseUntil &&
+      existing.leaseUntil > now
+    ) {
+      // Another instance holds the lease — tell Svix to retry later
+      return new Response("Processing in progress", { status: 409 });
+    }
+    // status="failed" or expired lease → take over and retry
+    await db.processedWebhook.update({
+      where: { id: svixId },
+      data: {
+        status: "processing",
+        leaseUntil,
+        attemptCount: { increment: 1 },
+      },
     });
-  } catch {
-    // Unique constraint violation — already processed, skip silently
-    return new Response("Already processed", { status: 200 });
+  } else {
+    try {
+      await db.processedWebhook.create({
+        data: {
+          id: svixId,
+          source: "clerk",
+          status: "processing",
+          leaseUntil,
+          attemptCount: 1,
+        },
+      });
+    } catch {
+      // Race: another replica inserted first — defer to it
+      return new Response("Processing in progress", { status: 409 });
+    }
   }
 
   // 3. Dispatch to handler based on event type
@@ -144,8 +191,25 @@ export async function POST(req: NextRequest) {
     }
   } catch (err) {
     console.error(`Clerk webhook handler error for ${evt.type}:`, err);
+
+    // Mark as failed so the next retry can take over after lease expiry
+    await db.processedWebhook
+      .update({
+        where: { id: svixId },
+        data: { status: "failed", leaseUntil: null },
+      })
+      .catch(() => {}); // best-effort
+
     return new Response("Handler error", { status: 500 });
   }
+
+  // 4. Mark completed
+  await db.processedWebhook
+    .update({
+      where: { id: svixId },
+      data: { status: "completed", leaseUntil: null, completedAt: new Date() },
+    })
+    .catch(() => {}); // best-effort — row may be gone if DB had a transient error
 
   return new Response("OK", { status: 200 });
 }

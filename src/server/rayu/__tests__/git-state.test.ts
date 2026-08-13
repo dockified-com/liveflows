@@ -41,9 +41,10 @@ describe("git-state", () => {
     it("returns hash and status on success", async () => {
       vi.mocked(childProcess.execFile).mockImplementation(
         (cmd, args, options, callback) => {
-          if (args[0] === "rev-parse") {
+          const firstArg = Array.isArray(args) ? args[0] : undefined;
+          if (firstArg === "rev-parse") {
             (callback as any)(null, "abcdef1234567890\n", "");
-          } else if (args[0] === "status") {
+          } else if (firstArg === "status") {
             (callback as any)(null, " M some-file.ts\n", "");
           }
           return {} as any;

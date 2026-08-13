@@ -1,6 +1,6 @@
-import { NextRequest } from "next/server";
-import { verifyPersonalAccessToken } from "@/server/dal/pats";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
+import type { NextRequest } from "next/server";
+import { verifyPersonalAccessToken } from "@/server/dal/pats";
 import { activeTransports, createServer } from "@/server/mcp";
 
 export async function GET(req: NextRequest) {
@@ -18,16 +18,10 @@ export async function GET(req: NextRequest) {
 
   const sessionId = crypto.randomUUID();
 
-  // We need to stream the response as SSE
-  // but `@modelcontextprotocol/sdk` handles it if we pass the `ServerResponse` to it.
-  // Next.js App Router GET handlers need to return a Response object.
-  // SSEServerTransport in `@modelcontextprotocol/sdk` is designed for Express/Connect.
-  // So we have to adapt it or manually create a ReadableStream.
-
   const stream = new ReadableStream({
     start(controller) {
       const adaptedRes = {
-        writeHead(status: number, headers: Record<string, string>) {
+        writeHead(_status: number, _headers: Record<string, string>) {
           // Headers handled in Next.js Response creation
         },
         write(chunk: string) {
@@ -43,10 +37,9 @@ export async function GET(req: NextRequest) {
         },
       };
 
-      // @ts-ignore
       const t = new SSEServerTransport(
         `/api/mcp/message?sessionId=${sessionId}`,
-        adaptedRes,
+        adaptedRes as unknown as import("http").ServerResponse,
       );
 
       const s = createServer(user.id, sessionId);

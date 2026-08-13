@@ -33,7 +33,6 @@ export function Topbar({
 
   return (
     <header
-      aria-label="Topbar"
       className={`flex ${heightClass} items-center justify-between border-b border-[var(--line)] bg-[var(--card)] px-[28px] gap-[14px] shrink-0 select-none`}
     >
       <div className="flex items-center gap-3 min-w-0">
@@ -59,7 +58,7 @@ export function Topbar({
           {breadcrumbs.map((crumb, idx) => {
             const isLast = idx === breadcrumbs.length - 1;
             return (
-              <React.Fragment key={crumb.label + idx}>
+              <React.Fragment key={crumb.href ?? crumb.label}>
                 {idx > 0 && (
                   <span className="text-[var(--ink-faint)] select-none">›</span>
                 )}
@@ -94,10 +93,7 @@ export function Topbar({
       <div className="flex items-center gap-3 shrink-0">
         {/* Presence Avatars */}
         {presence.length > 0 && (
-          <div
-            className="flex -space-x-1.5 items-center mr-1"
-            aria-label="Active collaborators"
-          >
+          <div className="flex -space-x-1.5 items-center mr-1">
             {presence.map((user) => (
               <div
                 key={user.id}

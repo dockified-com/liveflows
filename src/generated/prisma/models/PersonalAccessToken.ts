@@ -403,10 +403,6 @@ export type PersonalAccessTokenUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.PersonalAccessTokenScalarWhereInput | Prisma.PersonalAccessTokenScalarWhereInput[]
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type PersonalAccessTokenCreateWithoutUserInput = {
   id?: string
   name: string

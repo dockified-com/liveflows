@@ -20,45 +20,87 @@ export type ProcessedWebhookModel = runtime.Types.Result.DefaultSelection<Prisma
 
 export type AggregateProcessedWebhook = {
   _count: ProcessedWebhookCountAggregateOutputType | null
+  _avg: ProcessedWebhookAvgAggregateOutputType | null
+  _sum: ProcessedWebhookSumAggregateOutputType | null
   _min: ProcessedWebhookMinAggregateOutputType | null
   _max: ProcessedWebhookMaxAggregateOutputType | null
+}
+
+export type ProcessedWebhookAvgAggregateOutputType = {
+  attemptCount: number | null
+}
+
+export type ProcessedWebhookSumAggregateOutputType = {
+  attemptCount: number | null
 }
 
 export type ProcessedWebhookMinAggregateOutputType = {
   id: string | null
   source: string | null
+  status: string | null
+  leaseUntil: Date | null
+  attemptCount: number | null
+  completedAt: Date | null
   receivedAt: Date | null
 }
 
 export type ProcessedWebhookMaxAggregateOutputType = {
   id: string | null
   source: string | null
+  status: string | null
+  leaseUntil: Date | null
+  attemptCount: number | null
+  completedAt: Date | null
   receivedAt: Date | null
 }
 
 export type ProcessedWebhookCountAggregateOutputType = {
   id: number
   source: number
+  status: number
+  leaseUntil: number
+  attemptCount: number
+  completedAt: number
   receivedAt: number
   _all: number
 }
 
 
+export type ProcessedWebhookAvgAggregateInputType = {
+  attemptCount?: true
+}
+
+export type ProcessedWebhookSumAggregateInputType = {
+  attemptCount?: true
+}
+
 export type ProcessedWebhookMinAggregateInputType = {
   id?: true
   source?: true
+  status?: true
+  leaseUntil?: true
+  attemptCount?: true
+  completedAt?: true
   receivedAt?: true
 }
 
 export type ProcessedWebhookMaxAggregateInputType = {
   id?: true
   source?: true
+  status?: true
+  leaseUntil?: true
+  attemptCount?: true
+  completedAt?: true
   receivedAt?: true
 }
 
 export type ProcessedWebhookCountAggregateInputType = {
   id?: true
   source?: true
+  status?: true
+  leaseUntil?: true
+  attemptCount?: true
+  completedAt?: true
   receivedAt?: true
   _all?: true
 }
@@ -101,6 +143,18 @@ export type ProcessedWebhookAggregateArgs<ExtArgs extends runtime.Types.Extensio
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: ProcessedWebhookAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: ProcessedWebhookSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: ProcessedWebhookMinAggregateInputType
@@ -131,6 +185,8 @@ export type ProcessedWebhookGroupByArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   _count?: ProcessedWebhookCountAggregateInputType | true
+  _avg?: ProcessedWebhookAvgAggregateInputType
+  _sum?: ProcessedWebhookSumAggregateInputType
   _min?: ProcessedWebhookMinAggregateInputType
   _max?: ProcessedWebhookMaxAggregateInputType
 }
@@ -138,8 +194,14 @@ export type ProcessedWebhookGroupByArgs<ExtArgs extends runtime.Types.Extensions
 export type ProcessedWebhookGroupByOutputType = {
   id: string
   source: string
+  status: string
+  leaseUntil: Date | null
+  attemptCount: number
+  completedAt: Date | null
   receivedAt: Date
   _count: ProcessedWebhookCountAggregateOutputType | null
+  _avg: ProcessedWebhookAvgAggregateOutputType | null
+  _sum: ProcessedWebhookSumAggregateOutputType | null
   _min: ProcessedWebhookMinAggregateOutputType | null
   _max: ProcessedWebhookMaxAggregateOutputType | null
 }
@@ -165,12 +227,20 @@ export type ProcessedWebhookWhereInput = {
   NOT?: Prisma.ProcessedWebhookWhereInput | Prisma.ProcessedWebhookWhereInput[]
   id?: Prisma.StringFilter<"ProcessedWebhook"> | string
   source?: Prisma.StringFilter<"ProcessedWebhook"> | string
+  status?: Prisma.StringFilter<"ProcessedWebhook"> | string
+  leaseUntil?: Prisma.DateTimeNullableFilter<"ProcessedWebhook"> | Date | string | null
+  attemptCount?: Prisma.IntFilter<"ProcessedWebhook"> | number
+  completedAt?: Prisma.DateTimeNullableFilter<"ProcessedWebhook"> | Date | string | null
   receivedAt?: Prisma.DateTimeFilter<"ProcessedWebhook"> | Date | string
 }
 
 export type ProcessedWebhookOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   source?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  leaseUntil?: Prisma.SortOrderInput | Prisma.SortOrder
+  attemptCount?: Prisma.SortOrder
+  completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   receivedAt?: Prisma.SortOrder
 }
 
@@ -180,16 +250,26 @@ export type ProcessedWebhookWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.ProcessedWebhookWhereInput[]
   NOT?: Prisma.ProcessedWebhookWhereInput | Prisma.ProcessedWebhookWhereInput[]
   source?: Prisma.StringFilter<"ProcessedWebhook"> | string
+  status?: Prisma.StringFilter<"ProcessedWebhook"> | string
+  leaseUntil?: Prisma.DateTimeNullableFilter<"ProcessedWebhook"> | Date | string | null
+  attemptCount?: Prisma.IntFilter<"ProcessedWebhook"> | number
+  completedAt?: Prisma.DateTimeNullableFilter<"ProcessedWebhook"> | Date | string | null
   receivedAt?: Prisma.DateTimeFilter<"ProcessedWebhook"> | Date | string
 }, "id">
 
 export type ProcessedWebhookOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   source?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  leaseUntil?: Prisma.SortOrderInput | Prisma.SortOrder
+  attemptCount?: Prisma.SortOrder
+  completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   receivedAt?: Prisma.SortOrder
   _count?: Prisma.ProcessedWebhookCountOrderByAggregateInput
+  _avg?: Prisma.ProcessedWebhookAvgOrderByAggregateInput
   _max?: Prisma.ProcessedWebhookMaxOrderByAggregateInput
   _min?: Prisma.ProcessedWebhookMinOrderByAggregateInput
+  _sum?: Prisma.ProcessedWebhookSumOrderByAggregateInput
 }
 
 export type ProcessedWebhookScalarWhereWithAggregatesInput = {
@@ -198,67 +278,123 @@ export type ProcessedWebhookScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ProcessedWebhookScalarWhereWithAggregatesInput | Prisma.ProcessedWebhookScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"ProcessedWebhook"> | string
   source?: Prisma.StringWithAggregatesFilter<"ProcessedWebhook"> | string
+  status?: Prisma.StringWithAggregatesFilter<"ProcessedWebhook"> | string
+  leaseUntil?: Prisma.DateTimeNullableWithAggregatesFilter<"ProcessedWebhook"> | Date | string | null
+  attemptCount?: Prisma.IntWithAggregatesFilter<"ProcessedWebhook"> | number
+  completedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ProcessedWebhook"> | Date | string | null
   receivedAt?: Prisma.DateTimeWithAggregatesFilter<"ProcessedWebhook"> | Date | string
 }
 
 export type ProcessedWebhookCreateInput = {
   id: string
   source: string
+  status?: string
+  leaseUntil?: Date | string | null
+  attemptCount?: number
+  completedAt?: Date | string | null
   receivedAt?: Date | string
 }
 
 export type ProcessedWebhookUncheckedCreateInput = {
   id: string
   source: string
+  status?: string
+  leaseUntil?: Date | string | null
+  attemptCount?: number
+  completedAt?: Date | string | null
   receivedAt?: Date | string
 }
 
 export type ProcessedWebhookUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  leaseUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProcessedWebhookUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  leaseUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProcessedWebhookCreateManyInput = {
   id: string
   source: string
+  status?: string
+  leaseUntil?: Date | string | null
+  attemptCount?: number
+  completedAt?: Date | string | null
   receivedAt?: Date | string
 }
 
 export type ProcessedWebhookUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  leaseUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProcessedWebhookUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  leaseUntil?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  attemptCount?: Prisma.IntFieldUpdateOperationsInput | number
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   receivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ProcessedWebhookCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   source?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  leaseUntil?: Prisma.SortOrder
+  attemptCount?: Prisma.SortOrder
+  completedAt?: Prisma.SortOrder
   receivedAt?: Prisma.SortOrder
+}
+
+export type ProcessedWebhookAvgOrderByAggregateInput = {
+  attemptCount?: Prisma.SortOrder
 }
 
 export type ProcessedWebhookMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   source?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  leaseUntil?: Prisma.SortOrder
+  attemptCount?: Prisma.SortOrder
+  completedAt?: Prisma.SortOrder
   receivedAt?: Prisma.SortOrder
 }
 
 export type ProcessedWebhookMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   source?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  leaseUntil?: Prisma.SortOrder
+  attemptCount?: Prisma.SortOrder
+  completedAt?: Prisma.SortOrder
   receivedAt?: Prisma.SortOrder
+}
+
+export type ProcessedWebhookSumOrderByAggregateInput = {
+  attemptCount?: Prisma.SortOrder
+}
+
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
 }
 
 
@@ -266,28 +402,44 @@ export type ProcessedWebhookMinOrderByAggregateInput = {
 export type ProcessedWebhookSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   source?: boolean
+  status?: boolean
+  leaseUntil?: boolean
+  attemptCount?: boolean
+  completedAt?: boolean
   receivedAt?: boolean
 }, ExtArgs["result"]["processedWebhook"]>
 
 export type ProcessedWebhookSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   source?: boolean
+  status?: boolean
+  leaseUntil?: boolean
+  attemptCount?: boolean
+  completedAt?: boolean
   receivedAt?: boolean
 }, ExtArgs["result"]["processedWebhook"]>
 
 export type ProcessedWebhookSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   source?: boolean
+  status?: boolean
+  leaseUntil?: boolean
+  attemptCount?: boolean
+  completedAt?: boolean
   receivedAt?: boolean
 }, ExtArgs["result"]["processedWebhook"]>
 
 export type ProcessedWebhookSelectScalar = {
   id?: boolean
   source?: boolean
+  status?: boolean
+  leaseUntil?: boolean
+  attemptCount?: boolean
+  completedAt?: boolean
   receivedAt?: boolean
 }
 
-export type ProcessedWebhookOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "source" | "receivedAt", ExtArgs["result"]["processedWebhook"]>
+export type ProcessedWebhookOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "source" | "status" | "leaseUntil" | "attemptCount" | "completedAt" | "receivedAt", ExtArgs["result"]["processedWebhook"]>
 
 export type $ProcessedWebhookPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ProcessedWebhook"
@@ -295,6 +447,10 @@ export type $ProcessedWebhookPayload<ExtArgs extends runtime.Types.Extensions.In
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     source: string
+    status: string
+    leaseUntil: Date | null
+    attemptCount: number
+    completedAt: Date | null
     receivedAt: Date
   }, ExtArgs["result"]["processedWebhook"]>
   composites: {}
@@ -721,6 +877,10 @@ export interface Prisma__ProcessedWebhookClient<T, Null = never, ExtArgs extends
 export interface ProcessedWebhookFieldRefs {
   readonly id: Prisma.FieldRef<"ProcessedWebhook", 'String'>
   readonly source: Prisma.FieldRef<"ProcessedWebhook", 'String'>
+  readonly status: Prisma.FieldRef<"ProcessedWebhook", 'String'>
+  readonly leaseUntil: Prisma.FieldRef<"ProcessedWebhook", 'DateTime'>
+  readonly attemptCount: Prisma.FieldRef<"ProcessedWebhook", 'Int'>
+  readonly completedAt: Prisma.FieldRef<"ProcessedWebhook", 'DateTime'>
   readonly receivedAt: Prisma.FieldRef<"ProcessedWebhook", 'DateTime'>
 }
     

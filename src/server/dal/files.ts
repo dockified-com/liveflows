@@ -14,6 +14,11 @@ export type FileDetail = {
   updatedAt: Date;
 };
 
+/** Build the D37 directoryKey for a file: "<projectId>:<folderId|ROOT>" */
+function fileDirectoryKey(projectId: string, folderId: string | null): string {
+  return `${projectId}:${folderId ?? "ROOT"}`;
+}
+
 export async function createFile(
   workspaceSlug: string,
   projectId: string,
@@ -28,31 +33,32 @@ export async function createFile(
     notFound();
   }
 
-  // Ensure project exists in workspace
   const project = await db.project.findFirst({
     where: { id: projectId, workspaceId: workspace.id },
   });
+  if (!project) notFound();
 
-  if (!project) {
-    notFound();
-  }
+  const normalizedName = name.trim().toLowerCase();
+  const directoryKey = fileDirectoryKey(projectId, folderId);
 
-  // Ensure unique name
+  // D37: unique check via normalizedName — DB constraint will also enforce
   const existing = await db.file.findFirst({
-    where: { projectId, folderId, name },
+    where: { directoryKey, normalizedName },
   });
   if (existing) {
-    throw new Error("File with this name already exists in this location");
+    throw new Error("A file with this name already exists in this location");
   }
 
   const file = await db.file.create({
     data: {
       projectId,
       folderId,
-      name,
+      name: name.trim(),
+      normalizedName,
+      directoryKey,
       type,
       createdById: userId,
-      liveblocksRoomId: type === "canvas" ? "" : null, // placeholder if canvas
+      liveblocksRoomId: type === "canvas" ? "" : null,
     },
     select: {
       id: true,
@@ -74,15 +80,6 @@ export async function createFile(
       clerkOrgId: orgId,
       type,
     });
-
-    // We provision Liveblocks room for BOTH canvas and document (Tiptap).
-    // The spec says: "creating a document file provisions a Liveblocks Tiptap document... reused for the Tiptap document rather than a second identifier"
-    // And "A File.liveblocksRoomId is present if and only if type is canvas." - Wait!
-    // The spec says:
-    // `liveblocksRoomId` (unique, nullable, set only when `type` is `canvas`)
-    // Ah, wait. For document, does it use liveblocksRoomId?
-    // Let me re-read the spec.
-    const liveblocksRoomIdToSave = type === "canvas" ? roomId : null;
 
     if (type === "canvas") {
       const updated = await db.file.update({
@@ -118,25 +115,24 @@ export async function renameFile(
   const file = await db.file.findFirst({
     where: { id: fileId, project: { workspaceId: workspace.id } },
   });
+  if (!file) notFound();
 
-  if (!file) {
-    notFound();
-  }
-
+  const normalizedName = newName.trim().toLowerCase();
+  // directoryKey stays the same (folder didn't change)
   const existing = await db.file.findFirst({
     where: {
-      projectId: file.projectId,
-      folderId: file.folderId,
-      name: newName,
+      directoryKey: file.directoryKey,
+      normalizedName,
+      NOT: { id: fileId },
     },
   });
   if (existing) {
-    throw new Error("File with this name already exists in this location");
+    throw new Error("A file with this name already exists in this location");
   }
 
   return db.file.update({
     where: { id: fileId },
-    data: { name: newName },
+    data: { name: newName.trim(), normalizedName },
     select: {
       id: true,
       projectId: true,
@@ -159,10 +155,7 @@ export async function moveFile(
   const file = await db.file.findFirst({
     where: { id: fileId, project: { workspaceId: workspace.id } },
   });
-
-  if (!file) {
-    notFound();
-  }
+  if (!file) notFound();
 
   if (newFolderId) {
     const destFolder = await db.folder.findFirst({
@@ -171,20 +164,21 @@ export async function moveFile(
     if (!destFolder) notFound();
   }
 
+  const newDirectoryKey = fileDirectoryKey(file.projectId, newFolderId);
   const existing = await db.file.findFirst({
     where: {
-      projectId: file.projectId,
-      folderId: newFolderId,
-      name: file.name,
+      directoryKey: newDirectoryKey,
+      normalizedName: file.normalizedName,
+      NOT: { id: fileId },
     },
   });
   if (existing) {
-    throw new Error("File with this name already exists in this location");
+    throw new Error("A file with this name already exists in the destination");
   }
 
   return db.file.update({
     where: { id: fileId },
-    data: { folderId: newFolderId },
+    data: { folderId: newFolderId, directoryKey: newDirectoryKey },
     select: {
       id: true,
       projectId: true,
@@ -206,13 +200,8 @@ export async function deleteFile(
   const file = await db.file.findFirst({
     where: { id: fileId, project: { workspaceId: workspace.id } },
   });
+  if (!file) notFound();
 
-  if (!file) {
-    notFound();
-  }
-
-  // Both canvas and document have rooms/documents to decommission
-  // The room id convention is `file_${fileId}`
   try {
     await decommissionRoom(roomIdForFile(file.id));
   } catch (error) {
@@ -228,7 +217,7 @@ export type FileWithSnapshot = {
   type: string;
   updatedAt: Date;
   liveblocksRoomId: string;
-  snapshotElements: unknown[]; // CanvasSnapshot.elements — may be [] if never synced
+  snapshotElements: unknown[];
 };
 
 export async function getFileWithSnapshot(
@@ -252,11 +241,11 @@ export async function getFileWithSnapshot(
     },
   });
 
-  if (!file) {
-    notFound();
-  }
+  if (!file) notFound();
 
-  const roomId = file.liveblocksRoomId || `file_${file.id}`;
+  // D14: always use the DAL-stored roomId; fall back to the convention only if
+  // liveblocksRoomId was not yet written (race between file creation and room provision)
+  const roomId = file.liveblocksRoomId || roomIdForFile(file.id);
 
   return {
     id: file.id,

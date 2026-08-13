@@ -57,7 +57,7 @@ describe("Configuration module", () => {
         ),
         maxContextBytes: fc.integer({ min: 1024, max: 1048576 }),
       },
-      { withDeletedKeys: true },
+      { withDeletedKeys: true } as any,
     );
 
     it("accepts all valid configs", async () => {
@@ -225,7 +225,7 @@ describe("Configuration module", () => {
           )
           .map((arr) => arr.join(",")),
       },
-      { withDeletedKeys: true },
+      { withDeletedKeys: true } as any,
     );
 
     it("resolves config using env values where present, file values where not", async () => {
