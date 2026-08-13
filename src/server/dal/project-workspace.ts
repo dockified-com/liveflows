@@ -13,6 +13,7 @@ export type WorkspaceProjectMetadata = {
     name: string;
     type: string;
     folderId: string | null;
+    liveblocksRoomId: string | null;
     updatedAt: Date;
   }[];
   folders: {
@@ -51,6 +52,7 @@ export async function getProjectWorkspace(
         name: true,
         type: true,
         folderId: true,
+        liveblocksRoomId: true,
         updatedAt: true,
       },
       orderBy: { name: "asc" },

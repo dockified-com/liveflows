@@ -24,8 +24,7 @@ function InnerDocumentEditor({ readOnly = false }: { readOnly?: boolean }) {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        undo: false,
-        redo: false,
+        history: false,
       }),
       liveblocks,
     ],
