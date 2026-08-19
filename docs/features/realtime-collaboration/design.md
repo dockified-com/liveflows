@@ -7,7 +7,7 @@
 
 > This document scopes the migration and records the open questions. It is not a
 > decided design. Those questions need answers before implementation starts, and
-> answering them is the job of a dedicated spec in `docs/superpowers/specs/`.
+> answering them is the job of a dedicated spec in `docs/specs/`.
 
 ## Locked-stack override
 
@@ -77,7 +77,9 @@ Hocuspocus server  ── persistent process, NOT serverless
 
 **Data migration.** Existing room contents move from Liveblocks Storage into Yjs documents. `CanvasSnapshot` gives a Postgres fallback source for canvases. **Documents have no mirror — their only copy is in Liveblocks.**
 
-**Outage fallback.** `docs/specs/0003-liveblocks-outage-fallback.md` describes rendering read-only from `CanvasSnapshot` with a banner. Self-hosting changes the failure mode: the outage is now ours to cause and ours to fix. That spec needs revisiting.
+**Outage fallback.** The shipped behavior (from a now-retired spec, preserved here since the code still does this): `canvas-room.tsx` watches Liveblocks `useStatus`, and on a failed or prolonged-connecting socket it renders a plain Excalidraw fed by the server-fetched `CanvasSnapshot` with `viewModeEnabled={true}` plus a read-only banner. Fallback data can be up to 60s stale, which was acceptable during a vendor outage.
+
+Self-hosting changes the failure mode: the outage is now ours to cause and ours to fix, and `useStatus` disappears with the Liveblocks SDK. The Hocuspocus provider exposes its own connection status; this needs redesigning against it, and the staleness window changes with the new `onStoreDocument` debounce.
 
 ## Schema impact
 
@@ -127,7 +129,7 @@ prisma/schema.prisma                            roomId rename, possible Yjs blob
 e2e/canvas-visual.spec.ts                       verify against new sync
 package.json                                    remove 4 @liveblocks/*, add yjs stack
 AGENTS.md                                       stack table override
-docs/specs/0003-liveblocks-outage-fallback.md   revisit for self-hosted failure modes
+src/features/canvas/canvas-room.tsx             outage fallback: useStatus -> Hocuspocus status
 ```
 
 ## Before the Liveblocks account is cancelled

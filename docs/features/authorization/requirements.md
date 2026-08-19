@@ -2,7 +2,7 @@
 
 **Status**: Approved, not yet built
 **Design**: [design.md](./design.md)
-**Full spec**: [`docs/superpowers/specs/2026-08-19-authorization-design.md`](../../superpowers/specs/2026-08-19-authorization-design.md)
+**Full spec**: [`docs/specs/0005-authorization.md`](../../specs/0005-authorization.md)
 
 ## The problem
 

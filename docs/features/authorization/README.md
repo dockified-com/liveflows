@@ -10,7 +10,7 @@ identically by the web app, the realtime layer, and MCP.
 |---|---|
 | [requirements.md](./requirements.md) | What changes for users, in plain language. No code. |
 | [design.md](./design.md) | Schema, modules, invariants, build phases. For implementing it. |
-| [Full spec](../../superpowers/specs/2026-08-19-authorization-design.md) | Acceptance criteria, options considered, and why each decision went the way it did. |
+| [Full spec](../../specs/0005-authorization.md) | Acceptance criteria, options considered, and why each decision went the way it did. |
 
 ## The model in one screen
 

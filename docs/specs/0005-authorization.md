@@ -3,6 +3,7 @@
 **Status**: Approved
 **Date**: 2026-08-19
 **Scope**: Organization, workspace, project, folder, file, frontend, backend, realtime, and MCP authorization
+**Feature docs**: [`docs/features/authorization/`](../features/authorization/README.md)
 
 ## Summary
 
