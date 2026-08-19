@@ -134,7 +134,7 @@ Roles stay `String`, not a Prisma enum. The schema has no enums, and the Clerk w
 
 ### Permission model
 
-Fourteen permissions, defined once in `src/server/authz/permissions.ts`:
+Thirteen permissions, defined once in `src/server/authz/permissions.ts`:
 
 ```ts
 type ProjectPermission =

@@ -77,7 +77,7 @@ model ProjectMember {
 
 ## Permission model
 
-Fourteen permissions, one frozen definition in `src/server/authz/permissions.ts`:
+Thirteen permissions, one frozen definition in `src/server/authz/permissions.ts`:
 
 ```ts
 type ProjectPermission =
