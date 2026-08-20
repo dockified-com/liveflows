@@ -159,7 +159,9 @@ What each surface is built on instead:
 
 **Their MIT source stays a reading reference.** Worth reading before writing the block handle and the copy-block-link action — the two non-obvious surfaces.
 
-**Accessibility is ours as a direct consequence.** Popovers and dropdowns need focus management, roving tabindex, and correct ARIA. `ui/modal-dialog.tsx` sets the focus-trap pattern and `ui-primitives.test.tsx` sets the test idiom, but a popover is not a dialog. Every menu surface gets an a11y test beside its behavior test.
+**Accessibility is ours as a direct consequence**, with less of a head start than elsewhere in the repo. `ui/modal-dialog.tsx` handles Escape, `aria-modal`, and labelling but implements **no focus trap** — no initial focus, no focus restore on close. The usable references are `file-tree.tsx:135` and `tab-bar.tsx:165`, which do roving tabindex via a ref map plus `.focus()`.
+
+Each menu surface therefore needs, written from scratch: initial focus on open, arrow-key navigation, Escape returning focus to the trigger, click-outside dismiss, and `aria-expanded` / `aria-controls` on the trigger. Every menu surface gets an a11y test beside its behavior test, following `ui-primitives.test.tsx` and `components/__tests__/a11y.test.tsx`.
 
 ### The `posAtCoords` bridge
 
