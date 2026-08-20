@@ -37,17 +37,21 @@ and **no other file changes**.
 
 ## Three things to know before touching this
 
-- **No paid Tiptap dependencies**, verified not assumed. `extension-unique-id`,
-  `extension-mathematics`, and `extension-drag-handle-react` are all in the free
-  namespace. Comments, Content AI, and DOCX conversion are paid and excluded —
-  which maps exactly onto the features this spec defers anyway.
+- **No paid Tiptap dependencies**, verified not assumed. `extension-unique-id`
+  and `extension-mathematics` are in the free namespace. Comments, Content AI,
+  and DOCX conversion are paid and excluded — which maps exactly onto the
+  features this spec defers anyway. Paying for Tiptap Team plus Tracked Changes
+  would be ~$398/mo, the same category of recurring cost that removed the
+  previous realtime vendor.
 - **The linked Notion-like template is paid.** Its own page says so, and names
   the AI assistant, advanced color palettes, and context menus as paid-only. It
   is a **UX reference**, not something we adopt.
-- **Tiptap's MIT UI components target React 18 / Next 15**, while LiveFlows is
-  locked to React 19.2.8 / Next 16.3.0 with React Compiler on. They are copied
-  source rather than an npm dependency, so breakage is ours to fix — but
-  **phase 0 is a compatibility spike** to measure it before planning around it.
+- **Every UI surface is ours.** No Tiptap UI Component is installed. Adoption was
+  the initial plan and was reversed: their components ship `.scss` into a repo
+  with no Sass toolchain, carry a parallel `--tt-*` token vocabulary, and bring
+  competing primitives and icons — while the things adoption would save are
+  already built here (`@dnd-kit` drives drag on five surfaces, and
+  `src/components/ui/` has the primitives with an a11y suite).
 
 ## Two invariants that fail silently
 

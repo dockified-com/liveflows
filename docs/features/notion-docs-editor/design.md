@@ -120,7 +120,7 @@ Verified rather than assumed, because §35 of the brief makes it a hard constrai
 |---|---|---|
 | Stable block IDs | `@tiptap/extension-unique-id` | Free |
 | Math | `@tiptap/extension-mathematics` + `katex` | Free |
-| Drag handles | `@tiptap/extension-drag-handle-react` | Free |
+| Drag handles | `@tiptap/extension-drag-handle-react` | Free — **not used**, see below |
 | Comments, Content AI, DOCX conversion | `@tiptap-pro/*` | **Paid — excluded** |
 
 In Tiptap v3 several extensions moved from `@tiptap-pro/` to the free `@tiptap/` namespace. The still-paid set maps exactly onto what this spec defers anyway.
@@ -129,24 +129,55 @@ In Tiptap v3 several extensions moved from `@tiptap-pro/` to the free `@tiptap/`
 
 ## UX layer sourcing
 
-Tiptap UI Components are MIT where the underlying extension is open source. They are **not an npm package** — `npx @tiptap/cli@latest add <component>` copies source into the repo, which we then own and edit.
+**Every UI surface is a LiveFlows component. No Tiptap UI Component is installed and `npx @tiptap/cli add` is never run.**
 
-**The risk:** their docs say the components *"work best with React 18 (and corresponding framework versions like Next.js 15)."* LiveFlows is locked to React 19.2.8 / Next 16.3.0 with React Compiler on. Compatibility is unknown per component.
+Tiptap UI Components are MIT where the underlying extension is open source, and are copied source rather than an npm package. Adoption was the initial plan and was reversed after inspecting this repository. Three costs are certain and one is merely unmeasured:
 
-**The approach:** install per component into a scratch branch, keep what survives React 19, restyle to `DESIGN.md` tokens either way, build our own where it breaks or is paid. Because the code lives in our repo, a broken component is ours to fix rather than a dependency to fight. **Phase 0 is a compatibility spike** so breakage is measured before phases 3–5 are planned around it.
-
-| Adopt-first (MIT) | Build ours |
+| Cost | Certainty |
 |---|---|
-| blockquote button, code-block button | drag context menu (paid) |
-| color-highlight-popover, color-text-popover | slash command menu |
-| duplicate-button, delete-node-button | table of contents view |
-| **copy-anchor-link-button** | find bar |
-| emoji-dropdown-menu, emoji-trigger-button | table controls |
-| Button / DropdownMenu / Popover primitives | |
+| Components ship `.scss`; this repo has **zero `.scss` files and no Sass toolchain** | Certain |
+| Components carry a parallel `--tt-*` token vocabulary; `DESIGN.md` mandates `--ink` / `--accent` / `--line` and forbids raw hex in JSX | Certain |
+| Each component pulls in its own primitives, hooks, and icons, competing with `src/components/ui/` and `icon.tsx` | Certain |
+| Their docs target React 18 / Next 15; this repo is React 19.2.8 / Next 16.3.0 with React Compiler on | Unmeasured |
 
-`copy-anchor-link-button` is the direct consumer of `UniqueID` — it produces the stable fragment that must survive edits elsewhere in the document.
+React 19 was the original concern and is the *weakest* of the four. The styling and file-volume costs apply regardless of whether anything compiles.
 
-Note their components ship neutral styling while `DESIGN.md` mandates a Light SaaS token set and **forbids raw hex in JSX**. Every adopted component needs restyling regardless of whether it compiles.
+The decisive point: **what adoption would save is already built here.** `@dnd-kit` drives drag on five surfaces (`file-tree`, `tab-bar`, `dnd-coordinator`, `file-tree-dnd-context`, `project-workspace-view`), and `src/components/ui/` provides `button`, `input`, `modal-dialog`, `icon`, `status-pill` with an a11y test suite alongside. Adopting would import foreign solutions to problems this repo does not have.
+
+What each surface is built on instead:
+
+| Surface | Foundation |
+|---|---|
+| Bubble toolbar | Tiptap `BubbleMenu` positioning + `ui/button.tsx` |
+| Slash menu | Tiptap `Suggestion` trigger + own dropdown |
+| Block handle + menu | `@dnd-kit` + `posAtCoords` bridge (below) |
+| Color / highlight pickers | Own popover on `ui/button.tsx` + design tokens |
+| Emoji picker | `@tiptap/extension-emoji` data + own `Suggestion` UI |
+| Table controls | Own overlay on `@tiptap/extension-table` commands |
+| Copy block link | Own action reading the `UniqueID` attribute |
+| Find bar | Own ProseMirror decoration plugin |
+
+**Their MIT source stays a reading reference.** Worth reading before writing the block handle and the copy-block-link action — the two non-obvious surfaces.
+
+**Accessibility is ours as a direct consequence.** Popovers and dropdowns need focus management, roving tabindex, and correct ARIA. `ui/modal-dialog.tsx` sets the focus-trap pattern and `ui-primitives.test.tsx` sets the test idiom, but a popover is not a dialog. Every menu surface gets an a11y test beside its behavior test.
+
+### The `posAtCoords` bridge
+
+Choosing `@dnd-kit` over `@tiptap/extension-drag-handle-react` opens one real gap, named here rather than found mid-implementation.
+
+`@dnd-kit` understands DOM elements and pointer coordinates. It has no concept of a ProseMirror node or document position — which is most of what the Tiptap drag-handle extension provides.
+
+Block drag therefore needs a small bridge:
+
+```ts
+// ui/block-handle/pos-at-coords.ts
+function blockAtCoords(view: EditorView, coords: { x: number; y: number }):
+  { pos: number; node: Node; domEl: HTMLElement } | null;
+```
+
+It calls `view.posAtCoords`, walks up to the nearest block-level ancestor, and returns the position plus the DOM element `@dnd-kit` needs as a drag source. Reordering then issues a ProseMirror transaction — delete at source, insert at target — rather than mutating the DOM.
+
+Half a day, with two edge cases to handle explicitly: coordinates landing in the gap between blocks, and nested structures where the nearest block sits inside a table cell or list item (the outer block is the drag unit, not the inner one).
 
 ### Taken from the reference template
 
@@ -241,30 +272,31 @@ Repo split is load-bearing: `*.test.ts` → Vitest, `*.spec.ts` → Playwright (
 
 | Phase | Contents |
 |---|---|
-| 0 | React 19 compatibility spike — install 3–4 representative MIT components, record breakage |
+| 0 | Reference read (~2h) — read their MIT source for the block handle and copy-anchor-link patterns. No installs, no scratch branch, nothing written from it. |
 | 1 | Provider seam, extension assembly, `history` guard, UniqueID |
 | 2 | Formatting marks, config-driven toolbar, 13 block types incl. callout |
 | 3 | Pure logic modules; slash menu; bubble toolbar |
-| 4 | Block handle, menu, drag reorder, copy block link |
+| 4 | `posAtCoords` bridge, block handle, menu, drag reorder, copy block link |
 | 5 | Tables with controls; code + lowlight; math + KaTeX; links; emoji |
 | 6 | Markdown verification, paste rules, TOC block, find bar |
 | 7 | Autosave status, responsive toolbar, theme audit, dependency audit |
 
-Phase 0 gates the sourcing decisions in phases 3–5.
+Phase 0 is a read, not a spike. It gates nothing and can be skipped without blocking any phase — it exists only because the block handle and copy-block-link are the two non-obvious surfaces, and reading a working implementation is cheaper than rediscovering its edge cases.
 
 ## Consequences
 
 - The editor keeps its cancelled provider until the migration lands. Acceptable because the seam confines it — but the account must stay live until then.
-- Adopted MIT components are copied source under our maintenance. No upstream fixes. That is the tradeoff that makes the React 19 risk survivable.
+- Every UI surface is ours to maintain, including popover and dropdown accessibility. No upstream fixes arrive — but equally no foreign code, no Sass, no second token vocabulary.
 - `document-editor.tsx` is substantially restructured; `src/features/project-workspace/editor-pane-router.test.tsx` may need updating.
-- **`@tiptap/extension-drag-handle-react` lists `@tiptap/extension-collaboration`, `@tiptap/y-tiptap`, `yjs`, and `y-protocols` as peers.** The Yjs packages install during this spec and sit unused beside the current provider. Deliberate, not a surprise during migration.
+- Block drag needs the `posAtCoords` bridge between `@dnd-kit` and ProseMirror positions. Half a day, two named edge cases.
+- **No Yjs packages enter this spec.** Declining `@tiptap/extension-drag-handle-react` also declines its `@tiptap/extension-collaboration`, `@tiptap/y-tiptap`, `yjs`, and `y-protocols` peers, so those arrive with the migration that needs them.
 - `DocumentSnapshot` stays empty.
 - No image support. A real gap, deferred because object storage is an infrastructure decision rather than an editor feature.
-- Roughly 18 new direct dependencies plus 4 transitive Yjs peers, all free. Note
+- Roughly 14 new direct dependencies, all free, no transitive Yjs. Note
   `extension-color` and `extension-text-style` are **already installed** but
-  unwired, and Tiptap v3 may split the table extension into separate
-  row/cell/header packages — confirm the exact set at install rather than
-  trusting a written list.
+  unwired, `@dnd-kit` is already present, and Tiptap v3 may split the table
+  extension into separate row/cell/header packages — confirm the exact set at
+  install rather than trusting a written list.
 
 ## Deferred
 

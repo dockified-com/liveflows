@@ -53,9 +53,11 @@ Each of these is a real feature that needs its own planning:
 
 Tiptap — the editor engine — has a free open-source core and a paid tier. Everything in this release uses only the free parts. That's deliberate: LiveFlows is commercial and has to stay self-hostable without paying for editor infrastructure.
 
-There's a real tradeoff in that. Tiptap sells a ready-made Notion-style template that would be faster to adopt, and it's paid. Some of its pieces — the AI assistant, the advanced color palettes, the right-click menu — are paid-only. We're building those ourselves.
+There's a real tradeoff in that. Tiptap sells a ready-made Notion-style template that would be faster to adopt, and it's paid. Some of its pieces — the AI assistant, the advanced color palettes, the right-click menu — are paid-only. Buying the plan that includes the template, plus the add-on that handles suggested changes, would run about $398 a month. That's the same kind of recurring bill we just removed by dropping our previous realtime vendor, so we're not adding it back for the editor.
 
-Tiptap also publishes free, MIT-licensed UI pieces we can copy into our codebase and edit. We'll use those where they work. The catch: their documentation says those components target an older React version than LiveFlows runs. So the first task is measuring what actually breaks before planning around them. Where they don't work, we build our own.
+Tiptap also publishes free UI pieces we could copy into our codebase. We looked, and we're not using them. They arrive with their own styling system, their own colour variables, and their own icons — none of which match the LiveFlows design system, so every piece would need rewriting anyway. More to the point, the work they'd save us is work already done: LiveFlows already has its own buttons, dialogs, icons, and a drag-and-drop system running in five places. We'd be importing someone else's answers to questions we've already answered.
+
+So every part of the editor's interface is ours. That's slower up front, and it means the fiddly details — menus that close when they should, keyboard navigation, screen-reader labels — are our responsibility to get right. We think that's the better trade for something this central to the product.
 
 ## How we will know it works
 
