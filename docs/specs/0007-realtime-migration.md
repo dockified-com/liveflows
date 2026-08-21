@@ -177,8 +177,9 @@ Clerk backend token verification.
 ## Requirements
 
 - **AC-1**: A script exports every Liveblocks Tiptap document into
-  `DocumentSnapshot.content` as ProseMirror JSON, reports per-file success, and is
-  idempotent.
+  `DocumentSnapshot`, writing both `yjsUpdate` (via
+  `getYjsDocumentAsBinaryUpdate`, lossless) and `content` (ProseMirror JSON,
+  readable). It reports per-file success and is idempotent.
 - **AC-2**: Export completeness is verifiable: every `File` of type `document` has a
   non-empty `DocumentSnapshot` row, or is explicitly reported as empty-by-design.
 - **AC-3**: A Hocuspocus server runs as a Compose service, reachable by the app over
@@ -195,7 +196,9 @@ Clerk backend token verification.
 - **AC-10**: `onStoreDocument` writes `CanvasSnapshot` for canvases and
   `DocumentSnapshot` for documents, debounced.
 - **AC-11**: A Yjs document absent from server memory is seeded from its Postgres
-  snapshot on first connection.
+  snapshot on first connection — from `DocumentSnapshot.yjsUpdate` for documents
+  (applied as a binary update, lossless) and from `CanvasSnapshot.elements` for
+  canvases.
 - **AC-12**: Presence carries user name, avatar, and a per-user color.
 - **AC-13**: MCP `draw_elements` writes through the Yjs document, not a Liveblocks
   REST call.
@@ -251,9 +254,11 @@ collab-server/
 ```
 
 Sharing `src/server/authz/` and the generated Prisma client across two packages is a
-real constraint. Simplest viable approach: a pnpm workspace, with the collab server
-importing from the app package. Confirm the exact wiring at implementation time —
-this is the most likely place to hit friction.
+real constraint. **`pnpm-workspace.yaml` already exists** — it currently holds only
+`allowBuilds` and `minimumReleaseAgeExclude`, with no `packages:` field. Adding
+`packages: ['.', 'collab-server']` turns it into a real workspace without creating
+new tooling. Confirm the exact wiring at implementation time; this is the most likely
+place to hit friction.
 
 ### Authentication and authorization
 
@@ -392,9 +397,28 @@ useful later. The Yjs document name is `file.id`.
 
 `CanvasSnapshot` and `DocumentSnapshot` keep their shape; only the writer changes.
 
-Adding a Yjs update-blob column was considered and **rejected for now**: seeding from
-JSON is sufficient, and a blob column adds a second source of truth to keep
-consistent. Revisit if seeding proves lossy for documents with complex marks.
+**`DocumentSnapshot` gains a Yjs update column:**
+
+```prisma
+model DocumentSnapshot {
+  fileId    String   @id
+  content   Json     @default("{}")   // ProseMirror JSON — readable, for MCP and search
+  yjsUpdate  Bytes?                    // native Yjs update — lossless, for seeding
+  syncedAt  DateTime @default(now())
+}
+```
+
+This reverses an earlier judgement. `@liveblocks/node` exposes
+`getYjsDocumentAsBinaryUpdate`, which means `@liveblocks/react-tiptap` already stores
+documents **as Yjs documents** — so document migration is Yjs → Yjs, not a
+conversion. Applying a binary update into a fresh `Y.Doc` is lossless; reconstructing
+one from ProseMirror JSON is not, because it discards the CRDT's internal history and
+client-id structure.
+
+Both columns are written: `content` because MCP tools, search, and outage fallback
+need readable JSON, and `yjsUpdate` because seeding a document must be exact. For
+canvases only `CanvasSnapshot` is needed — Excalidraw elements are plain data and
+`element-sync.ts` reconciles them deterministically.
 
 ### Environment
 
@@ -451,8 +475,10 @@ Phase 0 is not optional and does not depend on any other phase. Run it first.
   serverless.
 - **Single instance only.** Horizontal scaling needs `@hocuspocus/extension-redis`.
   Note `src/server/mcp.ts:10-11` already imposes this constraint.
-- **A pnpm workspace is introduced** so two packages can share Prisma and authz code.
-  Most likely source of implementation friction.
+- **`pnpm-workspace.yaml` gains a `packages:` field** so two packages can share Prisma
+  and authz code. The file already exists (holding `allowBuilds` and
+  `minimumReleaseAgeExclude`), so this is an addition rather than new tooling — but
+  still the most likely source of implementation friction.
 - **`element-sync.ts` survives**, contrary to the earlier feature-doc assumption that
   a CRDT would retire it. `Y.Map` gives per-key LWW, and Excalidraw's own semantics
   still need applying on top. This is a smaller migration than first scoped.
