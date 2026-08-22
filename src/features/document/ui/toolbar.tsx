@@ -1,12 +1,13 @@
 "use client";
 
 import type { Editor } from "@tiptap/react";
-import React from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 import { TOOLBAR_BUTTONS, type ToolbarButton } from "./toolbar-buttons";
+import { useToolbarOverflow } from "./use-toolbar-overflow";
 
-const glyphPaths: Record<ToolbarButton["glyph"], React.ReactNode> = {
+const glyphPaths: Record<ToolbarButton["glyph"] | "more", React.ReactNode> = {
   bold: (
     <>
       <path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
@@ -120,6 +121,13 @@ const glyphPaths: Record<ToolbarButton["glyph"], React.ReactNode> = {
       <line x1="6" y1="18" x2="20" y2="18" />
     </>
   ),
+  more: (
+    <>
+      <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="6" cy="12" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="18" cy="12" r="1.5" fill="currentColor" stroke="none" />
+    </>
+  ),
 };
 
 function isButtonActive(editor: Editor, btn: ToolbarButton): boolean {
@@ -133,14 +141,109 @@ function isButtonActive(editor: Editor, btn: ToolbarButton): boolean {
 }
 
 export function Toolbar({ editor }: { editor: Editor }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const moreButtonRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const [focusedIndex, setFocusedIndex] = useState(0);
+
+  const { visibleCount } = useToolbarOverflow(containerRef, {
+    totalItems: TOOLBAR_BUTTONS.length,
+    itemWidth: 32,
+    reserveWidth: 40,
+  });
+
+  const visibleButtons =
+    visibleCount >= TOOLBAR_BUTTONS.length
+      ? TOOLBAR_BUTTONS
+      : TOOLBAR_BUTTONS.slice(0, visibleCount);
+  const overflowButtons =
+    visibleCount >= TOOLBAR_BUTTONS.length
+      ? []
+      : TOOLBAR_BUTTONS.slice(visibleCount);
+
+  // Focus initial item when menu opens
+  useEffect(() => {
+    if (isMoreOpen && overflowButtons.length > 0) {
+      setFocusedIndex(0);
+      requestAnimationFrame(() => {
+        itemRefs.current[0]?.focus();
+      });
+    }
+  }, [isMoreOpen, overflowButtons.length]);
+
+  // Click outside to dismiss menu
+  useEffect(() => {
+    if (!isMoreOpen) return;
+
+    const handlePointerDown = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as Node;
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(target) &&
+        moreButtonRef.current &&
+        !moreButtonRef.current.contains(target)
+      ) {
+        setIsMoreOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("touchstart", handlePointerDown);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("touchstart", handlePointerDown);
+    };
+  }, [isMoreOpen]);
+
+  const handleMenuKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (overflowButtons.length === 0) return;
+
+      switch (e.key) {
+        case "ArrowDown": {
+          e.preventDefault();
+          const nextIdx = (focusedIndex + 1) % overflowButtons.length;
+          setFocusedIndex(nextIdx);
+          itemRefs.current[nextIdx]?.focus();
+          break;
+        }
+        case "ArrowUp": {
+          e.preventDefault();
+          const prevIdx =
+            (focusedIndex - 1 + overflowButtons.length) %
+            overflowButtons.length;
+          setFocusedIndex(prevIdx);
+          itemRefs.current[prevIdx]?.focus();
+          break;
+        }
+        case "Escape": {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsMoreOpen(false);
+          moreButtonRef.current?.focus();
+          break;
+        }
+        case "Tab": {
+          setIsMoreOpen(false);
+          break;
+        }
+      }
+    },
+    [focusedIndex, overflowButtons.length],
+  );
+
   return (
     <div
+      ref={containerRef}
       role="toolbar"
       aria-label="Formatting options"
-      className="flex items-center gap-0.5 border-b border-[var(--line)] bg-[var(--card)] px-2 py-1 overflow-x-auto shrink-0"
+      className="relative flex items-center gap-0.5 bg-[var(--card)] px-2 py-1 shrink-0"
     >
-      {TOOLBAR_BUTTONS.map((btn, index) => {
-        const prevBtn = index > 0 ? TOOLBAR_BUTTONS[index - 1] : null;
+      {visibleButtons.map((btn, index) => {
+        const prevBtn = index > 0 ? visibleButtons[index - 1] : null;
         const showSeparator = prevBtn !== null && prevBtn.group !== btn.group;
         const active = isButtonActive(editor, btn);
 
@@ -171,6 +274,86 @@ export function Toolbar({ editor }: { editor: Editor }) {
           </React.Fragment>
         );
       })}
+
+      {overflowButtons.length > 0 && (
+        <div className="relative inline-flex items-center">
+          <div
+            aria-hidden="true"
+            className="mx-1 h-4 w-px shrink-0 bg-[var(--line)]"
+          />
+          <Button
+            ref={moreButtonRef}
+            variant="ghost"
+            size="sm"
+            aria-label="More"
+            aria-haspopup="menu"
+            aria-expanded={isMoreOpen}
+            aria-controls="toolbar-overflow-menu"
+            onClick={() => setIsMoreOpen((prev) => !prev)}
+            className={`h-7 w-7 p-0 ${
+              isMoreOpen
+                ? "bg-[var(--bg-2)] text-[var(--ink)]"
+                : "text-[var(--ink-soft)] hover:bg-[var(--bg-2)] hover:text-[var(--ink)]"
+            }`}
+          >
+            <Icon size="sm">{glyphPaths.more}</Icon>
+          </Button>
+
+          {isMoreOpen && (
+            <div
+              id="toolbar-overflow-menu"
+              ref={menuRef}
+              role="menu"
+              aria-label="More formatting options"
+              tabIndex={-1}
+              onKeyDown={handleMenuKeyDown}
+              className="absolute right-0 top-full mt-1 z-50 flex w-48 flex-col rounded-xl border border-[var(--line)] bg-[var(--card)] p-1 shadow-[0_20px_25px_-5px_rgba(15,23,42,0.1),0_8px_10px_-6px_rgba(15,23,42,0.1)] font-sans"
+            >
+              {overflowButtons.map((btn, idx) => {
+                const active = isButtonActive(editor, btn);
+                const isFocused = focusedIndex === idx;
+
+                return (
+                  <button
+                    key={btn.id}
+                    ref={(el) => {
+                      itemRefs.current[idx] = el;
+                    }}
+                    role="menuitem"
+                    type="button"
+                    tabIndex={isFocused ? 0 : -1}
+                    aria-label={btn.label}
+                    onClick={() => {
+                      btn.action(editor);
+                      setIsMoreOpen(false);
+                      moreButtonRef.current?.focus();
+                    }}
+                    onMouseEnter={() => setFocusedIndex(idx)}
+                    className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs text-left transition-colors cursor-pointer focus-visible:outline-none focus:bg-[var(--bg-2)] ${
+                      active
+                        ? "bg-[var(--accent-soft)] text-[var(--accent)] font-medium"
+                        : "text-[var(--ink)] hover:bg-[var(--bg-2)]"
+                    } ${isFocused && !active ? "bg-[var(--bg-2)]" : ""}`}
+                  >
+                    <span
+                      className={`shrink-0 ${
+                        active
+                          ? "text-[var(--accent)]"
+                          : "text-[var(--ink-soft)]"
+                      }`}
+                    >
+                      <Icon size="sm" active={active}>
+                        {glyphPaths[btn.glyph]}
+                      </Icon>
+                    </span>
+                    <span className="truncate">{btn.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
