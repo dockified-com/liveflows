@@ -8,7 +8,9 @@ import {
   useProviderStatus,
 } from "./collaboration-provider";
 import { buildExtensions } from "./extensions";
+import { BlockHandle } from "./ui/block-handle/block-handle";
 import { BubbleToolbar } from "./ui/bubble-toolbar";
+import { TableControls } from "./ui/table-controls";
 import { Toolbar } from "./ui/toolbar";
 
 export interface DocumentEditorProps {
@@ -72,8 +74,9 @@ function InnerDocumentEditor({
       {findSlot}
 
       <div className="relative flex-1 overflow-y-auto p-6 text-sm leading-relaxed text-[var(--ink)]">
-        {blockHandleSlot}
+        {!readOnly && (blockHandleSlot ?? <BlockHandle editor={editor} />)}
         {!readOnly && (bubbleSlot ?? <BubbleToolbar editor={editor} />)}
+        {!readOnly && <TableControls editor={editor} />}
         <EditorContent editor={editor} />
       </div>
     </div>
