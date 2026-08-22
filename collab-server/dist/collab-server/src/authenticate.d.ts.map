@@ -1,0 +1,1 @@
+{"version":3,"file":"authenticate.d.ts","sourceRoot":"","sources":["../../../src/authenticate.ts"],"names":[],"mappings":"AAuDA,MAAM,WAAW,WAAW;IAC1B,MAAM,EAAE,MAAM,CAAC;IACf,QAAQ,EAAE,OAAO,CAAC;CACnB;AAED;;;GAGG;AACH,wBAAsB,cAAc,CAAC,EACnC,KAAK,EACL,YAAY,GACb,EAAE;IACD,KAAK,EAAE,MAAM,CAAC;IACd,YAAY,EAAE,MAAM,CAAC;CACtB,GAAG,OAAO,CAAC,WAAW,CAAC,CAkBvB"}

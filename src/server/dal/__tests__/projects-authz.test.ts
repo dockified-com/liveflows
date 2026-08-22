@@ -24,10 +24,6 @@ vi.mock("../../db", async () => {
   return { db: testDb };
 });
 
-vi.mock("../../liveblocks", () => ({
-  decommissionRoom: vi.fn().mockResolvedValue(undefined),
-}));
-
 const { createProject, deleteProject, getProject } = await import(
   "../projects"
 );

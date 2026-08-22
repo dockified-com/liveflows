@@ -26,17 +26,20 @@ export type AggregateDocumentSnapshot = {
 
 export type DocumentSnapshotMinAggregateOutputType = {
   fileId: string | null
+  yjsUpdate: runtime.Bytes | null
   syncedAt: Date | null
 }
 
 export type DocumentSnapshotMaxAggregateOutputType = {
   fileId: string | null
+  yjsUpdate: runtime.Bytes | null
   syncedAt: Date | null
 }
 
 export type DocumentSnapshotCountAggregateOutputType = {
   fileId: number
   content: number
+  yjsUpdate: number
   syncedAt: number
   _all: number
 }
@@ -44,17 +47,20 @@ export type DocumentSnapshotCountAggregateOutputType = {
 
 export type DocumentSnapshotMinAggregateInputType = {
   fileId?: true
+  yjsUpdate?: true
   syncedAt?: true
 }
 
 export type DocumentSnapshotMaxAggregateInputType = {
   fileId?: true
+  yjsUpdate?: true
   syncedAt?: true
 }
 
 export type DocumentSnapshotCountAggregateInputType = {
   fileId?: true
   content?: true
+  yjsUpdate?: true
   syncedAt?: true
   _all?: true
 }
@@ -134,6 +140,7 @@ export type DocumentSnapshotGroupByArgs<ExtArgs extends runtime.Types.Extensions
 export type DocumentSnapshotGroupByOutputType = {
   fileId: string
   content: runtime.JsonValue
+  yjsUpdate: runtime.Bytes | null
   syncedAt: Date
   _count: DocumentSnapshotCountAggregateOutputType | null
   _min: DocumentSnapshotMinAggregateOutputType | null
@@ -161,6 +168,7 @@ export type DocumentSnapshotWhereInput = {
   NOT?: Prisma.DocumentSnapshotWhereInput | Prisma.DocumentSnapshotWhereInput[]
   fileId?: Prisma.StringFilter<"DocumentSnapshot"> | string
   content?: Prisma.JsonFilter<"DocumentSnapshot">
+  yjsUpdate?: Prisma.BytesNullableFilter<"DocumentSnapshot"> | runtime.Bytes | null
   syncedAt?: Prisma.DateTimeFilter<"DocumentSnapshot"> | Date | string
   file?: Prisma.XOR<Prisma.FileScalarRelationFilter, Prisma.FileWhereInput>
 }
@@ -168,6 +176,7 @@ export type DocumentSnapshotWhereInput = {
 export type DocumentSnapshotOrderByWithRelationInput = {
   fileId?: Prisma.SortOrder
   content?: Prisma.SortOrder
+  yjsUpdate?: Prisma.SortOrderInput | Prisma.SortOrder
   syncedAt?: Prisma.SortOrder
   file?: Prisma.FileOrderByWithRelationInput
 }
@@ -178,6 +187,7 @@ export type DocumentSnapshotWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.DocumentSnapshotWhereInput[]
   NOT?: Prisma.DocumentSnapshotWhereInput | Prisma.DocumentSnapshotWhereInput[]
   content?: Prisma.JsonFilter<"DocumentSnapshot">
+  yjsUpdate?: Prisma.BytesNullableFilter<"DocumentSnapshot"> | runtime.Bytes | null
   syncedAt?: Prisma.DateTimeFilter<"DocumentSnapshot"> | Date | string
   file?: Prisma.XOR<Prisma.FileScalarRelationFilter, Prisma.FileWhereInput>
 }, "fileId">
@@ -185,6 +195,7 @@ export type DocumentSnapshotWhereUniqueInput = Prisma.AtLeast<{
 export type DocumentSnapshotOrderByWithAggregationInput = {
   fileId?: Prisma.SortOrder
   content?: Prisma.SortOrder
+  yjsUpdate?: Prisma.SortOrderInput | Prisma.SortOrder
   syncedAt?: Prisma.SortOrder
   _count?: Prisma.DocumentSnapshotCountOrderByAggregateInput
   _max?: Prisma.DocumentSnapshotMaxOrderByAggregateInput
@@ -197,11 +208,13 @@ export type DocumentSnapshotScalarWhereWithAggregatesInput = {
   NOT?: Prisma.DocumentSnapshotScalarWhereWithAggregatesInput | Prisma.DocumentSnapshotScalarWhereWithAggregatesInput[]
   fileId?: Prisma.StringWithAggregatesFilter<"DocumentSnapshot"> | string
   content?: Prisma.JsonWithAggregatesFilter<"DocumentSnapshot">
+  yjsUpdate?: Prisma.BytesNullableWithAggregatesFilter<"DocumentSnapshot"> | runtime.Bytes | null
   syncedAt?: Prisma.DateTimeWithAggregatesFilter<"DocumentSnapshot"> | Date | string
 }
 
 export type DocumentSnapshotCreateInput = {
   content?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  yjsUpdate?: runtime.Bytes | null
   syncedAt?: Date | string
   file: Prisma.FileCreateNestedOneWithoutDocumentInput
 }
@@ -209,11 +222,13 @@ export type DocumentSnapshotCreateInput = {
 export type DocumentSnapshotUncheckedCreateInput = {
   fileId: string
   content?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  yjsUpdate?: runtime.Bytes | null
   syncedAt?: Date | string
 }
 
 export type DocumentSnapshotUpdateInput = {
   content?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  yjsUpdate?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   syncedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   file?: Prisma.FileUpdateOneRequiredWithoutDocumentNestedInput
 }
@@ -221,23 +236,27 @@ export type DocumentSnapshotUpdateInput = {
 export type DocumentSnapshotUncheckedUpdateInput = {
   fileId?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  yjsUpdate?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   syncedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type DocumentSnapshotCreateManyInput = {
   fileId: string
   content?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  yjsUpdate?: runtime.Bytes | null
   syncedAt?: Date | string
 }
 
 export type DocumentSnapshotUpdateManyMutationInput = {
   content?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  yjsUpdate?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   syncedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type DocumentSnapshotUncheckedUpdateManyInput = {
   fileId?: Prisma.StringFieldUpdateOperationsInput | string
   content?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  yjsUpdate?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   syncedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -249,16 +268,19 @@ export type DocumentSnapshotNullableScalarRelationFilter = {
 export type DocumentSnapshotCountOrderByAggregateInput = {
   fileId?: Prisma.SortOrder
   content?: Prisma.SortOrder
+  yjsUpdate?: Prisma.SortOrder
   syncedAt?: Prisma.SortOrder
 }
 
 export type DocumentSnapshotMaxOrderByAggregateInput = {
   fileId?: Prisma.SortOrder
+  yjsUpdate?: Prisma.SortOrder
   syncedAt?: Prisma.SortOrder
 }
 
 export type DocumentSnapshotMinOrderByAggregateInput = {
   fileId?: Prisma.SortOrder
+  yjsUpdate?: Prisma.SortOrder
   syncedAt?: Prisma.SortOrder
 }
 
@@ -294,13 +316,19 @@ export type DocumentSnapshotUncheckedUpdateOneWithoutFileNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.DocumentSnapshotUpdateToOneWithWhereWithoutFileInput, Prisma.DocumentSnapshotUpdateWithoutFileInput>, Prisma.DocumentSnapshotUncheckedUpdateWithoutFileInput>
 }
 
+export type NullableBytesFieldUpdateOperationsInput = {
+  set?: runtime.Bytes | null
+}
+
 export type DocumentSnapshotCreateWithoutFileInput = {
   content?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  yjsUpdate?: runtime.Bytes | null
   syncedAt?: Date | string
 }
 
 export type DocumentSnapshotUncheckedCreateWithoutFileInput = {
   content?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  yjsUpdate?: runtime.Bytes | null
   syncedAt?: Date | string
 }
 
@@ -322,11 +350,13 @@ export type DocumentSnapshotUpdateToOneWithWhereWithoutFileInput = {
 
 export type DocumentSnapshotUpdateWithoutFileInput = {
   content?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  yjsUpdate?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   syncedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type DocumentSnapshotUncheckedUpdateWithoutFileInput = {
   content?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  yjsUpdate?: Prisma.NullableBytesFieldUpdateOperationsInput | runtime.Bytes | null
   syncedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -335,6 +365,7 @@ export type DocumentSnapshotUncheckedUpdateWithoutFileInput = {
 export type DocumentSnapshotSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   fileId?: boolean
   content?: boolean
+  yjsUpdate?: boolean
   syncedAt?: boolean
   file?: boolean | Prisma.FileDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["documentSnapshot"]>
@@ -342,6 +373,7 @@ export type DocumentSnapshotSelect<ExtArgs extends runtime.Types.Extensions.Inte
 export type DocumentSnapshotSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   fileId?: boolean
   content?: boolean
+  yjsUpdate?: boolean
   syncedAt?: boolean
   file?: boolean | Prisma.FileDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["documentSnapshot"]>
@@ -349,6 +381,7 @@ export type DocumentSnapshotSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
 export type DocumentSnapshotSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   fileId?: boolean
   content?: boolean
+  yjsUpdate?: boolean
   syncedAt?: boolean
   file?: boolean | Prisma.FileDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["documentSnapshot"]>
@@ -356,10 +389,11 @@ export type DocumentSnapshotSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
 export type DocumentSnapshotSelectScalar = {
   fileId?: boolean
   content?: boolean
+  yjsUpdate?: boolean
   syncedAt?: boolean
 }
 
-export type DocumentSnapshotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"fileId" | "content" | "syncedAt", ExtArgs["result"]["documentSnapshot"]>
+export type DocumentSnapshotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"fileId" | "content" | "yjsUpdate" | "syncedAt", ExtArgs["result"]["documentSnapshot"]>
 export type DocumentSnapshotInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   file?: boolean | Prisma.FileDefaultArgs<ExtArgs>
 }
@@ -378,6 +412,7 @@ export type $DocumentSnapshotPayload<ExtArgs extends runtime.Types.Extensions.In
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     fileId: string
     content: runtime.JsonValue
+    yjsUpdate: runtime.Bytes | null
     syncedAt: Date
   }, ExtArgs["result"]["documentSnapshot"]>
   composites: {}
@@ -805,6 +840,7 @@ export interface Prisma__DocumentSnapshotClient<T, Null = never, ExtArgs extends
 export interface DocumentSnapshotFieldRefs {
   readonly fileId: Prisma.FieldRef<"DocumentSnapshot", 'String'>
   readonly content: Prisma.FieldRef<"DocumentSnapshot", 'Json'>
+  readonly yjsUpdate: Prisma.FieldRef<"DocumentSnapshot", 'Bytes'>
   readonly syncedAt: Prisma.FieldRef<"DocumentSnapshot", 'DateTime'>
 }
     

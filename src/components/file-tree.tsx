@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useDraggable, useDroppable } from "@dnd-kit/core";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  findNodeById,
+  isAncestor,
+  useFileTreeDnd,
+} from "@/components/file-tree-dnd-context";
 import { Icon } from "@/components/ui/icon";
 
 export interface FileTreeNode {
@@ -17,10 +23,17 @@ export interface FileTreeProps {
   nodes: FileTreeNode[];
   activeFileId?: string | null;
   openFileIds?: string[];
+  activeId?: string | null;
   onSelectFile: (fileId: string) => void;
   onCreateInFolder?: (folderId: string | null) => void;
   onRename?: (id: string, type: "file" | "folder", currentName: string) => void;
   onDelete?: (id: string, type: "file" | "folder", name: string) => void;
+  onMoveToFolder?: (
+    id: string,
+    type: "file" | "folder",
+    targetFolderId: string,
+  ) => void;
+  onMoveToRoot?: (id: string, type: "file" | "folder") => void;
 }
 
 /** Build the ordered visible ID list for roving-tabindex arrow navigation. */
@@ -45,10 +58,50 @@ function buildVisibleIds(
   return ids;
 }
 
+export function RootDropZone() {
+  const { setNodeRef, isOver } = useDroppable({
+    id: "root-drop-zone",
+    data: { type: "root" },
+  });
+  const { activeId, activeNode } = useFileTreeDnd();
+
+  const isDragging = Boolean(activeId);
+  const activeParentId = activeNode
+    ? activeNode.type === "file"
+      ? (activeNode.folderId ?? null)
+      : (activeNode.parentId ?? null)
+    : null;
+
+  const isMoveToRootValid = isDragging && activeParentId !== null;
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`min-h-[40px] flex-1 rounded-md transition-all duration-150 my-1 p-2 flex items-center justify-center select-none ${
+        isOver && isMoveToRootValid
+          ? "border-2 border-dashed border-blue-400 bg-blue-50/50 text-blue-600 font-medium text-xs shadow-2xs"
+          : isDragging && isMoveToRootValid
+            ? "border border-dashed border-slate-300 bg-slate-50/40 text-slate-400 text-xs"
+            : "border border-transparent"
+      }`}
+    >
+      {isMoveToRootValid && (
+        <div className="flex items-center gap-1.5 pointer-events-none text-xs">
+          <Icon size="sm">
+            <path d="M12 5v14M5 12l7 7 7-7" />
+          </Icon>
+          <span>Move to root</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function FileTree({
   nodes,
   activeFileId,
   openFileIds = [],
+  activeId,
   onSelectFile,
   onCreateInFolder,
   onRename,
@@ -158,35 +211,39 @@ export function FileTree({
     [nodes, expandedFolderIds, focusNode, toggleFolder, onSelectFile],
   );
 
-  if (nodes.length === 0) {
-    return (
-      <div className="p-4 text-center text-xs text-[var(--ink-tertiary)]">
-        No files or folders yet.
-      </div>
-    );
-  }
-
   return (
-    <div className="py-1 font-sans text-xs select-none" role="tree">
-      {nodes.map((node) => (
-        <TreeNodeItem
-          key={node.id}
-          node={node}
-          level={0}
-          expandedFolderIds={expandedFolderIds}
-          focusedId={focusedId}
-          activeFileId={activeFileId}
-          openFileIds={openFileIds}
-          onToggleFolder={toggleFolder}
-          onSelectFile={onSelectFile}
-          onCreateInFolder={onCreateInFolder}
-          onRename={onRename}
-          onDelete={onDelete}
-          onFocus={setFocusedId}
-          onKeyDown={handleKeyDown}
-          nodeRefs={nodeRefs}
-        />
-      ))}
+    <div
+      className="py-1 font-sans text-xs select-none flex flex-col flex-1 min-h-0"
+      role="tree"
+    >
+      {nodes.length === 0 ? (
+        <div className="p-4 text-center text-xs text-[var(--ink-tertiary)]">
+          No files or folders yet.
+        </div>
+      ) : (
+        nodes.map((node) => (
+          <TreeNodeItem
+            key={node.id}
+            node={node}
+            level={0}
+            expandedFolderIds={expandedFolderIds}
+            focusedId={focusedId}
+            activeFileId={activeFileId}
+            openFileIds={openFileIds}
+            activeId={activeId}
+            allNodes={nodes}
+            onToggleFolder={toggleFolder}
+            onSelectFile={onSelectFile}
+            onCreateInFolder={onCreateInFolder}
+            onRename={onRename}
+            onDelete={onDelete}
+            onFocus={setFocusedId}
+            onKeyDown={handleKeyDown}
+            nodeRefs={nodeRefs}
+          />
+        ))
+      )}
+      <RootDropZone />
     </div>
   );
 }
@@ -198,6 +255,8 @@ interface TreeNodeItemProps {
   focusedId: string | null;
   activeFileId?: string | null;
   openFileIds: string[];
+  activeId?: string | null;
+  allNodes: FileTreeNode[];
   onToggleFolder: (folderId: string) => void;
   onSelectFile: (fileId: string) => void;
   onCreateInFolder?: (folderId: string | null) => void;
@@ -215,6 +274,8 @@ function TreeNodeItem({
   focusedId,
   activeFileId,
   openFileIds,
+  activeId: activeIdProp,
+  allNodes,
   onToggleFolder,
   onSelectFile,
   onCreateInFolder,
@@ -230,22 +291,127 @@ function TreeNodeItem({
   const isOpen = !isFolder && openFileIds.includes(node.id);
   const isFocused = node.id === focusedId;
 
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const dndContext = useFileTreeDnd();
+  const effectiveActiveId = activeIdProp ?? dndContext.activeId;
+
+  const parentId = isFolder ? (node.parentId ?? null) : (node.folderId ?? null);
+
+  // Draggable for all nodes
+  const {
+    attributes,
+    listeners,
+    setNodeRef: setDragRef,
+  } = useDraggable({
+    id: node.id,
+    disabled: !mounted,
+    data: {
+      id: node.id,
+      type: node.type,
+      parentId,
+    },
+  });
+
+  // Droppable for folders only
+  const { setNodeRef: setDropRef, isOver } = useDroppable({
+    id: node.id,
+    disabled: !mounted || !isFolder,
+    data: {
+      id: node.id,
+      type: "folder",
+    },
+  });
+
+  const setRefs = useCallback(
+    (element: HTMLElement | null) => {
+      if (mounted) {
+        setDragRef(element);
+        if (isFolder) {
+          setDropRef(element);
+        }
+      }
+      if (element) {
+        nodeRefs.current.set(node.id, element);
+      } else {
+        nodeRefs.current.delete(node.id);
+      }
+    },
+    [mounted, setDragRef, setDropRef, isFolder, node.id, nodeRefs],
+  );
+
+  // Validate drop target when hovered
+  let isValidTarget = false;
+  if (
+    isFolder &&
+    isOver &&
+    effectiveActiveId &&
+    effectiveActiveId !== node.id
+  ) {
+    const activeTreeNodes =
+      dndContext.nodes.length > 0 ? dndContext.nodes : allNodes;
+    const draggedNode =
+      dndContext.activeNode ?? findNodeById(activeTreeNodes, effectiveActiveId);
+
+    if (draggedNode) {
+      const draggedParentId =
+        draggedNode.type === "file"
+          ? (draggedNode.folderId ?? null)
+          : (draggedNode.parentId ?? null);
+
+      const isSelf = effectiveActiveId === node.id;
+      const isSameParent = draggedParentId === node.id;
+      const isCycle =
+        draggedNode.type === "folder" &&
+        isAncestor(activeTreeNodes, effectiveActiveId, node.id);
+
+      if (!isSelf && !isSameParent && !isCycle) {
+        isValidTarget = true;
+      }
+    }
+  }
+
+  // Auto-expand collapsed folders after 600ms hover during drag
+  useEffect(() => {
+    if (!isFolder || isExpanded || !isOver || !isValidTarget) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      onToggleFolder(node.id);
+    }, 600);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [isFolder, isExpanded, isOver, isValidTarget, node.id, onToggleFolder]);
+
   const indentStyle = { paddingLeft: `${level * 16 + 8}px` };
+  const isCurrentDraggedItem = effectiveActiveId === node.id;
+
+  const rowBgClass = isCurrentDraggedItem
+    ? "opacity-40 bg-slate-100/50"
+    : isOver && isValidTarget
+      ? "bg-blue-50 border-l-2 border-blue-400 font-medium text-blue-900 transition-colors duration-150"
+      : isActive
+        ? "bg-white shadow-2xs text-blue-700 font-semibold border-l-2 border-blue-600 transition-all duration-150"
+        : isOpen
+          ? "text-[var(--ink)] bg-slate-200/50 hover:bg-slate-200/80 font-medium transition-all duration-150"
+          : "text-[var(--ink-secondary)] hover:bg-slate-200/60 hover:text-[var(--ink)] transition-all duration-150";
+
+  const dragAttributes = mounted ? attributes : {};
+  const dragListeners = mounted ? listeners : {};
 
   return (
     <div>
       <div
-        ref={(el) => {
-          if (el) nodeRefs.current.set(node.id, el);
-          else nodeRefs.current.delete(node.id);
-        }}
-        className={`group flex items-center justify-between py-1.5 pr-2 cursor-pointer transition-all rounded-md my-0.5 ${
-          isActive
-            ? "bg-white shadow-2xs text-blue-700 font-semibold border-l-2 border-blue-600"
-            : isOpen
-              ? "text-[var(--ink)] bg-slate-200/50 hover:bg-slate-200/80 font-medium"
-              : "text-[var(--ink-secondary)] hover:bg-slate-200/60 hover:text-[var(--ink)]"
-        }`}
+        ref={setRefs}
+        {...dragAttributes}
+        {...dragListeners}
+        className={`group flex items-center justify-between py-1.5 pr-2 cursor-pointer rounded-md my-0.5 ${rowBgClass}`}
         style={indentStyle}
         onClick={() => {
           onFocus(node.id);
@@ -255,7 +421,10 @@ function TreeNodeItem({
             onSelectFile(node.id);
           }
         }}
-        onKeyDown={(e) => onKeyDown(e, node)}
+        onKeyDown={(e) => {
+          listeners?.onKeyDown?.(e);
+          onKeyDown(e, node);
+        }}
         onFocus={() => onFocus(node.id)}
         role="treeitem"
         aria-expanded={isFolder ? isExpanded : undefined}
@@ -321,6 +490,7 @@ function TreeNodeItem({
               type="button"
               title="Add item in folder"
               aria-label={`Add item in ${node.name}`}
+              onPointerDown={(e) => e.stopPropagation()}
               onClick={(e) => {
                 e.stopPropagation();
                 onCreateInFolder(node.id);
@@ -338,6 +508,7 @@ function TreeNodeItem({
               type="button"
               title="Rename"
               aria-label={`Rename ${node.name}`}
+              onPointerDown={(e) => e.stopPropagation()}
               onClick={(e) => {
                 e.stopPropagation();
                 onRename(node.id, node.type, node.name);
@@ -354,6 +525,7 @@ function TreeNodeItem({
               type="button"
               title="Delete"
               aria-label={`Delete ${node.name}`}
+              onPointerDown={(e) => e.stopPropagation()}
               onClick={(e) => {
                 e.stopPropagation();
                 onDelete(node.id, node.type, node.name);
@@ -380,6 +552,8 @@ function TreeNodeItem({
               focusedId={focusedId}
               activeFileId={activeFileId}
               openFileIds={openFileIds}
+              activeId={activeIdProp}
+              allNodes={allNodes}
               onToggleFolder={onToggleFolder}
               onSelectFile={onSelectFile}
               onCreateInFolder={onCreateInFolder}

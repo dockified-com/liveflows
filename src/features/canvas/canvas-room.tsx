@@ -3,27 +3,16 @@
 import "@excalidraw/excalidraw/index.css";
 import type { ExcalidrawElement } from "@excalidraw/excalidraw/element/types";
 import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
-import { createClient, LiveMap, LiveObject } from "@liveblocks/client";
-import { createRoomContext } from "@liveblocks/react";
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StatusPill } from "@/components/ui/status-pill";
+import {
+  CollabRoomProvider,
+  useCollab,
+} from "@/features/collaboration/collab-provider";
 import { PaneHeader } from "@/features/project-workspace/pane-header";
 import { useUiStore } from "@/stores/ui";
 import { collectLocalChanges, mergeIncoming } from "./element-sync";
-
-// --- Liveblocks client & room context ---
-
-const client = createClient({
-  authEndpoint: "/api/liveblocks-auth",
-});
-
-/**
- * Frozen storage shape (shared with the server side):
- *   { elements: LiveMap<string, LiveObject<ExcalidrawElement>>, meta: LiveObject<{ viewBackgroundColor: string }> }
- */
-const { RoomProvider, useMutation, useStorage, useOthers, useStatus } =
-  createRoomContext(client);
 
 // --- Dynamic Excalidraw import ---
 
@@ -54,32 +43,37 @@ function Canvas({
   const pointerDown = useRef(false);
   const pending = useRef<ExcalidrawElement[] | null>(null);
   const latestSceneRef = useRef<readonly ExcalidrawElement[] | null>(null);
-  const status = useStatus();
-  const others = useOthers();
+
+  const { doc, status, others } = useCollab();
   const setElementCount = useUiStore((s) => s.setElementCount);
 
-  // Read elements from Liveblocks storage
-  // biome-ignore lint/suspicious/noExplicitAny: Liveblocks loose storage typing
-  const remoteElements = useStorage((root: any) => {
-    const map = root.elements;
-    if (!map) return null;
-    const result: ExcalidrawElement[] = [];
+  // Y.Map for canvas elements
+  const elementsMap = useMemo(() => {
+    return doc ? doc.getMap<ExcalidrawElement>("elements") : null;
+  }, [doc]);
 
-    if (typeof map.entries === "function") {
-      for (const [, liveObj] of map.entries()) {
-        result.push(liveObj.toImmutable ? liveObj.toImmutable() : liveObj);
-      }
-    } else {
-      for (const liveObj of Object.values(map)) {
-        result.push(
-          (liveObj as any).toImmutable
-            ? (liveObj as any).toImmutable()
-            : liveObj,
-        );
-      }
-    }
-    return result;
-  });
+  // State of remote elements read from Y.Map
+  const [remoteElements, setRemoteElements] = useState<
+    ExcalidrawElement[] | null
+  >(null);
+
+  // Observe Y.Map changes
+  useEffect(() => {
+    if (!elementsMap) return;
+
+    const updateFromMap = () => {
+      const els = Array.from(elementsMap.values());
+      setRemoteElements(els);
+    };
+
+    // Initial read
+    updateFromMap();
+
+    elementsMap.observe(updateFromMap);
+    return () => {
+      elementsMap.unobserve(updateFromMap);
+    };
+  }, [elementsMap]);
 
   const elementCount = remoteElements?.length ?? fallbackElements?.length ?? 0;
 
@@ -87,25 +81,18 @@ function Canvas({
     setElementCount(elementCount);
   }, [elementCount, setElementCount]);
 
-  // Push local changes into Liveblocks storage
-  // biome-ignore lint/suspicious/noExplicitAny: Liveblocks loose storage typing
-  const push = useMutation(({ storage }: any, changed: ExcalidrawElement[]) => {
-    let map = storage.get("elements");
-    if (!map) {
-      map = new LiveMap();
-      storage.set("elements", map);
-    }
-    for (const el of changed) {
-      const existing = map.get(el.id);
-      if (existing) {
-        // biome-ignore lint/suspicious/noExplicitAny: LiveObject update typing
-        existing.update(el as any);
-      } else {
-        // biome-ignore lint/suspicious/noExplicitAny: LiveObject constructor typing
-        map.set(el.id, new LiveObject(el as any));
-      }
-    }
-  }, []);
+  // Push local changes into Y.Map storage
+  const push = useCallback(
+    (changed: ExcalidrawElement[]) => {
+      if (!elementsMap || !doc) return;
+      doc.transact(() => {
+        for (const el of changed) {
+          elementsMap.set(el.id, el);
+        }
+      });
+    },
+    [elementsMap, doc],
+  );
 
   const applyRemote = useCallback(
     (incoming: ExcalidrawElement[]) => {
@@ -125,7 +112,7 @@ function Canvas({
 
   useEffect(() => {
     if (!remoteElements || !api) return;
-    const incoming = remoteElements as unknown as ExcalidrawElement[];
+    const incoming = remoteElements;
     if (incoming.length === 0) return;
 
     if (pointerDown.current) {
@@ -164,7 +151,7 @@ function Canvas({
     };
   }, [applyRemote]);
 
-  // Trailing flush scheduler (D36)
+  // Trailing flush scheduler
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const flushLatest = useCallback(() => {
@@ -197,7 +184,7 @@ function Canvas({
     [flushLatest],
   );
 
-  // Unmount flush boundary (D15/D27)
+  // Unmount flush boundary
   useEffect(() => {
     return () => {
       if (timer.current) {
@@ -240,14 +227,14 @@ function Canvas({
             status={
               status === "connected"
                 ? "synced"
-                : status === "reconnecting"
+                : status === "reconnecting" || status === "connecting"
                   ? "reconnecting"
                   : "disconnected"
             }
             label={
               status === "connected"
                 ? "Live"
-                : status === "reconnecting"
+                : status === "reconnecting" || status === "connecting"
                   ? "Connecting..."
                   : "Offline"
             }
@@ -280,7 +267,7 @@ function Canvas({
             data-testid="outage-banner"
             className="absolute top-0 inset-x-0 z-30 flex items-center justify-center bg-rose-600 px-4 py-2 text-xs font-medium text-white shadow-md"
           >
-            Liveblocks is unreachable. Rendering read-only snapshot.
+            Collaboration server is unreachable. Rendering read-only snapshot.
           </div>
         )}
 
@@ -303,15 +290,8 @@ export interface CanvasRoomProps {
 
 export function CanvasRoom({ roomId, fallbackElements }: CanvasRoomProps) {
   return (
-    <RoomProvider
-      id={roomId}
-      initialPresence={{ cursor: null }}
-      initialStorage={{
-        elements: new LiveMap(),
-        meta: new LiveObject({ viewBackgroundColor: "#ffffff" }),
-      }}
-    >
+    <CollabRoomProvider roomId={roomId}>
       <Canvas fallbackElements={fallbackElements} />
-    </RoomProvider>
+    </CollabRoomProvider>
   );
 }

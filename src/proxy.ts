@@ -7,7 +7,7 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
  *   /                    – marketing landing page
  *   /sign-in(.*)        – Clerk sign-in flow (multi-step)
  *   /sign-up(.*)        – Clerk sign-up flow (multi-step)
- *   /api/webhooks(.*)   – inbound webhooks from Clerk / Liveblocks (they carry
+ *   /api/webhooks(.*)   – inbound webhooks from Clerk (they carry
  *                         signing secrets, not user sessions; blocking them
  *                         causes silent 401 delivery failures)
  */

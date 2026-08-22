@@ -20,15 +20,15 @@ const DocumentEditor = dynamic(
 export interface EditorPaneRouterProps {
   fileId: string;
   fileType: "canvas" | "document" | string;
-  liveblocksRoomId?: string | null;
+  roomId?: string | null;
 }
 
 export function EditorPaneRouter({
   fileId,
   fileType,
-  liveblocksRoomId,
+  roomId: roomIdProp,
 }: EditorPaneRouterProps) {
-  const roomId = liveblocksRoomId || `file_${fileId}`;
+  const roomId = roomIdProp || `file_${fileId}`;
 
   switch (fileType) {
     case "canvas":

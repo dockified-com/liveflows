@@ -2,7 +2,6 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import { z } from "zod";
 import { db } from "./db";
-import { liveblocks } from "./liveblocks";
 
 // We keep a global map of active transports.
 // Note: In a serverless environment, this requires sticky sessions or a single instance.
@@ -135,7 +134,7 @@ export function createServer(userId: string, sessionId: string) {
         };
       }
 
-      if (!file.liveblocksRoomId) {
+      if (!file.roomId) {
         return {
           content: [
             { type: "text", text: "File does not have an active canvas room." },
@@ -144,52 +143,61 @@ export function createServer(userId: string, sessionId: string) {
         };
       }
 
-      // We need to mutate the Liveblocks storage.
-      // Since Excalidraw uses a LiveMap for elements, we will update the elements.
-      // Wait, let's look at how elements are represented in Liveblocks.
-      // LiveFlows MVP 1a uses `LiveMap` for `elements` in `CanvasRoom`.
+      const snapshot = await db.canvasSnapshot.findUnique({
+        where: { fileId },
+      });
 
-      const elementsMap: Record<string, any> = {};
+      const currentElements =
+        (snapshot?.elements as Array<{
+          id: string;
+          version?: number;
+          versionNonce?: number;
+        }>) ?? [];
+      // biome-ignore lint/suspicious/noExplicitAny: Excalidraw element loose shape
+      const byId = new Map<string, any>(
+        currentElements.map((el) => [el.id, el]),
+      );
+
       for (const el of elements) {
-        if (el.id) {
-          elementsMap[el.id] = el;
-        }
-      }
+        if (!el?.id) continue;
+        const existing = byId.get(el.id);
+        if (!existing) {
+          byId.set(el.id, el);
+        } else {
+          const incomingVersion = el.version ?? 0;
+          const existingVersion = existing.version ?? 0;
+          const incomingNonce = el.versionNonce ?? 0;
+          const existingNonce = existing.versionNonce ?? 0;
 
-      if (Object.keys(elementsMap).length > 0) {
-        try {
-          const res = await fetch(
-            `https://api.liveblocks.io/v2/rooms/${file.liveblocksRoomId}/storage`,
-            {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${process.env.LIVEBLOCKS_SECRET_KEY}`,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                elements: {
-                  update: elementsMap,
-                },
-              }),
-            },
-          );
-
-          if (!res.ok) {
-            const err = await res.text();
-            throw new Error(err);
+          if (
+            incomingVersion > existingVersion ||
+            (incomingVersion === existingVersion &&
+              incomingNonce < existingNonce)
+          ) {
+            byId.set(el.id, el);
           }
-        } catch (e: any) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Failed to update Liveblocks storage: ${e.message}`,
-              },
-            ],
-            isError: true,
-          };
         }
       }
+
+      const mergedElements = Array.from(byId.values());
+      const nonDeletedCount = mergedElements.filter(
+        (el) => !el.isDeleted,
+      ).length;
+
+      await db.canvasSnapshot.upsert({
+        where: { fileId },
+        create: {
+          fileId,
+          elements: mergedElements,
+          appState: snapshot?.appState ?? {},
+          elementCount: nonDeletedCount,
+        },
+        update: {
+          elements: mergedElements,
+          elementCount: nonDeletedCount,
+          syncedAt: new Date(),
+        },
+      });
 
       return {
         content: [

@@ -5,7 +5,6 @@ import {
   requireProjectPermission,
 } from "../authz/service";
 import { db } from "../db";
-import { decommissionRoom, roomIdForFile } from "../liveblocks";
 import { NotFoundError } from "./errors";
 import { requireWorkspace } from "./workspaces";
 
@@ -211,31 +210,6 @@ export async function deleteFolder(
     where: { id: folderId, project: { workspaceId: workspace.id } },
   });
   if (!folder) notFound();
-
-  // Gather all descendant folder IDs via recursive CTE
-  const descendantFolders = await db.$queryRaw<{ id: string }[]>`
-    WITH RECURSIVE FolderTree AS (
-      SELECT id FROM "Folder" WHERE id = ${folderId}
-      UNION ALL
-      SELECT f.id FROM "Folder" f
-      INNER JOIN FolderTree ft ON f."parentId" = ft.id
-    )
-    SELECT id FROM FolderTree;
-  `;
-  const folderIds = descendantFolders.map((f) => f.id);
-
-  const files = await db.file.findMany({
-    where: { folderId: { in: folderIds } },
-    select: { id: true },
-  });
-
-  for (const file of files) {
-    try {
-      await decommissionRoom(roomIdForFile(file.id));
-    } catch (error) {
-      console.warn(`Failed to decommission room for file ${file.id}:`, error);
-    }
-  }
 
   // Cascade delete handles child folders and files in PG
   await db.folder.delete({ where: { id: folderId } });

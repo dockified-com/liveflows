@@ -1,11 +1,20 @@
 "use client";
 
 import { useAuth } from "@clerk/nextjs";
+import { useDroppable } from "@dnd-kit/core";
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { CreateItemDialog } from "@/components/create-item-dialog";
 import { DeleteItemDialog } from "@/components/delete-item-dialog";
 import { FileTree, type FileTreeNode } from "@/components/file-tree";
+import {
+  FileTreeDndContext,
+  findNodeById,
+} from "@/components/file-tree-dnd-context";
+import {
+  MoveItemDialog,
+  type MoveItemTarget,
+} from "@/components/move-item-dialog";
 import { RenameItemDialog } from "@/components/rename-item-dialog";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
@@ -21,6 +30,8 @@ import type { WorkspaceProjectMetadata } from "@/server/dal/project-workspace";
 import {
   createItemAction,
   deleteItemAction,
+  moveFileAction,
+  moveFolderAction,
   renameItemAction,
 } from "./actions";
 
@@ -62,6 +73,23 @@ function buildTreeNodes(
   }));
 
   return [...folderNodes, ...fileNodes];
+}
+
+function TabBarDropZone({ children }: { children: React.ReactNode }) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: "tab-bar-drop-zone",
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`relative transition-all duration-150 ${
+        isOver ? "ring-2 ring-blue-500/50 bg-blue-50/10" : ""
+      }`}
+    >
+      {children}
+    </div>
+  );
 }
 
 function InnerWorkspaceContent({
@@ -109,6 +137,8 @@ function InnerWorkspaceContent({
     type: "file" | "folder";
     name: string;
   } | null>(null);
+  const [moveTarget, setMoveTarget] = useState<MoveItemTarget | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const treeNodes = buildTreeNodes(metadata.files, metadata.folders);
 
@@ -164,16 +194,44 @@ function InnerWorkspaceContent({
       : null;
 
   // D14: room ID must be derived server-side via roomIdForFile(file.id)
-  // The DAL now selects liveblocksRoomId; we require it and never construct
+  // The DAL now selects roomId; we require it and never construct
   // fallback strings client-side (which would bypass the authoritative convention).
-  const roomId = (file: { id: string; liveblocksRoomId: string | null }) =>
-    file.liveblocksRoomId ?? `file_${file.id}`;
+  const roomId = (file: { id: string; roomId: string | null }) =>
+    file.roomId ?? `file_${file.id}`;
 
   return (
     <div className="flex h-full w-full flex-col bg-[var(--surface)] font-sans overflow-hidden">
       {/* Project Workspace Header Bar */}
       <header className="flex h-11 items-center justify-between border-b border-[var(--border)] bg-[var(--surface-elevated)] px-4 select-none shrink-0">
         <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setIsSidebarOpen((prev) => !prev)}
+            title={
+              isSidebarOpen
+                ? "Hide File Tree Sidebar"
+                : "Show File Tree Sidebar"
+            }
+            aria-label={
+              isSidebarOpen
+                ? "Hide File Tree Sidebar"
+                : "Show File Tree Sidebar"
+            }
+            className="p-1 rounded text-[var(--ink-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--ink)] transition-colors"
+          >
+            <Icon size="sm">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <path d="M9 3v18" />
+              {isSidebarOpen ? (
+                <path d="m14 15-3-3 3-3" />
+              ) : (
+                <path d="m11 9 3 3-3 3" />
+              )}
+            </Icon>
+          </button>
+
+          <div className="h-4 w-px bg-[var(--border)]" />
+
           <Link
             href={`/w/${workspaceSlug}`}
             className="flex items-center gap-1.5 text-xs font-medium text-[var(--ink-secondary)] hover:text-[var(--ink)] transition-colors"
@@ -215,138 +273,190 @@ function InnerWorkspaceContent({
       </header>
 
       {/* Main Workspace Body: File Tree Sidebar + Tab & Editor Container */}
-      <div className="flex flex-1 min-h-0 w-full overflow-hidden">
-        {/* Left File Tree Sidebar Pane */}
-        <aside className="w-64 border-r border-slate-200 bg-slate-100/80 flex flex-col shrink-0 select-none overflow-hidden">
-          <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--border)]">
-            <span className="text-[11px] font-semibold text-[var(--ink-tertiary)] uppercase tracking-wider">
-              Project Files ({metadata.files.length})
-            </span>
-            <button
-              type="button"
-              onClick={() => {
-                setCreateInitialFolderId(null);
-                setIsCreateOpen(true);
-              }}
-              title="Add New File or Folder"
-              className="p-1 rounded text-[var(--ink-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--ink)]"
-            >
-              <Icon size="sm">
-                <line x1="12" y1="5" x2="12" y2="19" />
-                <line x1="5" y1="12" x2="19" y2="12" />
-              </Icon>
-            </button>
-          </div>
-
-          <div className="flex-1 overflow-y-auto px-1 py-1">
-            <FileTree
-              nodes={treeNodes}
-              activeFileId={activeFileId}
-              openFileIds={openIds}
-              onSelectFile={(fileId) => openFileAction(fileId)}
-              onCreateInFolder={(folderId) => {
-                setCreateInitialFolderId(folderId);
-                setIsCreateOpen(true);
-              }}
-              onRename={handleRename}
-              onDelete={handleDelete}
-            />
-          </div>
-        </aside>
-
-        {/* Right Editor Work Area with TabBar and SplitPaneContainer */}
-        <main className="flex flex-1 flex-col min-w-0 bg-[var(--surface)] overflow-hidden">
-          <DndCoordinator onDragEnd={handleTabDragEnd}>
-            <WorkspaceTabBar
-              tabs={tabs}
-              activeFileId={activeFileId}
-              leftFileId={layout.kind === "split" ? layout.leftFileId : null}
-              rightFileId={layout.kind === "split" ? layout.rightFileId : null}
-              isSplit={layout.kind === "split"}
-              onActivate={(fileId) => activateFileAction(fileId)}
-              onClose={(fileId) => closeFileAction(fileId)}
-              onSplitWith={(leftId, rightId) =>
-                splitWithAction(leftId, rightId)
-              }
-              onCloseSplit={() => closeSplitAction()}
-            />
-          </DndCoordinator>
-
-          <div className="relative flex-1 min-h-0 w-full overflow-hidden">
-            {layout.kind === "empty" ? (
-              <div className="flex h-full w-full flex-col items-center justify-center p-8 text-center bg-[var(--surface)]">
-                <div className="rounded-full bg-[var(--surface-elevated)] p-4 border border-[var(--border)] mb-4 text-[var(--accent)]">
-                  <Icon size="lg">
-                    <rect x="3" y="3" width="18" height="18" rx="2" />
-                    <line x1="9" y1="3" x2="9" y2="21" />
-                  </Icon>
+      <FileTreeDndContext
+        nodes={treeNodes}
+        onMoveToFolder={(id, type, targetFolderId) => {
+          const sourceNode = findNodeById(treeNodes, id);
+          const targetFolder = metadata.folders.find(
+            (f) => f.id === targetFolderId,
+          );
+          setMoveTarget({
+            id,
+            type,
+            name: sourceNode?.name ?? (type === "folder" ? "Folder" : "File"),
+            targetFolderId,
+            targetFolderName: targetFolder?.name ?? "folder",
+          });
+        }}
+        onMoveToRoot={(id, type) => {
+          const sourceNode = findNodeById(treeNodes, id);
+          setMoveTarget({
+            id,
+            type,
+            name: sourceNode?.name ?? (type === "folder" ? "Folder" : "File"),
+            targetFolderId: null,
+          });
+        }}
+        onDropOnTabBar={(fileId) => {
+          openFileAction(fileId);
+        }}
+      >
+        <div className="flex flex-1 min-h-0 w-full overflow-hidden">
+          {/* Left File Tree Sidebar Pane */}
+          {isSidebarOpen && (
+            <aside className="w-64 border-r border-slate-200 bg-slate-100/80 flex flex-col shrink-0 select-none overflow-hidden transition-all duration-200">
+              <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--border)]">
+                <span className="text-[11px] font-semibold text-[var(--ink-tertiary)] uppercase tracking-wider">
+                  Project Files ({metadata.files.length})
+                </span>
+                <div className="flex items-center gap-0.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCreateInitialFolderId(null);
+                      setIsCreateOpen(true);
+                    }}
+                    title="Add New File or Folder"
+                    className="p-1 rounded text-[var(--ink-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--ink)]"
+                  >
+                    <Icon size="sm">
+                      <line x1="12" y1="5" x2="12" y2="19" />
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                    </Icon>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsSidebarOpen(false)}
+                    title="Hide File Tree Sidebar"
+                    aria-label="Hide File Tree Sidebar"
+                    className="p-1 rounded text-[var(--ink-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--ink)]"
+                  >
+                    <Icon size="sm">
+                      <rect x="3" y="3" width="18" height="18" rx="2" />
+                      <path d="M9 3v18" />
+                      <path d="m14 15-3-3 3-3" />
+                    </Icon>
+                  </button>
                 </div>
-                <h3 className="text-sm font-semibold text-[var(--ink)] mb-1">
-                  No files open
-                </h3>
-                <p className="text-xs text-[var(--ink-secondary)] max-w-sm mb-4">
-                  Select a canvas or document from the file tree on the left to
-                  start editing, or create a new file.
-                </p>
-                <Button
-                  size="sm"
-                  variant="primary"
-                  onClick={() => {
-                    setCreateInitialFolderId(null);
+              </div>
+
+              <div className="flex-1 overflow-y-auto px-1 py-1 flex flex-col min-h-0">
+                <FileTree
+                  nodes={treeNodes}
+                  activeFileId={activeFileId}
+                  openFileIds={openIds}
+                  onSelectFile={(fileId) => openFileAction(fileId)}
+                  onCreateInFolder={(folderId) => {
+                    setCreateInitialFolderId(folderId);
                     setIsCreateOpen(true);
                   }}
-                >
-                  Create New File
-                </Button>
-              </div>
-            ) : layout.kind === "single" ? (
-              activeFile ? (
-                <EditorPaneRouter
-                  fileId={activeFile.id}
-                  fileType={activeFile.type}
-                  liveblocksRoomId={roomId(activeFile)}
+                  onRename={handleRename}
+                  onDelete={handleDelete}
                 />
-              ) : (
-                <div className="flex h-full items-center justify-center text-xs text-[var(--ink-tertiary)]">
-                  Select a file to view content
+              </div>
+            </aside>
+          )}
+
+          {/* Right Editor Work Area with TabBar and SplitPaneContainer */}
+          <main className="flex flex-1 flex-col min-w-0 bg-[var(--surface)] overflow-hidden">
+            <TabBarDropZone>
+              <DndCoordinator onDragEnd={handleTabDragEnd}>
+                <WorkspaceTabBar
+                  tabs={tabs}
+                  activeFileId={activeFileId}
+                  leftFileId={
+                    layout.kind === "split" ? layout.leftFileId : null
+                  }
+                  rightFileId={
+                    layout.kind === "split" ? layout.rightFileId : null
+                  }
+                  isSplit={layout.kind === "split"}
+                  onActivate={(fileId) => activateFileAction(fileId)}
+                  onClose={(fileId) => closeFileAction(fileId)}
+                  onSplitWith={(leftId, rightId) =>
+                    splitWithAction(leftId, rightId)
+                  }
+                  onCloseSplit={() => closeSplitAction()}
+                />
+              </DndCoordinator>
+            </TabBarDropZone>
+
+            <div className="relative flex-1 min-h-0 w-full overflow-hidden">
+              {layout.kind === "empty" ? (
+                <div className="flex h-full w-full flex-col items-center justify-center p-8 text-center bg-[var(--surface)]">
+                  <div className="rounded-full bg-[var(--surface-elevated)] p-4 border border-[var(--border)] mb-4 text-[var(--accent)]">
+                    <Icon size="lg">
+                      <rect x="3" y="3" width="18" height="18" rx="2" />
+                      <line x1="9" y1="3" x2="9" y2="21" />
+                    </Icon>
+                  </div>
+                  <h3 className="text-sm font-semibold text-[var(--ink)] mb-1">
+                    No files open
+                  </h3>
+                  <p className="text-xs text-[var(--ink-secondary)] max-w-sm mb-4">
+                    Select a canvas or document from the file tree on the left
+                    to start editing, or create a new file.
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    onClick={() => {
+                      setCreateInitialFolderId(null);
+                      setIsCreateOpen(true);
+                    }}
+                  >
+                    Create a file
+                  </Button>
                 </div>
-              )
-            ) : (
-              <SplitPaneContainer
-                isSplit={true}
-                dividerRatio={layout.dividerRatio}
-                mobileVisibleParticipant={mobileVisible}
-                leftPane={
-                  leftFile ? (
-                    <EditorPaneRouter
-                      fileId={leftFile.id}
-                      fileType={leftFile.type}
-                      liveblocksRoomId={roomId(leftFile)}
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center text-xs text-[var(--ink-tertiary)]">
-                      Empty Pane
-                    </div>
-                  )
-                }
-                rightPane={
-                  rightFile ? (
-                    <EditorPaneRouter
-                      fileId={rightFile.id}
-                      fileType={rightFile.type}
-                      liveblocksRoomId={roomId(rightFile)}
-                    />
-                  ) : (
-                    <div className="flex h-full items-center justify-center text-xs text-[var(--ink-tertiary)]">
-                      Empty Pane
-                    </div>
-                  )
-                }
-              />
-            )}
-          </div>
-        </main>
-      </div>
+              ) : layout.kind === "single" ? (
+                activeFile ? (
+                  <EditorPaneRouter
+                    fileId={activeFile.id}
+                    fileType={activeFile.type}
+                    roomId={roomId(activeFile)}
+                  />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-xs text-[var(--ink-tertiary)]">
+                    Empty Pane
+                  </div>
+                )
+              ) : (
+                <SplitPaneContainer
+                  isSplit={true}
+                  dividerRatio={layout.dividerRatio}
+                  mobileVisibleParticipant={mobileVisible}
+                  leftPane={
+                    leftFile ? (
+                      <EditorPaneRouter
+                        fileId={leftFile.id}
+                        fileType={leftFile.type}
+                        roomId={roomId(leftFile)}
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-xs text-[var(--ink-tertiary)]">
+                        Empty Pane
+                      </div>
+                    )
+                  }
+                  rightPane={
+                    rightFile ? (
+                      <EditorPaneRouter
+                        fileId={rightFile.id}
+                        fileType={rightFile.type}
+                        roomId={roomId(rightFile)}
+                      />
+                    ) : (
+                      <div className="flex h-full items-center justify-center text-xs text-[var(--ink-tertiary)]">
+                        Empty Pane
+                      </div>
+                    )
+                  }
+                />
+              )}
+            </div>
+          </main>
+        </div>
+      </FileTreeDndContext>
 
       {/* Item Creation Dialog */}
       <CreateItemDialog
@@ -405,6 +515,42 @@ function InnerWorkspaceContent({
               );
               if (result.ok) {
                 setDeleteTarget(null);
+                resolve();
+              } else {
+                reject(new Error(result.error));
+              }
+            });
+          });
+        }}
+      />
+
+      {/* Move Confirmation Dialog */}
+      <MoveItemDialog
+        isOpen={moveTarget !== null}
+        onClose={() => setMoveTarget(null)}
+        target={moveTarget}
+        isPending={isPending}
+        onConfirm={async () => {
+          if (!moveTarget) return;
+          return new Promise<void>((resolve, reject) => {
+            startTransition(async () => {
+              const result =
+                moveTarget.type === "file"
+                  ? await moveFileAction(
+                      workspaceSlug,
+                      metadata.project.id,
+                      moveTarget.id,
+                      moveTarget.targetFolderId,
+                    )
+                  : await moveFolderAction(
+                      workspaceSlug,
+                      metadata.project.id,
+                      moveTarget.id,
+                      moveTarget.targetFolderId,
+                    );
+
+              if (result.ok) {
+                setMoveTarget(null);
                 resolve();
               } else {
                 reject(new Error(result.error));

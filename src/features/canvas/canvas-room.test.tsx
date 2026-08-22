@@ -7,43 +7,31 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // --- Mock functions must be created via vi.hoisted() so they are available
 // inside the hoisted vi.mock factories. ---
 
-const { _status, _storageElements } = vi.hoisted(() => ({
+const { _status, _elements } = vi.hoisted(() => ({
   _status: { value: "connected" as string },
-  _storageElements: { value: [] as unknown[] },
+  _elements: { value: [] as unknown[] },
 }));
 
-vi.mock("@liveblocks/client", () => {
-  const LiveMap = vi.fn();
-  const LiveObject = vi.fn();
+vi.mock("@/features/collaboration/collab-provider", () => {
   return {
-    createClient: vi.fn(() => ({})),
-    LiveMap,
-    LiveObject,
+    CollabRoomProvider: ({ children }: { children: React.ReactNode }) => (
+      <div>{children}</div>
+    ),
+    useCollab: () => {
+      const doc = new (require("yjs").Doc)();
+      const map = doc.getMap("elements");
+      for (let i = 0; i < _elements.value.length; i++) {
+        map.set(`el_${i}`, _elements.value[i]);
+      }
+      return {
+        doc,
+        status: _status.value,
+        others: [],
+        provider: null,
+      };
+    },
   };
 });
-
-vi.mock("@liveblocks/react", () => ({
-  createRoomContext: vi.fn(() => ({
-    RoomProvider: ({ children }: { children: React.ReactNode }) => children,
-    useMutation: vi.fn(() => vi.fn()),
-    useStorage: vi.fn((selector: (root: unknown) => unknown) => {
-      if (typeof selector === "function") {
-        return selector({
-          elements: {
-            entries: () =>
-              _storageElements.value.map((el, i) => [
-                String(i),
-                { toImmutable: () => el },
-              ]),
-          },
-        });
-      }
-      return _storageElements.value;
-    }),
-    useOthers: vi.fn(() => []),
-    useStatus: vi.fn(() => _status.value),
-  })),
-}));
 
 // Mock dynamic Excalidraw import — returns a simple div that exposes viewModeEnabled
 vi.mock("next/dynamic", () => ({
@@ -64,7 +52,7 @@ describe("CanvasRoom fallback", () => {
   beforeEach(() => {
     cleanup();
     _status.value = "connected";
-    _storageElements.value = [];
+    _elements.value = [];
   });
 
   it("renders the outage banner when status is disconnected", () => {
@@ -75,7 +63,7 @@ describe("CanvasRoom fallback", () => {
     const banner = container.querySelector('[data-testid="outage-banner"]');
     expect(banner).toBeInTheDocument();
     expect(banner).toHaveTextContent(
-      "Liveblocks is unreachable. Rendering read-only snapshot.",
+      "Collaboration server is unreachable. Rendering read-only snapshot.",
     );
   });
 
@@ -108,7 +96,7 @@ describe("CanvasRoom fallback", () => {
   });
 
   it("does not render storage warning when elementCount <= 3000", () => {
-    _storageElements.value = new Array(3000).fill({ id: "1" });
+    _elements.value = new Array(3000).fill({ id: "1" });
     const { container } = render(
       <CanvasRoom roomId="test-room" fallbackElements={[]} />,
     );
@@ -118,7 +106,7 @@ describe("CanvasRoom fallback", () => {
   });
 
   it("renders storage warning when elementCount > 3000", () => {
-    _storageElements.value = new Array(3001).fill({ id: "1" });
+    _elements.value = new Array(3001).fill({ id: "1" });
     const { container } = render(
       <CanvasRoom roomId="test-room" fallbackElements={[]} />,
     );
@@ -129,7 +117,7 @@ describe("CanvasRoom fallback", () => {
   });
 
   it("renders critical storage warning when elementCount > 5000", () => {
-    _storageElements.value = new Array(5001).fill({ id: "1" });
+    _elements.value = new Array(5001).fill({ id: "1" });
     const { container } = render(
       <CanvasRoom roomId="test-room" fallbackElements={[]} />,
     );

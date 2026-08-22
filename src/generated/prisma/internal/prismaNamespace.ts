@@ -1349,7 +1349,7 @@ export const FileScalarFieldEnum = {
   normalizedName: 'normalizedName',
   directoryKey: 'directoryKey',
   type: 'type',
-  liveblocksRoomId: 'liveblocksRoomId',
+  roomId: 'roomId',
   createdById: 'createdById',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -1372,6 +1372,7 @@ export type CanvasSnapshotScalarFieldEnum = (typeof CanvasSnapshotScalarFieldEnu
 export const DocumentSnapshotScalarFieldEnum = {
   fileId: 'fileId',
   content: 'content',
+  yjsUpdate: 'yjsUpdate',
   syncedAt: 'syncedAt'
 } as const
 
@@ -1514,6 +1515,20 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Bytes'
+ */
+export type BytesFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Bytes'>
+    
+
+
+/**
+ * Reference to a field of type 'Bytes[]'
+ */
+export type ListBytesFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Bytes[]'>
     
 
 

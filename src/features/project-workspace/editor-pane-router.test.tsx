@@ -26,7 +26,7 @@ describe("EditorPaneRouter", () => {
       <EditorPaneRouter
         fileId="f1"
         fileType="canvas"
-        liveblocksRoomId="room-1"
+        roomId="room-1"
       />,
     );
 
@@ -39,7 +39,7 @@ describe("EditorPaneRouter", () => {
       <EditorPaneRouter
         fileId="f2"
         fileType="document"
-        liveblocksRoomId="room-2"
+        roomId="room-2"
       />,
     );
 

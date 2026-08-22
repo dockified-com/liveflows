@@ -82,18 +82,18 @@ model Folder {
 }
 
 model File {
-  id               String   @id @default(cuid())
-  projectId        String
-  folderId         String?
-  name             String
+  id             String   @id @default(cuid())
+  projectId      String
+  folderId       String?
+  name           String
   // D37: normalised lowercase name + directory key for namespace uniqueness
-  normalizedName   String
-  directoryKey     String   // "<projectId>:<folderId|ROOT>"
-  type             String
-  liveblocksRoomId String?  @unique
-  createdById      String
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  normalizedName String
+  directoryKey   String   // "<projectId>:<folderId|ROOT>"
+  type           String
+  roomId         String?  @unique   // renamed from liveblocksRoomId; advisory only — Yjs document name is file.id
+  createdById    String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   project          Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   folder           Folder?  @relation(fields: [folderId], references: [id], onDelete: Cascade)
@@ -114,10 +114,11 @@ model CanvasSnapshot {
 }
 
 model DocumentSnapshot {
-  fileId       String   @id
-  file         File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
-  content      Json     @default("{}")
-  syncedAt     DateTime @default(now())
+  fileId    String   @id
+  file      File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  content   Json     @default("{}")   // ProseMirror JSON — readable, for MCP and search
+  yjsUpdate Bytes?                    // native Yjs update — lossless, for seeding
+  syncedAt  DateTime @default(now())
 }
 
 model ProcessedWebhook {

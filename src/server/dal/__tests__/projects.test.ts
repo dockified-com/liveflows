@@ -36,16 +36,8 @@ vi.mock("../../db", () => {
   return { db: mockDb };
 });
 
-// Mock liveblocks
-vi.mock("../../liveblocks", () => ({
-  provisionRoom: vi.fn(),
-  decommissionRoom: vi.fn(),
-  roomIdForProject: vi.fn((id: string) => `room_${id}`),
-}));
-
 import { auth } from "@clerk/nextjs/server";
 import { db } from "../../db";
-import { decommissionRoom, provisionRoom } from "../../liveblocks";
 import {
   createProject,
   deleteProject,
@@ -61,8 +53,6 @@ const mockCreate = vi.mocked(db.project.create);
 const mockUpdate = vi.mocked(db.project.update);
 const mockDelete = vi.mocked(db.project.delete);
 const mockFileFindMany = vi.mocked(db.file.findMany);
-const mockProvisionRoom = vi.mocked(provisionRoom);
-const mockDecommissionRoom = vi.mocked(decommissionRoom);
 
 function setupAuthenticatedSession() {
   mockAuth.mockResolvedValue({
@@ -174,36 +164,12 @@ describe("deleteProject", () => {
     setupAuthenticatedSession();
   });
 
-  it("decommissions rooms for all files then deletes project", async () => {
+  it("deletes project directly from DB", async () => {
     mockFindFirst.mockResolvedValue({
       id: "p1",
       visibility: "workspace",
       members: [{ role: "owner" }],
     } as any);
-    mockFileFindMany.mockResolvedValue([
-      { liveblocksRoomId: "room_f1" },
-      { liveblocksRoomId: null },
-      { liveblocksRoomId: "room_f3" },
-    ] as any);
-    mockDecommissionRoom.mockResolvedValue(undefined);
-
-    await deleteProject("my-org", "p1");
-
-    expect(mockDecommissionRoom).toHaveBeenCalledWith("room_f1");
-    expect(mockDecommissionRoom).toHaveBeenCalledWith("room_f3");
-    expect(mockDelete).toHaveBeenCalledWith({ where: { id: "p1" } });
-  });
-
-  it("proceeds with delete even when decommissionRoom fails (best-effort)", async () => {
-    mockFindFirst.mockResolvedValue({
-      id: "p1",
-      visibility: "workspace",
-      members: [{ role: "owner" }],
-    } as any);
-    mockFileFindMany.mockResolvedValue([
-      { liveblocksRoomId: "room_f1" },
-    ] as any);
-    mockDecommissionRoom.mockRejectedValue(new Error("Room stuck"));
 
     await deleteProject("my-org", "p1");
 

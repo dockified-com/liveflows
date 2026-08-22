@@ -21,7 +21,7 @@ describe("EditorPaneRouter", () => {
       <EditorPaneRouter
         fileId="file-1"
         fileType="canvas"
-        liveblocksRoomId="room-canvas-1"
+        roomId="room-canvas-1"
       />,
     );
     expect(screen.getByTestId("mock-canvas-room")).toBeInTheDocument();
@@ -33,7 +33,7 @@ describe("EditorPaneRouter", () => {
       <EditorPaneRouter
         fileId="file-2"
         fileType="document"
-        liveblocksRoomId="room-doc-2"
+        roomId="room-doc-2"
       />,
     );
     expect(
@@ -50,7 +50,7 @@ describe("EditorPaneRouter", () => {
     ).toBeInTheDocument();
   });
 
-  it("uses default fallback roomId if liveblocksRoomId is omitted", () => {
+  it("uses default fallback roomId if roomId is omitted", () => {
     render(<EditorPaneRouter fileId="file-99" fileType="canvas" />);
     expect(screen.getByText("CanvasRoom: file_file-99")).toBeInTheDocument();
   });

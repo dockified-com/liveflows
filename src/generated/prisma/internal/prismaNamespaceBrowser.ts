@@ -149,7 +149,7 @@ export const FileScalarFieldEnum = {
   normalizedName: 'normalizedName',
   directoryKey: 'directoryKey',
   type: 'type',
-  liveblocksRoomId: 'liveblocksRoomId',
+  roomId: 'roomId',
   createdById: 'createdById',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -172,6 +172,7 @@ export type CanvasSnapshotScalarFieldEnum = (typeof CanvasSnapshotScalarFieldEnu
 export const DocumentSnapshotScalarFieldEnum = {
   fileId: 'fileId',
   content: 'content',
+  yjsUpdate: 'yjsUpdate',
   syncedAt: 'syncedAt'
 } as const
 

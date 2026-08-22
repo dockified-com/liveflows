@@ -36,7 +36,7 @@ describe("proxy config.matcher", () => {
 
   it("matches API routes", () => {
     expect(matchesProxy("/api/webhooks/clerk")).toBe(true);
-    expect(matchesProxy("/api/liveblocks-auth")).toBe(true);
+    expect(matchesProxy("/api/mcp")).toBe(true);
     expect(matchesProxy("/trpc/something")).toBe(true);
   });
 
@@ -79,14 +79,13 @@ describe("public route classification", () => {
 
   it("webhook routes are public (critical — Clerk returns 401 otherwise)", () => {
     expect(isPublicRoute("/api/webhooks/clerk")).toBe(true);
-    expect(isPublicRoute("/api/webhooks/liveblocks")).toBe(true);
   });
 
   it("app routes are NOT public (requires authentication)", () => {
     expect(isPublicRoute("/w/my-org")).toBe(false);
     expect(isPublicRoute("/w/my-org/p/proj123")).toBe(false);
     expect(isPublicRoute("/dashboard")).toBe(false);
-    expect(isPublicRoute("/api/liveblocks-auth")).toBe(false);
+    expect(isPublicRoute("/api/mcp")).toBe(false);
   });
 
   it("session-tasks route is NOT public (user must be authenticated)", () => {

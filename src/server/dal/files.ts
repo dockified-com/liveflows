@@ -6,7 +6,6 @@ import {
   requireProjectPermission,
 } from "../authz/service";
 import { db } from "../db";
-import { decommissionRoom, provisionRoom, roomIdForFile } from "../liveblocks";
 import { ForbiddenError, NotFoundError } from "./errors";
 import { requireWorkspace } from "./workspaces";
 
@@ -16,9 +15,14 @@ export type FileDetail = {
   folderId: string | null;
   name: string;
   type: string;
-  liveblocksRoomId: string | null;
+  roomId: string | null;
   updatedAt: Date;
 };
+
+/** Deterministic room ID from file ID */
+export function roomIdForFile(fileId: string): string {
+  return `file_${fileId}`;
+}
 
 /** Build the D37 directoryKey for a file: "<projectId>:<folderId|ROOT>" */
 function fileDirectoryKey(projectId: string, folderId: string | null): string {
@@ -75,7 +79,6 @@ export async function createFile(
       directoryKey,
       type,
       createdById: userId,
-      liveblocksRoomId: type === "canvas" ? "" : null,
     },
     select: {
       id: true,
@@ -83,43 +86,26 @@ export async function createFile(
       folderId: true,
       name: true,
       type: true,
-      liveblocksRoomId: true,
+      roomId: true,
       updatedAt: true,
     },
   });
 
   const roomId = roomIdForFile(file.id);
 
-  try {
-    await provisionRoom({
-      roomId,
-      workspaceId: workspace.id,
-      clerkOrgId: orgId,
-      type,
-    });
-
-    if (type === "canvas") {
-      const updated = await db.file.update({
-        where: { id: file.id },
-        data: { liveblocksRoomId: roomId },
-        select: {
-          id: true,
-          projectId: true,
-          folderId: true,
-          name: true,
-          type: true,
-          liveblocksRoomId: true,
-          updatedAt: true,
-        },
-      });
-      return updated;
-    }
-
-    return file;
-  } catch (error) {
-    await db.file.delete({ where: { id: file.id } });
-    throw error;
-  }
+  return db.file.update({
+    where: { id: file.id },
+    data: { roomId },
+    select: {
+      id: true,
+      projectId: true,
+      folderId: true,
+      name: true,
+      type: true,
+      roomId: true,
+      updatedAt: true,
+    },
+  });
 }
 
 export async function renameFile(
@@ -168,7 +154,7 @@ export async function renameFile(
       folderId: true,
       name: true,
       type: true,
-      liveblocksRoomId: true,
+      roomId: true,
       updatedAt: true,
     },
   });
@@ -224,7 +210,7 @@ export async function moveFile(
       folderId: true,
       name: true,
       type: true,
-      liveblocksRoomId: true,
+      roomId: true,
       updatedAt: true,
     },
   });
@@ -251,12 +237,6 @@ export async function deleteFile(
   });
   if (!file) notFound();
 
-  try {
-    await decommissionRoom(roomIdForFile(file.id));
-  } catch (error) {
-    console.warn(`Failed to decommission room for file ${file.id}:`, error);
-  }
-
   await db.file.delete({ where: { id: file.id } });
 }
 
@@ -265,7 +245,7 @@ export type FileWithSnapshot = {
   name: string;
   type: string;
   updatedAt: Date;
-  liveblocksRoomId: string;
+  roomId: string;
   snapshotElements: unknown[];
 };
 
@@ -296,7 +276,7 @@ export async function getFileWithSnapshot(
       name: true,
       type: true,
       updatedAt: true,
-      liveblocksRoomId: true,
+      roomId: true,
       canvas: { select: { elements: true } },
     },
   });
@@ -304,15 +284,15 @@ export async function getFileWithSnapshot(
   if (!file) notFound();
 
   // D14: always use the DAL-stored roomId; fall back to the convention only if
-  // liveblocksRoomId was not yet written (race between file creation and room provision)
-  const roomId = file.liveblocksRoomId || roomIdForFile(file.id);
+  // roomId was not yet written (race between file creation and room provision)
+  const roomId = file.roomId || roomIdForFile(file.id);
 
   return {
     id: file.id,
     name: file.name,
     type: file.type,
     updatedAt: file.updatedAt,
-    liveblocksRoomId: roomId,
+    roomId: roomId,
     snapshotElements: (file.canvas?.elements as unknown[]) ?? [],
   };
 }

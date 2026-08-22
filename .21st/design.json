@@ -1,0 +1,213 @@
+{
+  "version": 1,
+  "project": {
+    "name": "liveflows",
+    "productType": null,
+    "stack": ["nextjs", "react", "tailwind-v4"]
+  },
+  "sources": {
+    "tokens": ["src/app/globals.css"],
+    "components": ["src/components/ui"],
+    "assets": [],
+    "instructions": ["DESIGN.md", "AGENTS.md"]
+  },
+  "design": {
+    "colorMode": "light",
+    "colors": {
+      "--accent": {
+        "value": "#2563eb",
+        "source": "src/app/globals.css"
+      },
+      "--accent-hover": {
+        "value": "#1d4ed8",
+        "source": "src/app/globals.css"
+      },
+      "--accent-soft": {
+        "value": "#eff6ff",
+        "source": "src/app/globals.css"
+      },
+      "--destructive": {
+        "value": "#dc2626",
+        "source": "src/app/globals.css"
+      },
+      "--destructive-soft": {
+        "value": "#fef2f2",
+        "source": "src/app/globals.css"
+      },
+      "--background": {
+        "value": "var(--bg)",
+        "source": "src/app/globals.css"
+      },
+      "--foreground": {
+        "value": "var(--ink)",
+        "source": "src/app/globals.css"
+      },
+      "--surface-border": {
+        "value": "var(--line)",
+        "source": "src/app/globals.css"
+      },
+      "--color-bg": {
+        "value": "var(--bg)",
+        "source": "src/app/globals.css"
+      },
+      "--color-bg-2": {
+        "value": "var(--bg-2)",
+        "source": "src/app/globals.css"
+      },
+      "--color-card": {
+        "value": "var(--card)",
+        "source": "src/app/globals.css"
+      },
+      "--color-line": {
+        "value": "var(--line)",
+        "source": "src/app/globals.css"
+      },
+      "--color-ink": {
+        "value": "var(--ink)",
+        "source": "src/app/globals.css"
+      },
+      "--color-ink-soft": {
+        "value": "var(--ink-soft)",
+        "source": "src/app/globals.css"
+      },
+      "--color-ink-faint": {
+        "value": "var(--ink-faint)",
+        "source": "src/app/globals.css"
+      },
+      "--color-accent": {
+        "value": "var(--accent)",
+        "source": "src/app/globals.css"
+      },
+      "--color-accent-hover": {
+        "value": "var(--accent-hover)",
+        "source": "src/app/globals.css"
+      },
+      "--color-accent-soft": {
+        "value": "var(--accent-soft)",
+        "source": "src/app/globals.css"
+      },
+      "--color-success": {
+        "value": "var(--success)",
+        "source": "src/app/globals.css"
+      },
+      "--color-success-soft": {
+        "value": "var(--success-soft)",
+        "source": "src/app/globals.css"
+      },
+      "--color-warn": {
+        "value": "var(--warn)",
+        "source": "src/app/globals.css"
+      },
+      "--color-warn-soft": {
+        "value": "var(--warn-soft)",
+        "source": "src/app/globals.css"
+      },
+      "--color-destructive": {
+        "value": "var(--destructive)",
+        "source": "src/app/globals.css"
+      },
+      "--color-destructive-soft": {
+        "value": "var(--destructive-soft)",
+        "source": "src/app/globals.css"
+      },
+      "--color-background": {
+        "value": "var(--bg)",
+        "source": "src/app/globals.css"
+      },
+      "--color-foreground": {
+        "value": "var(--ink)",
+        "source": "src/app/globals.css"
+      },
+      "--color-surface": {
+        "value": "var(--card)",
+        "source": "src/app/globals.css"
+      },
+      "--color-surface-border": {
+        "value": "var(--line)",
+        "source": "src/app/globals.css"
+      },
+      "--color-steel": {
+        "value": "var(--ink-soft)",
+        "source": "src/app/globals.css"
+      },
+      "--color-amber": {
+        "value": "var(--warn)",
+        "source": "src/app/globals.css"
+      },
+      "--color-emerald": {
+        "value": "var(--success)",
+        "source": "src/app/globals.css"
+      }
+    },
+    "typography": {
+      "--font-sans": {
+        "value": "var(--font-geist-sans), system-ui, sans-serif",
+        "source": "src/app/globals.css"
+      },
+      "--font-mono": {
+        "value": "var(--font-geist-mono), monospace",
+        "source": "src/app/globals.css"
+      }
+    },
+    "spacing": {},
+    "radius": {},
+    "shadows": {},
+    "motion": {},
+    "density": "unknown"
+  },
+  "components": {
+    "installed": [
+      "button",
+      "empty-state",
+      "icon",
+      "inline-error",
+      "input",
+      "modal-dialog",
+      "primitives-demo",
+      "status-pill",
+      "ui-primitives.test"
+    ],
+    "preferredPrimitives": [],
+    "patterns": []
+  },
+  "constraints": {
+    "must": [],
+    "avoid": []
+  },
+  "decisions": [],
+  "evidence": [
+    {
+      "fact": "components.installed",
+      "source": "src/components/ui"
+    },
+    {
+      "fact": "design.colorMode:light",
+      "source": "src/app/globals.css"
+    },
+    {
+      "fact": "design.tokens",
+      "source": "src/app/globals.css"
+    },
+    {
+      "fact": "project.instructions",
+      "source": "AGENTS.md"
+    },
+    {
+      "fact": "project.instructions",
+      "source": "DESIGN.md"
+    },
+    {
+      "fact": "project.stack:nextjs",
+      "source": "package.json"
+    },
+    {
+      "fact": "project.stack:react",
+      "source": "package.json"
+    },
+    {
+      "fact": "project.stack:tailwind-v4",
+      "source": "package.json"
+    }
+  ],
+  "generatedAt": "2026-08-13T12:49:40.262Z"
+}

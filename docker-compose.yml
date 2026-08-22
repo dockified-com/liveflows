@@ -1,0 +1,54 @@
+# Production Docker Compose — LiveFlows
+#
+# Two services, one internal network:
+#   app       — Next.js (port 3000)
+#   collab    — Hocuspocus WebSocket server (port 1234, internal only)
+#
+# The reverse proxy (nginx/Caddy, not managed here) must:
+#   - Route / to app:3000
+#   - Route /collab (WebSocket upgrade) to collab:1234
+#   - Handle TLS termination
+#
+# Environment variables must be provided via .env.local or Docker secrets.
+# Never hardcode secrets here.
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+      - CLERK_SECRET_KEY
+      - CLERK_WEBHOOK_SIGNING_SECRET
+      - DATABASE_URL
+      - DIRECT_URL
+      - NEXT_PUBLIC_COLLAB_URL
+      - COLLAB_INTERNAL_URL
+    networks:
+      - internal
+    ports:
+      - "3000:3000"
+    depends_on:
+      - collab
+
+  collab:
+    build:
+      context: collab-server
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - CLERK_SECRET_KEY
+      - DATABASE_URL
+      - COLLAB_PORT=1234
+    networks:
+      - internal
+    # No ports: block — only reachable via the internal network.
+    # The reverse proxy routes /collab here over the internal network.
+
+networks:
+  internal:
+    driver: bridge

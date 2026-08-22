@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { principalFromSession } from "../authz/principal";
 import { requireProjectPermission } from "../authz/service";
 import { db } from "../db";
-import { decommissionRoom } from "../liveblocks";
 import { ForbiddenError, NotFoundError } from "./errors";
 import { requireWorkspace } from "./workspaces";
 
@@ -134,24 +133,6 @@ export async function deleteProject(
 
   if (!project) {
     notFound();
-  }
-
-  const files = await db.file.findMany({
-    where: { projectId: project.id },
-    select: { liveblocksRoomId: true },
-  });
-
-  for (const file of files) {
-    if (file.liveblocksRoomId) {
-      try {
-        await decommissionRoom(file.liveblocksRoomId);
-      } catch (error) {
-        console.warn(
-          `Failed to decommission room ${file.liveblocksRoomId}:`,
-          error,
-        );
-      }
-    }
   }
 
   await db.project.delete({ where: { id: project.id } });

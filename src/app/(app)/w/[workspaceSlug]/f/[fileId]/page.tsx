@@ -32,7 +32,7 @@ export default async function Page({
         <EditorPaneRouter
           fileId={file.id}
           fileType={file.type}
-          liveblocksRoomId={file.liveblocksRoomId}
+          roomId={file.roomId}
         />
       </div>
     </div>

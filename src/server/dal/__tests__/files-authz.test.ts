@@ -26,12 +26,6 @@ vi.mock("../../db", async () => {
   return { db: testDb };
 });
 
-vi.mock("../../liveblocks", () => ({
-  decommissionRoom: vi.fn().mockResolvedValue(undefined),
-  provisionRoom: vi.fn().mockResolvedValue(undefined),
-  roomIdForFile: (id: string) => `file_${id}`,
-}));
-
 const { createFile, deleteFile, getFileWithSnapshot, renameFile } =
   await import("../files");
 const { createFolder, deleteFolder, renameFolder } = await import("../folders");
