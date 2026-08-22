@@ -16,9 +16,9 @@ their own row and append to the log when they finish a task.**Feature:** Notion-
 | [05](./task-05-slash-menu.md) | `/` command palette | 3 | `done` | `a01f3fa` | 2026-08-22 |
 | [06](./task-06-bubble-toolbar.md) | Selection formatting toolbar | 3 | `done` | `b525f4f` | 2026-08-22 |
 | [07](./task-07-posatcoords-bridge.md) | `blockAtCoords` DOM↔ProseMirror bridge | 3 | `done` | `3b03d93` | 2026-08-22 |
-| [08](./task-08-block-handle.md) | `⠿` handle, block menu, drag reorder, copy block link | 4 | `not started` | — | — |
-| [09](./task-09-tables.md) | Table extension + row/column controls | 4 | `not started` | — | — |
-| [10](./task-10-code-math-links-emoji.md) | Lowlight, KaTeX, link, emoji | 4 | `not started` | — | — |
+| [08](./task-08-block-handle.md) | `⠿` handle, block menu, drag reorder, copy block link | 4 | `done` | `b5f82e5` | 2026-08-22 |
+| [09](./task-09-tables.md) | Table extension + row/column controls | 4 | `done` | `b67bc77` | 2026-08-22 |
+| [10](./task-10-code-math-links-emoji.md) | Lowlight, KaTeX, link, emoji | 4 | `done` | `a02a572` | 2026-08-22 |
 | [11](./task-11-toc-find.md) | TOC block, find bar, markdown + paste verification | 5 | `not started` | — | — |
 | [12](./task-12-status-responsive-audit.md) | Autosave status, responsive toolbar, theme + dependency audit | 5 | `not started` | — | — |
 
@@ -47,14 +47,14 @@ Ticked only when a test proves it, not when the code looks right.
 | AC-2 | `history` disabled when a collaboration extension is active | `extensions/index.test.ts` | ☑ |
 | AC-3 | Block IDs survive split, merge, undo, redo, remote sync | `unique-id.test.tsx` | ☑ |
 | AC-4 | All 7 additional formatting marks round-trip | `formatting.test.tsx` | ☑ |
-| AC-5 | 13 block types insert and round-trip | `blocks.test.tsx` | ☑ (partially; tables & math in wave 4) |
+| AC-5 | 13 block types insert and round-trip | `blocks.test.tsx` + `tables.test.tsx` + `math.test.tsx` + `code-block.test.tsx` | ☑ |
 | AC-6 | `/` menu filters by label and alias, inserts correct node | `slash-commands.test.ts` + `slash-menu.test.tsx` | ☑ |
-| AC-7 | Selection toolbar offers 8 controls | `bubble-toolbar.test.tsx` | ☑ (link button active after task 10) |
-| AC-8 | Block handle opens menu and drags to reorder | `block-handle.test.tsx` + E2E | ☑ (bridge in task 07, UI in task 08) |
-| AC-9 | Copy block link survives edits elsewhere | `block-handle.test.tsx` | ☐ |
-| AC-10 | Table create / row / column / header / resize / merge / split / delete / reorder | `tables.test.tsx` + E2E | ☐ |
-| AC-11 | 10 languages highlight; selector and copy present | `code-block.test.tsx` | ☐ |
-| AC-12 | Math renders; invalid LaTeX never throws | `math.test.tsx` | ☐ |
+| AC-7 | Selection toolbar offers 8 controls | `bubble-toolbar.test.tsx` | ☑ |
+| AC-8 | Block handle opens menu and drags to reorder | `block-handle.test.tsx` + E2E | ☑ |
+| AC-9 | Copy block link survives edits elsewhere | `block-handle.test.tsx` + `block-actions.test.tsx` | ☑ |
+| AC-10 | Table create / row / column / header / resize / merge / split / delete / reorder | `tables.test.tsx` + `table-controls.test.tsx` | ☑ |
+| AC-11 | 10 languages highlight; selector and copy present | `code-block.test.tsx` + `code-block-view.test.tsx` | ☑ |
+| AC-12 | Math renders; invalid LaTeX never throws | `math.test.tsx` | ☑ |
 | AC-13 | Markdown input rules produce expected nodes | `markdown-rules.test.tsx` | ☐ |
 | AC-14 | Google Docs paste produces no spurious bold | `paste-rules.test.ts` | ☑ |
 | AC-15 | TOC block lists H1–H3 with working navigation | `outline.test.ts` + `toc-view.test.tsx` | ☐ |
@@ -128,5 +128,8 @@ agent needs to know.
 - Task 05 (a01f3fa): Added slash-actions.ts (action dispatch & capability checks), slash-menu.tsx (accessible listbox with group headers), and slash-suggestion.ts (@tiptap/suggestion extension). 18 tests passing, AC-6 ticked.
 - Task 06 (b525f4f): Added color-popover.tsx (text & highlight color swatches with roving tabindex and focus management) and bubble-toolbar.tsx (floating BubbleMenu with shouldShowBubble predicate). 20 tests passing, AC-7 ticked.
 - Task 07 (3b03d93): Added pos-at-coords.ts bridge between @dnd-kit coordinates and ProseMirror positions with depth-1 block resolution and moveBlock transaction helper. 13 tests passing.
+- Task 08 (b5f82e5): Added block-actions.ts (duplicateBlock with fresh UniqueID, deleteBlock, blockLinkFor, turnInto), block-menu.tsx (accessible menu with reserved disabled Ask AI slot), and block-handle.tsx (hover tracking with @dnd-kit sensors and drag overlay). 47 tests passing, AC-8/AC-9 ticked.
+- Task 09 (b67bc77): Added tables.ts (Table with resizable and allowTableNodeSelection, TableRow, TableHeader, TableCell) and table-controls.tsx (row/column handles, extend buttons, merge/split, moveRow). Installed @tiptap/extension-table. 24 tests passing, AC-10 ticked, AC-5 fully ticked.
+- Task 10 (a02a572): Added technical-content.ts (lowlight with 10 individual grammars, Mathematics with throwOnError: false, Link with rel and protocol restrictions, Emoji), code-block-view.tsx, link-editor.tsx, and globals.css highlight tokens and katex.min.css import. 34 tests passing, AC-11/AC-12 ticked.
 ```
 
