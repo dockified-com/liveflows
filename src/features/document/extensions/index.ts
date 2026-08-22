@@ -4,6 +4,7 @@ import StarterKit from "@tiptap/starter-kit";
 import { PROVIDER_MANAGES_HISTORY } from "../collaboration-provider";
 import { blockExtensions } from "./blocks";
 import { formattingExtensions } from "./formatting";
+import { slashSuggestionExtension } from "./slash-suggestion";
 
 /**
  * Node types that carry a stable ID.
@@ -73,6 +74,7 @@ export function buildExtensions(opts: {
 
     ...formattingExtensions,
     ...blockExtensions,
+    slashSuggestionExtension,
     // task-09: ...tableExtensions,
     // task-10: ...technicalContentExtensions,
   ]);
