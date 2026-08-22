@@ -8,6 +8,7 @@ import {
   useProviderStatus,
 } from "./collaboration-provider";
 import { buildExtensions } from "./extensions";
+import { Toolbar } from "./ui/toolbar";
 
 export interface DocumentEditorProps {
   roomId: string;
@@ -66,7 +67,7 @@ function InnerDocumentEditor({
         </div>
       ) : null}
 
-      {!readOnly && toolbarSlot ? toolbarSlot : null}
+      {!readOnly && (toolbarSlot ?? <Toolbar editor={editor} />)}
       {findSlot}
 
       <div className="relative flex-1 overflow-y-auto p-6 text-sm leading-relaxed text-[var(--ink)]">
