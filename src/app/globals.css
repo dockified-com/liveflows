@@ -138,3 +138,15 @@ body {
   font-weight: 700;
 }
 
+/* Find in document match highlights mapped to DESIGN.md tokens */
+.find-match {
+  background-color: var(--warn-soft);
+  border-radius: 2px;
+}
+
+.find-match-current {
+  background-color: var(--accent-soft);
+  outline: 1px solid var(--accent);
+  border-radius: 2px;
+}
+

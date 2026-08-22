@@ -1,12 +1,15 @@
 import UniqueID from "@tiptap/extension-unique-id";
-import type { Extension } from "@tiptap/react";
+import type { AnyExtension, Extension } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { PROVIDER_MANAGES_HISTORY } from "../collaboration-provider";
 import { blockExtensions } from "./blocks";
+import { findExtension } from "./find";
 import { formattingExtensions } from "./formatting";
+import { pasteHandler } from "./paste-handler";
 import { slashSuggestionExtension } from "./slash-suggestion";
 import { tableExtensions } from "./tables";
 import { technicalContentExtensions } from "./technical-content";
+import { Toc } from "./toc";
 
 /**
  * Node types that carry a stable ID.
@@ -26,15 +29,20 @@ const ID_TYPES = [
   "table",
   "callout",
   "blockMath",
+  "toc",
 ];
 
-function flattenExtensions(extensions: Extension[]): Extension[] {
-  const result: Extension[] = [];
+function flattenExtensions(extensions: AnyExtension[]): AnyExtension[] {
+  const result: AnyExtension[] = [];
   for (const ext of extensions) {
     if (!ext) continue;
-    const addExts = (ext as { config?: { addExtensions?: () => Extension[] } })
-      .config?.addExtensions;
+    const addExts = (
+      ext as { config?: { addExtensions?: () => AnyExtension[] } }
+    ).config?.addExtensions;
     if (typeof addExts === "function") {
+      if (ext.name !== "starterKit") {
+        result.push(ext);
+      }
       result.push(...flattenExtensions(addExts.call(ext)));
     } else {
       result.push(ext);
@@ -63,6 +71,9 @@ export function buildExtensions(opts: {
       // Task 10 replaces this with CodeBlockLowlight. Registering both throws a
       // duplicate-node-name error at editor construction.
       codeBlock: false,
+      heading: {
+        levels: [1, 2, 3],
+      },
     }),
 
     UniqueID.configure({
@@ -79,7 +90,10 @@ export function buildExtensions(opts: {
     slashSuggestionExtension,
     ...tableExtensions,
     ...technicalContentExtensions,
-  ]);
+    Toc,
+    findExtension,
+    pasteHandler,
+  ]) as unknown as Extension[];
 }
 
 /**

@@ -10,6 +10,8 @@ import {
 import { buildExtensions } from "./extensions";
 import { BlockHandle } from "./ui/block-handle/block-handle";
 import { BubbleToolbar } from "./ui/bubble-toolbar";
+import { FindBar } from "./ui/find-bar";
+import { SaveStatus } from "./ui/save-status";
 import { TableControls } from "./ui/table-controls";
 import { Toolbar } from "./ui/toolbar";
 
@@ -70,8 +72,15 @@ function InnerDocumentEditor({
         </div>
       ) : null}
 
-      {!readOnly && (toolbarSlot ?? <Toolbar editor={editor} />)}
-      {findSlot}
+      <div className="flex items-center justify-between border-b border-[var(--line)] bg-[var(--card)] pr-3 shrink-0">
+        <div className="min-w-0 flex-1">
+          {!readOnly && (toolbarSlot ?? <Toolbar editor={editor} />)}
+        </div>
+        <div className="shrink-0 py-1">
+          <SaveStatus status={status} readOnly={readOnly} />
+        </div>
+      </div>
+      {findSlot ?? <FindBar editor={editor} />}
 
       <div className="relative flex-1 overflow-y-auto p-6 text-sm leading-relaxed text-[var(--ink)]">
         {!readOnly && (blockHandleSlot ?? <BlockHandle editor={editor} />)}
