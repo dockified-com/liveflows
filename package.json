@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:collab": "pnpm --filter collab-server dev",
+    "dev:all": "pnpm --parallel dev",
     "build": "next build",
     "start": "next start",
     "lint": "biome check",
