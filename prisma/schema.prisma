@@ -8,14 +8,16 @@ datasource db {
 }
 
 model User {
-  id          String            @id
-  email       String            @unique
-  name        String?
-  avatarUrl   String?
-  memberships WorkspaceMember[]
-  tokens      PersonalAccessToken[]
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
+  id                 String                @id
+  email              String                @unique
+  name               String?
+  avatarUrl          String?
+  memberships        WorkspaceMember[]
+  tokens             PersonalAccessToken[]
+  projectMemberships ProjectMember[]
+  createdProjects    Project[]             @relation("ProjectCreator")
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
 }
 
 model Workspace {
@@ -42,15 +44,18 @@ model WorkspaceMember {
 }
 
 model Project {
-  id          String    @id @default(cuid())
+  id          String          @id @default(cuid())
   name        String
   workspaceId String
   createdById String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  visibility  String          @default("workspace") // "workspace" | "private"
+  workspace   Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  createdBy   User            @relation("ProjectCreator", fields: [createdById], references: [id])
+  members     ProjectMember[]
   folders     Folder[]
   files       File[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 
   @@index([workspaceId, updatedAt])
 }
@@ -140,5 +145,19 @@ model PersonalAccessToken {
 
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId])
+}
+
+model ProjectMember {
+  projectId String
+  userId    String
+  role      String   // "owner" | "editor" | "viewer" — opaque string, never an enum
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, userId])
   @@index([userId])
 }

@@ -60,7 +60,8 @@ export const ModelName = {
   CanvasSnapshot: 'CanvasSnapshot',
   DocumentSnapshot: 'DocumentSnapshot',
   ProcessedWebhook: 'ProcessedWebhook',
-  PersonalAccessToken: 'PersonalAccessToken'
+  PersonalAccessToken: 'PersonalAccessToken',
+  ProjectMember: 'ProjectMember'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -118,6 +119,7 @@ export const ProjectScalarFieldEnum = {
   name: 'name',
   workspaceId: 'workspaceId',
   createdById: 'createdById',
+  visibility: 'visibility',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -200,6 +202,17 @@ export const PersonalAccessTokenScalarFieldEnum = {
 } as const
 
 export type PersonalAccessTokenScalarFieldEnum = (typeof PersonalAccessTokenScalarFieldEnum)[keyof typeof PersonalAccessTokenScalarFieldEnum]
+
+
+export const ProjectMemberScalarFieldEnum = {
+  projectId: 'projectId',
+  userId: 'userId',
+  role: 'role',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProjectMemberScalarFieldEnum = (typeof ProjectMemberScalarFieldEnum)[keyof typeof ProjectMemberScalarFieldEnum]
 
 
 export const SortOrder = {

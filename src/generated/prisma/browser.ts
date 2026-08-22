@@ -67,3 +67,8 @@ export type ProcessedWebhook = Prisma.ProcessedWebhookModel
  * 
  */
 export type PersonalAccessToken = Prisma.PersonalAccessTokenModel
+/**
+ * Model ProjectMember
+ * 
+ */
+export type ProjectMember = Prisma.ProjectMemberModel
