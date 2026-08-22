@@ -1,150 +1,163 @@
-export type SlashCommandGroup = "basic" | "technical" | "layout";
+/**
+ * The slash-menu command registry.
+ *
+ * Plain data — no editor import, not even a type-only one. Tiptap v3 augments
+ * its Commands interface per registered extension, so holding editor callbacks
+ * here would couple this module to the block extensions. Task 05 owns the
+ * action -> editor command mapping instead.
+ */
+
+export type SlashAction =
+  | "paragraph"
+  | "heading1"
+  | "heading2"
+  | "heading3"
+  | "bulletList"
+  | "orderedList"
+  | "taskList"
+  | "blockquote"
+  | "codeBlock"
+  | "divider"
+  | "callout"
+  | "table"
+  | "blockMath"
+  | "toc";
 
 export type SlashCommand = {
   id: string;
   label: string;
-  action: string;
-  group: SlashCommandGroup;
-  description?: string;
-  aliases?: string[];
+  aliases: string[];
+  group: "basic" | "technical" | "layout";
+  action: SlashAction;
 };
 
-export const SLASH_COMMANDS: SlashCommand[] = [
+export const SLASH_COMMANDS: readonly SlashCommand[] = [
   {
-    id: "text",
+    id: "paragraph",
     label: "Text",
+    aliases: ["p", "paragraph", "plain"],
+    group: "basic",
     action: "paragraph",
-    group: "basic",
-    aliases: ["p", "plain", "paragraph"],
   },
   {
-    id: "h1",
+    id: "heading1",
     label: "Heading 1",
+    aliases: ["h1", "title", "big"],
+    group: "basic",
     action: "heading1",
-    group: "basic",
-    aliases: ["h1", "title", "header1"],
   },
   {
-    id: "h2",
+    id: "heading2",
     label: "Heading 2",
+    aliases: ["h2", "subtitle"],
+    group: "basic",
     action: "heading2",
-    group: "basic",
-    aliases: ["h2", "subtitle", "header2"],
   },
   {
-    id: "h3",
+    id: "heading3",
     label: "Heading 3",
+    aliases: ["h3"],
+    group: "basic",
     action: "heading3",
-    group: "basic",
-    aliases: ["h3", "subheading", "header3"],
   },
   {
-    id: "bullet-list",
-    label: "Bullet List",
+    id: "bulletList",
+    label: "Bulleted list",
+    aliases: ["ul", "bullet", "unordered"],
+    group: "basic",
     action: "bulletList",
-    group: "basic",
-    aliases: ["ul", "list", "bullet"],
   },
   {
-    id: "ordered-list",
-    label: "Numbered List",
+    id: "orderedList",
+    label: "Numbered list",
+    aliases: ["ol", "numbered", "ordered"],
+    group: "basic",
     action: "orderedList",
-    group: "basic",
-    aliases: ["ol", "1.", "numbered"],
   },
   {
-    id: "task-list",
-    label: "Task List",
+    id: "taskList",
+    label: "To-do list",
+    aliases: ["todo", "task", "checkbox", "checklist"],
+    group: "basic",
     action: "taskList",
-    group: "basic",
-    aliases: ["todo", "task", "check", "checkbox"],
   },
   {
-    id: "quote",
-    label: "Blockquote",
-    action: "blockquote",
+    id: "blockquote",
+    label: "Quote",
+    aliases: ["quote", "blockquote", "cite"],
     group: "basic",
-    aliases: ["quote", "callout"],
+    action: "blockquote",
   },
   {
     id: "divider",
     label: "Divider",
+    aliases: ["hr", "rule", "separator", "line"],
+    group: "layout",
     action: "divider",
-    group: "basic",
-    aliases: ["hr", "line", "separator"],
   },
   {
-    id: "code-block",
-    label: "Code Block",
-    action: "codeBlock",
-    group: "technical",
-    aliases: ["code", "snippet", "pre"],
+    id: "callout",
+    label: "Callout",
+    aliases: ["callout", "note", "info", "warning", "admonition"],
+    group: "layout",
+    action: "callout",
   },
   {
     id: "table",
     label: "Table",
+    aliases: ["table", "grid"],
+    group: "layout",
     action: "table",
+  },
+  {
+    id: "toc",
+    label: "Table of contents",
+    aliases: ["toc", "outline", "contents"],
     group: "layout",
-    aliases: ["grid", "sheet"],
+    action: "toc",
   },
   {
-    id: "details",
-    label: "Collapsible",
-    action: "details",
-    group: "layout",
-    aliases: ["accordion", "toggle", "collapse"],
-  },
-  {
-    id: "callout-info",
-    label: "Info Callout",
-    action: "calloutInfo",
+    id: "codeBlock",
+    label: "Code block",
+    aliases: ["code", "snippet", "pre"],
     group: "technical",
-    aliases: ["info", "note", "alert"],
+    action: "codeBlock",
   },
   {
-    id: "math",
-    label: "Math Formula",
-    action: "math",
+    id: "blockMath",
+    label: "Equation",
+    aliases: ["math", "latex", "katex", "formula", "equation"],
     group: "technical",
-    aliases: ["latex", "formula", "equation"],
+    action: "blockMath",
   },
 ];
 
+/**
+ * Filters by label or alias, ranking label-prefix matches first so the obvious
+ * candidate lands at the top of the menu.
+ */
 export function filterCommands(
   query: string,
   commands: readonly SlashCommand[] = SLASH_COMMANDS,
 ): SlashCommand[] {
-  const trimmed = query.trim().toLowerCase();
-  if (!trimmed) {
-    return [...commands];
-  }
+  const q = query.trim().toLowerCase();
+  if (!q) return [...commands];
 
-  const matches: { command: SlashCommand; score: number }[] = [];
+  const scored: { command: SlashCommand; score: number }[] = [];
 
   for (const command of commands) {
-    const labelLower = command.label.toLowerCase();
-    const actionLower = command.action.toLowerCase();
-    const aliasesLower = (command.aliases ?? []).map((a) => a.toLowerCase());
+    const label = command.label.toLowerCase();
 
     let score = -1;
-
-    if (labelLower.startsWith(trimmed)) {
-      score = 0;
-    } else if (aliasesLower.some((a) => a === trimmed || a.startsWith(trimmed))) {
+    if (label.startsWith(q)) score = 0;
+    else if (command.aliases.some((a) => a.toLowerCase().startsWith(q)))
       score = 1;
-    } else if (labelLower.includes(trimmed)) {
-      score = 2;
-    } else if (actionLower.includes(trimmed)) {
+    else if (label.includes(q)) score = 2;
+    else if (command.aliases.some((a) => a.toLowerCase().includes(q)))
       score = 3;
-    } else if (aliasesLower.some((a) => a.includes(trimmed))) {
-      score = 4;
-    }
 
-    if (score !== -1) {
-      matches.push({ command, score });
-    }
+    if (score >= 0) scored.push({ command, score });
   }
 
-  matches.sort((a, b) => a.score - b.score);
-  return matches.map((m) => m.command);
+  return scored.sort((a, b) => a.score - b.score).map((entry) => entry.command);
 }
