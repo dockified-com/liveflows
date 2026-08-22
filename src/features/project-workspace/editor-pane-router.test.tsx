@@ -22,13 +22,7 @@ describe("EditorPaneRouter", () => {
   });
 
   it("renders CanvasRoom for canvas fileType", () => {
-    render(
-      <EditorPaneRouter
-        fileId="f1"
-        fileType="canvas"
-        roomId="room-1"
-      />,
-    );
+    render(<EditorPaneRouter fileId="f1" fileType="canvas" roomId="room-1" />);
 
     expect(screen.getByTestId("canvas-room")).toBeInTheDocument();
     expect(screen.getByText("Canvas Room: room-1")).toBeInTheDocument();
@@ -36,11 +30,7 @@ describe("EditorPaneRouter", () => {
 
   it("renders DocumentEditor for document fileType", async () => {
     render(
-      <EditorPaneRouter
-        fileId="f2"
-        fileType="document"
-        roomId="room-2"
-      />,
+      <EditorPaneRouter fileId="f2" fileType="document" roomId="room-2" />,
     );
 
     const docEditor = await screen.findByTestId("document-editor");

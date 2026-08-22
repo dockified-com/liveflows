@@ -15,15 +15,42 @@
 import * as Y from "yjs";
 import { db } from "./db.js";
 
-/** Derive whether a document name is a canvas or document file. */
-async function getFileType(
-  fileId: string,
-): Promise<"canvas" | "document" | null> {
-  const file = await db.file.findUnique({
-    where: { id: fileId },
-    select: { type: true },
+/** Derive whether a document name is a canvas or document file and resolve canonical fileId. */
+async function resolveFile(
+  documentName: string,
+): Promise<{ id: string; type: "canvas" | "document" } | null> {
+  const normalizedId = documentName.startsWith("file_")
+    ? documentName.slice(5)
+    : documentName;
+
+  // 1. Try findUnique by documentName or normalizedId
+  let file = await db.file.findUnique({
+    where: { id: documentName },
+    select: { id: true, type: true },
   });
-  return (file?.type as "canvas" | "document") ?? null;
+
+  if (!file && normalizedId !== documentName) {
+    file = await db.file.findUnique({
+      where: { id: normalizedId },
+      select: { id: true, type: true },
+    });
+  }
+
+  // 2. Fallback to findFirst for roomId
+  if (!file && typeof db.file.findFirst === "function") {
+    file = await db.file.findFirst({
+      where: {
+        OR: [{ roomId: documentName }, { roomId: `file_${documentName}` }],
+      },
+      select: { id: true, type: true },
+    });
+  }
+
+  if (!file) return null;
+  return {
+    id: file.id || documentName,
+    type: file.type as "canvas" | "document",
+  };
 }
 
 /** Count non-deleted Excalidraw elements. */
@@ -40,11 +67,6 @@ function countNonDeleted(elements: unknown[]): number {
  * Debounce map: fileId → timer handle.
  * Cleared on server shutdown.
  */
-const debounceMap = new Map<string, ReturnType<typeof setTimeout>>();
-const DEBOUNCE_MS = 2_000;
-const MAX_DEBOUNCE_MS = 10_000;
-const firstSeenMap = new Map<string, number>();
-
 export async function onStoreDocument({
   documentName,
   document,
@@ -52,41 +74,18 @@ export async function onStoreDocument({
   documentName: string;
   document: Y.Doc;
 }): Promise<void> {
-  const fileId = documentName;
+  const resolved = await resolveFile(documentName);
+  if (!resolved) return;
+  const fileId = resolved.id;
 
-  // Track first-seen time for maxDebounce enforcement
-  if (!firstSeenMap.has(fileId)) {
-    firstSeenMap.set(fileId, Date.now());
-  }
-
-  const elapsed = Date.now() - (firstSeenMap.get(fileId) ?? Date.now());
-  const shouldFlush = elapsed >= MAX_DEBOUNCE_MS;
-
-  const existing = debounceMap.get(fileId);
-  if (existing) clearTimeout(existing);
-
-  const persist = async () => {
-    debounceMap.delete(fileId);
-    firstSeenMap.delete(fileId);
-
-    try {
-      const type = await getFileType(fileId);
-      if (!type) return; // file deleted
-
-      if (type === "canvas") {
-        await persistCanvas(fileId, document);
-      } else {
-        await persistDocument(fileId, document);
-      }
-    } catch (err) {
-      console.error(`[collab] Failed to persist ${fileId}:`, err);
+  try {
+    if (resolved.type === "canvas") {
+      await persistCanvas(fileId, document);
+    } else {
+      await persistDocument(fileId, document);
     }
-  };
-
-  if (shouldFlush) {
-    await persist();
-  } else {
-    debounceMap.set(fileId, setTimeout(persist, DEBOUNCE_MS));
+  } catch (err) {
+    console.error(`[collab] Failed to persist ${fileId}:`, err);
   }
 }
 
@@ -98,6 +97,10 @@ async function persistCanvas(fileId: string, doc: Y.Doc): Promise<void> {
   // appState: stored in a separate Y.Map("appState")
   const appStateMap = doc.getMap<unknown>("appState");
   const appState = Object.fromEntries(appStateMap.entries());
+
+  console.log(
+    `[collab] Persisting canvas ${fileId} with ${elementCount} elements`,
+  );
 
   await db.canvasSnapshot.upsert({
     where: { fileId },
@@ -130,6 +133,10 @@ async function persistDocument(fileId: string, doc: Y.Doc): Promise<void> {
   const fragment = doc.getXmlFragment("default");
   const content = { xml: fragment.toString() };
 
+  console.log(
+    `[collab] Persisting document ${fileId} to Postgres (${yjsUpdate.length} bytes)`,
+  );
+
   await db.documentSnapshot.upsert({
     where: { fileId },
     create: { fileId, content, yjsUpdate },
@@ -144,19 +151,17 @@ export async function onLoadDocument({
   documentName: string;
   document: Y.Doc;
 }): Promise<void> {
-  const fileId = documentName;
-
   try {
-    const type = await getFileType(fileId);
-    if (!type) return;
+    const resolved = await resolveFile(documentName);
+    if (!resolved) return;
 
-    if (type === "canvas") {
-      await seedCanvas(fileId, document);
+    if (resolved.type === "canvas") {
+      await seedCanvas(resolved.id, document);
     } else {
-      await seedDocument(fileId, document);
+      await seedDocument(resolved.id, document);
     }
   } catch (err) {
-    console.error(`[collab] Failed to seed ${fileId}:`, err);
+    console.error(`[collab] Failed to seed ${documentName}:`, err);
   }
 }
 
@@ -168,6 +173,10 @@ async function seedCanvas(fileId: string, doc: Y.Doc): Promise<void> {
     { id: string } & Record<string, unknown>
   >;
   if (!elements || elements.length === 0) return;
+
+  console.log(
+    `[collab] Seeding canvas ${fileId} with ${elements.length} elements`,
+  );
 
   const yMap = doc.getMap<unknown>("elements");
   doc.transact(() => {
@@ -191,8 +200,16 @@ async function seedCanvas(fileId: string, doc: Y.Doc): Promise<void> {
 
 async function seedDocument(fileId: string, doc: Y.Doc): Promise<void> {
   const snapshot = await db.documentSnapshot.findUnique({ where: { fileId } });
-  if (!snapshot?.yjsUpdate) return;
+  if (!snapshot?.yjsUpdate) {
+    console.log(
+      `[collab] No document snapshot found for ${fileId}, starting fresh`,
+    );
+    return;
+  }
 
+  console.log(
+    `[collab] Seeding document ${fileId} from Postgres (${snapshot.yjsUpdate.length} bytes)`,
+  );
   // Apply binary update — lossless, preserves CRDT history
   Y.applyUpdate(doc, snapshot.yjsUpdate);
 }

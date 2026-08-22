@@ -21,12 +21,14 @@ export interface EditorPaneRouterProps {
   fileId: string;
   fileType: "canvas" | "document" | string;
   roomId?: string | null;
+  fileName?: string;
 }
 
 export function EditorPaneRouter({
   fileId,
   fileType,
   roomId: roomIdProp,
+  fileName,
 }: EditorPaneRouterProps) {
   const roomId = roomIdProp || `file_${fileId}`;
 
@@ -40,12 +42,18 @@ export function EditorPaneRouter({
             </div>
           }
         >
-          <CanvasRoom roomId={roomId} />
+          <CanvasRoom key={roomId} roomId={roomId} />
         </Suspense>
       );
 
     case "document":
-      return <DocumentEditor roomId={roomId} />;
+      return (
+        <DocumentEditor
+          key={roomId}
+          roomId={roomId}
+          initialTitle={fileName || "Untitled Document"}
+        />
+      );
 
     default:
       return (

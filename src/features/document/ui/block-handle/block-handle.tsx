@@ -19,6 +19,8 @@ import {
   blockLinkFor,
   deleteBlock,
   duplicateBlock,
+  resetFormatting,
+  setBlockColor,
   turnInto,
 } from "./block-actions";
 import { BlockMenu } from "./block-menu";
@@ -203,6 +205,8 @@ export function BlockHandle({
     return null;
   }
 
+  const isNearLeftEdge = handlePosition.left < 250;
+
   return (
     <DndContext
       sensors={sensors}
@@ -218,6 +222,8 @@ export function BlockHandle({
             position: "absolute",
             top: `${handlePosition.top}px`,
             left: `${handlePosition.left}px`,
+            transition:
+              "top 80ms cubic-bezier(0.2, 0, 0, 1), left 80ms cubic-bezier(0.2, 0, 0, 1), opacity 120ms ease",
           }}
           className="z-30 inline-flex flex-col items-start"
         >
@@ -230,9 +236,9 @@ export function BlockHandle({
             aria-controls={menuId}
             aria-haspopup="menu"
             onClick={() => setIsMenuOpen((prev) => !prev)}
-            className={`flex h-6 w-5 items-center justify-center rounded text-sm transition-colors cursor-grab active:cursor-grabbing select-none font-mono ${
+            className={`flex h-6 w-5 items-center justify-center rounded text-sm transition-all duration-100 cursor-grab active:cursor-grabbing select-none font-mono hover:scale-105 active:scale-95 ${
               isMenuOpen
-                ? "bg-[var(--bg-2)] text-[var(--ink)]"
+                ? "bg-[var(--bg-2)] text-[var(--ink)] shadow-sm"
                 : "text-[var(--ink-faint)] hover:bg-[var(--bg-2)] hover:text-[var(--ink-soft)]"
             }`}
           >
@@ -240,9 +246,34 @@ export function BlockHandle({
           </button>
 
           {isMenuOpen && (
-            <div className="absolute left-0 top-full mt-1 z-40">
+            <div
+              className={`absolute top-0 z-40 animate-in fade-in zoom-in-95 duration-100 ease-out ${
+                isNearLeftEdge ? "left-full ml-2" : "right-full mr-2"
+              }`}
+            >
               <BlockMenu
                 id={menuId}
+                nodeTypeName={
+                  target.node.type.name === "codeBlock"
+                    ? "Code Block"
+                    : target.node.type.name === "heading"
+                      ? `Heading ${target.node.attrs?.level || 1}`
+                      : target.node.type.name === "paragraph"
+                        ? "Text"
+                        : target.node.type.name === "callout"
+                          ? "Callout"
+                          : target.node.type.name === "bulletList"
+                            ? "Bullet list"
+                            : target.node.type.name === "orderedList"
+                              ? "Numbered list"
+                              : target.node.type.name === "taskList"
+                                ? "To-do list"
+                                : target.node.type.name === "blockquote"
+                                  ? "Quote"
+                                  : target.node.type.name === "table"
+                                    ? "Table"
+                                    : "Text"
+                }
                 hasBlockId={Boolean(target.node.attrs?.id)}
                 onDuplicate={() => {
                   duplicateBlock(editor.view, target.pos);
@@ -255,6 +286,21 @@ export function BlockHandle({
                 }}
                 onTurnInto={(t) => {
                   turnInto(editor.view, target.pos, t);
+                  setIsMenuOpen(false);
+                }}
+                onColor={(color, isBg) => {
+                  setBlockColor(editor.view, target.pos, color, isBg);
+                  setIsMenuOpen(false);
+                }}
+                onResetFormatting={() => {
+                  resetFormatting(editor.view, target.pos);
+                  setIsMenuOpen(false);
+                }}
+                onCopyToClipboard={() => {
+                  const text = target.node.textContent;
+                  if (typeof navigator !== "undefined" && navigator.clipboard) {
+                    navigator.clipboard.writeText(text);
+                  }
                   setIsMenuOpen(false);
                 }}
                 onCopyLink={() => {

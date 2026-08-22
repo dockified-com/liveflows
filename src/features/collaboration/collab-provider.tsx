@@ -80,7 +80,7 @@ export function CollabRoomProvider({
       process.env.NEXT_PUBLIC_COLLAB_URL ||
       (window.location.protocol === "https:"
         ? `wss://${window.location.host}/collab`
-        : "ws://localhost:1234");
+        : `ws://${window.location.hostname || "localhost"}:1234`);
 
     const p = new HocuspocusProvider({
       url,

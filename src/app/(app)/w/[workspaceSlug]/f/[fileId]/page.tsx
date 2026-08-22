@@ -33,6 +33,7 @@ export default async function Page({
           fileId={file.id}
           fileType={file.type}
           roomId={file.roomId}
+          fileName={file.name}
         />
       </div>
     </div>

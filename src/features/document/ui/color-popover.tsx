@@ -11,6 +11,57 @@ export interface ColorPopoverProps {
   kind: "text" | "highlight";
 }
 
+export interface NotionColor {
+  name: string;
+  value: string | null;
+  bg?: string;
+}
+
+export const NOTION_COLORS: NotionColor[] = [
+  { name: "Default", value: null, bg: undefined },
+  {
+    name: "Gray",
+    value: "var(--notion-gray)",
+    bg: "var(--notion-highlight-gray)",
+  },
+  {
+    name: "Brown",
+    value: "var(--notion-brown)",
+    bg: "var(--notion-highlight-brown)",
+  },
+  {
+    name: "Orange",
+    value: "var(--notion-orange)",
+    bg: "var(--notion-highlight-orange)",
+  },
+  {
+    name: "Yellow",
+    value: "var(--notion-yellow)",
+    bg: "var(--notion-highlight-yellow)",
+  },
+  {
+    name: "Green",
+    value: "var(--notion-green)",
+    bg: "var(--notion-highlight-green)",
+  },
+  {
+    name: "Blue",
+    value: "var(--notion-blue)",
+    bg: "var(--notion-highlight-blue)",
+  },
+  {
+    name: "Purple",
+    value: "var(--notion-purple)",
+    bg: "var(--notion-highlight-purple)",
+  },
+  {
+    name: "Pink",
+    value: "var(--notion-pink)",
+    bg: "var(--notion-highlight-pink)",
+  },
+  { name: "Red", value: "var(--notion-red)", bg: "var(--notion-highlight-red)" },
+];
+
 interface Swatch {
   id: string;
   label: string;
@@ -33,6 +84,69 @@ const TEXT_SWATCHES: Swatch[] = [
     token: "var(--accent)",
     action: (e) => e.chain().focus().setColor("var(--accent)").run(),
     isActive: (e) => e.isActive("textStyle", { color: "var(--accent)" }),
+  },
+  {
+    id: "gray",
+    label: "Gray",
+    token: "var(--notion-gray)",
+    action: (e) => e.chain().focus().setColor("var(--notion-gray)").run(),
+    isActive: (e) => e.isActive("textStyle", { color: "var(--notion-gray)" }),
+  },
+  {
+    id: "brown",
+    label: "Brown",
+    token: "var(--notion-brown)",
+    action: (e) => e.chain().focus().setColor("var(--notion-brown)").run(),
+    isActive: (e) => e.isActive("textStyle", { color: "var(--notion-brown)" }),
+  },
+  {
+    id: "orange",
+    label: "Orange",
+    token: "var(--notion-orange)",
+    action: (e) => e.chain().focus().setColor("var(--notion-orange)").run(),
+    isActive: (e) => e.isActive("textStyle", { color: "var(--notion-orange)" }),
+  },
+  {
+    id: "yellow",
+    label: "Yellow",
+    token: "var(--notion-yellow)",
+    action: (e) => e.chain().focus().setColor("var(--notion-yellow)").run(),
+    isActive: (e) => e.isActive("textStyle", { color: "var(--notion-yellow)" }),
+  },
+  {
+    id: "green",
+    label: "Green",
+    token: "var(--notion-green)",
+    action: (e) => e.chain().focus().setColor("var(--notion-green)").run(),
+    isActive: (e) => e.isActive("textStyle", { color: "var(--notion-green)" }),
+  },
+  {
+    id: "blue",
+    label: "Blue",
+    token: "var(--notion-blue)",
+    action: (e) => e.chain().focus().setColor("var(--notion-blue)").run(),
+    isActive: (e) => e.isActive("textStyle", { color: "var(--notion-blue)" }),
+  },
+  {
+    id: "purple",
+    label: "Purple",
+    token: "var(--notion-purple)",
+    action: (e) => e.chain().focus().setColor("var(--notion-purple)").run(),
+    isActive: (e) => e.isActive("textStyle", { color: "var(--notion-purple)" }),
+  },
+  {
+    id: "pink",
+    label: "Pink",
+    token: "var(--notion-pink)",
+    action: (e) => e.chain().focus().setColor("var(--notion-pink)").run(),
+    isActive: (e) => e.isActive("textStyle", { color: "var(--notion-pink)" }),
+  },
+  {
+    id: "red",
+    label: "Red",
+    token: "var(--notion-red)",
+    action: (e) => e.chain().focus().setColor("var(--notion-red)").run(),
+    isActive: (e) => e.isActive("textStyle", { color: "var(--notion-red)" }),
   },
   {
     id: "success",
@@ -79,6 +193,123 @@ const HIGHLIGHT_SWATCHES: Swatch[] = [
     action: (e) =>
       e.chain().focus().setHighlight({ color: "var(--accent-soft)" }).run(),
     isActive: (e) => e.isActive("highlight", { color: "var(--accent-soft)" }),
+  },
+  {
+    id: "gray",
+    label: "Gray",
+    token: "var(--notion-highlight-gray)",
+    action: (e) =>
+      e
+        .chain()
+        .focus()
+        .setHighlight({ color: "var(--notion-highlight-gray)" })
+        .run(),
+    isActive: (e) =>
+      e.isActive("highlight", { color: "var(--notion-highlight-gray)" }),
+  },
+  {
+    id: "brown",
+    label: "Brown",
+    token: "var(--notion-highlight-brown)",
+    action: (e) =>
+      e
+        .chain()
+        .focus()
+        .setHighlight({ color: "var(--notion-highlight-brown)" })
+        .run(),
+    isActive: (e) =>
+      e.isActive("highlight", { color: "var(--notion-highlight-brown)" }),
+  },
+  {
+    id: "orange",
+    label: "Orange",
+    token: "var(--notion-highlight-orange)",
+    action: (e) =>
+      e
+        .chain()
+        .focus()
+        .setHighlight({ color: "var(--notion-highlight-orange)" })
+        .run(),
+    isActive: (e) =>
+      e.isActive("highlight", { color: "var(--notion-highlight-orange)" }),
+  },
+  {
+    id: "yellow",
+    label: "Yellow",
+    token: "var(--notion-highlight-yellow)",
+    action: (e) =>
+      e
+        .chain()
+        .focus()
+        .setHighlight({ color: "var(--notion-highlight-yellow)" })
+        .run(),
+    isActive: (e) =>
+      e.isActive("highlight", { color: "var(--notion-highlight-yellow)" }),
+  },
+  {
+    id: "green",
+    label: "Green",
+    token: "var(--notion-highlight-green)",
+    action: (e) =>
+      e
+        .chain()
+        .focus()
+        .setHighlight({ color: "var(--notion-highlight-green)" })
+        .run(),
+    isActive: (e) =>
+      e.isActive("highlight", { color: "var(--notion-highlight-green)" }),
+  },
+  {
+    id: "blue",
+    label: "Blue",
+    token: "var(--notion-highlight-blue)",
+    action: (e) =>
+      e
+        .chain()
+        .focus()
+        .setHighlight({ color: "var(--notion-highlight-blue)" })
+        .run(),
+    isActive: (e) =>
+      e.isActive("highlight", { color: "var(--notion-highlight-blue)" }),
+  },
+  {
+    id: "purple",
+    label: "Purple",
+    token: "var(--notion-highlight-purple)",
+    action: (e) =>
+      e
+        .chain()
+        .focus()
+        .setHighlight({ color: "var(--notion-highlight-purple)" })
+        .run(),
+    isActive: (e) =>
+      e.isActive("highlight", { color: "var(--notion-highlight-purple)" }),
+  },
+  {
+    id: "pink",
+    label: "Pink",
+    token: "var(--notion-highlight-pink)",
+    action: (e) =>
+      e
+        .chain()
+        .focus()
+        .setHighlight({ color: "var(--notion-highlight-pink)" })
+        .run(),
+    isActive: (e) =>
+      e.isActive("highlight", { color: "var(--notion-highlight-pink)" }),
+  },
+  {
+    id: "red",
+    label: "Red",
+    token: "var(--notion-highlight-red)",
+    action: (e) =>
+      e
+        .chain()
+        .focus()
+        .setHighlight({ color: "var(--notion-highlight-red)" })
+        .run(),
+    isActive: (e) =>
+      e.isActive("highlight", { color: "var(--notion-highlight-red)" }),
   },
   {
     id: "success",

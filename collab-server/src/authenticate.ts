@@ -25,32 +25,160 @@ type Decision = "write" | "read" | "deny";
  * Stage 2 will add "read" for viewers via authorizeRealtimeConnection.
  */
 async function authorizeConnection(
-  userId: string,
-  fileId: string,
+  claims: {
+    sub?: string;
+    org_id?: string;
+    orgId?: string;
+    org_role?: string;
+    orgRole?: string;
+    org_slug?: string;
+    orgSlug?: string;
+  },
+  documentName: string,
 ): Promise<Decision> {
-  // Resolve file → project → workspace
-  const file = await db.file.findUnique({
-    where: { id: fileId },
+  const userId = claims.sub;
+  if (!userId) return "deny";
+
+  const orgId = claims.org_id || claims.orgId;
+  const orgSlug = claims.org_slug || claims.orgSlug;
+  const orgRole = claims.org_role || claims.orgRole || "org:member";
+
+  const normalizedId = documentName.startsWith("file_")
+    ? documentName.slice(5)
+    : documentName;
+
+  // 1. Try findUnique by documentName or normalizedId
+  let file = await db.file.findUnique({
+    where: { id: documentName },
     select: {
+      id: true,
+      createdById: true,
       project: {
         select: {
+          id: true,
+          createdById: true,
+          visibility: true,
           workspaceId: true,
+          workspace: {
+            select: {
+              id: true,
+              clerkOrgId: true,
+              slug: true,
+            },
+          },
+          members: {
+            where: { userId },
+            select: { role: true },
+          },
         },
       },
     },
   });
 
-  if (!file) return "deny";
+  if (!file && normalizedId !== documentName) {
+    file = await db.file.findUnique({
+      where: { id: normalizedId },
+      select: {
+        id: true,
+        createdById: true,
+        project: {
+          select: {
+            id: true,
+            createdById: true,
+            visibility: true,
+            workspaceId: true,
+            workspace: {
+              select: {
+                id: true,
+                clerkOrgId: true,
+                slug: true,
+              },
+            },
+            members: {
+              where: { userId },
+              select: { role: true },
+            },
+          },
+        },
+      },
+    });
+  }
 
-  const { workspaceId } = file.project;
+  // 2. Fallback to findFirst for roomId
+  if (!file && typeof db.file.findFirst === "function") {
+    file = await db.file.findFirst({
+      where: {
+        OR: [{ roomId: documentName }, { roomId: `file_${documentName}` }],
+      },
+      select: {
+        id: true,
+        createdById: true,
+        project: {
+          select: {
+            id: true,
+            createdById: true,
+            visibility: true,
+            workspaceId: true,
+            workspace: {
+              select: {
+                id: true,
+                clerkOrgId: true,
+                slug: true,
+              },
+            },
+            members: {
+              where: { userId },
+              select: { role: true },
+            },
+          },
+        },
+      },
+    });
+  }
 
-  // Require a WorkspaceMember row
+  if (!file) {
+    console.warn(
+      `[collab:auth] File not found for doc: ${documentName} (user: ${userId})`,
+    );
+    return "deny";
+  }
+
+  const {
+    workspaceId,
+    workspace,
+    visibility,
+    members,
+    createdById: projectCreatedById,
+  } = file.project;
+
+  // Check 1: Explicit WorkspaceMember DB row (if exists or test mock)
   const membership = await db.workspaceMember.findFirst({
     where: { userId, workspaceId },
     select: { id: true },
   });
+  if (membership) return "write";
 
-  return membership ? "write" : "deny";
+  // Check 2: File or Project Creator
+  if (file.createdById === userId || projectCreatedById === userId) {
+    return "write";
+  }
+
+  // Check 3: Clerk Organization session match
+  if (
+    (orgId && workspace?.clerkOrgId && orgId === workspace.clerkOrgId) ||
+    (orgSlug && workspace?.slug && orgSlug === workspace.slug)
+  ) {
+    if (orgRole === "org:admin") return "write";
+    const explicitRole = members?.[0]?.role;
+    if (explicitRole === "owner" || explicitRole === "editor") return "write";
+    if (explicitRole === "viewer") return "read";
+    if (visibility === "workspace") return "write";
+  }
+
+  console.warn(
+    `[collab:auth] Membership check failed for user: ${userId}, ws: ${workspaceId}, orgId: ${orgId}`,
+  );
+  return "deny";
 }
 
 export interface AuthContext {
@@ -82,7 +210,7 @@ export async function onAuthenticate({
   const userId = claims?.sub;
   if (!userId) throw new Error("Unauthorized: no sub claim");
 
-  const decision = await authorizeConnection(userId, documentName);
+  const decision = await authorizeConnection(claims, documentName);
   if (decision === "deny") throw new Error("Forbidden: not a workspace member");
 
   return { userId, readOnly: decision === "read" };

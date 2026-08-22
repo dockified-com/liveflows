@@ -414,6 +414,7 @@ function InnerWorkspaceContent({
                     fileId={activeFile.id}
                     fileType={activeFile.type}
                     roomId={roomId(activeFile)}
+                    fileName={activeFile.name}
                   />
                 ) : (
                   <div className="flex h-full items-center justify-center text-xs text-[var(--ink-tertiary)]">
@@ -431,6 +432,7 @@ function InnerWorkspaceContent({
                         fileId={leftFile.id}
                         fileType={leftFile.type}
                         roomId={roomId(leftFile)}
+                        fileName={leftFile.name}
                       />
                     ) : (
                       <div className="flex h-full items-center justify-center text-xs text-[var(--ink-tertiary)]">
@@ -444,6 +446,7 @@ function InnerWorkspaceContent({
                         fileId={rightFile.id}
                         fileType={rightFile.type}
                         roomId={roomId(rightFile)}
+                        fileName={rightFile.name}
                       />
                     ) : (
                       <div className="flex h-full items-center justify-center text-xs text-[var(--ink-tertiary)]">

@@ -89,19 +89,19 @@ describe("BlockMenu", () => {
     render(<BlockMenu />);
 
     const menu = screen.getByRole("menu", { name: "Block options" });
-    const duplicateItem = screen.getByRole("menuitem", { name: /Duplicate/i });
+    const colorItem = screen.getByRole("menuitem", { name: /Color/i });
     const turnIntoItem = screen.getByRole("menuitem", { name: /Turn into/i });
 
-    // Initial focused is first non-disabled item (Duplicate at index 1)
-    expect(duplicateItem).toHaveFocus();
+    // Initial focused is first non-disabled item (Color at index 0)
+    expect(colorItem).toHaveFocus();
 
-    // Arrow down moves to Turn into (index 2)
+    // Arrow down moves to Turn into (index 1)
     fireEvent.keyDown(menu, { key: "ArrowDown" });
     expect(turnIntoItem).toHaveFocus();
 
-    // Arrow up moves back to Duplicate (index 1)
+    // Arrow up moves back to Color (index 0)
     fireEvent.keyDown(menu, { key: "ArrowUp" });
-    expect(duplicateItem).toHaveFocus();
+    expect(colorItem).toHaveFocus();
   });
 
   it("closes when Escape is pressed", () => {

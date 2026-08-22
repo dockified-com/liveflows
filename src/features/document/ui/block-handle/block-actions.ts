@@ -231,3 +231,67 @@ export function turnInto(
     return false;
   }
 }
+
+/**
+ * Removes all marks (bold, italic, color, etc.) from the block at `pos`.
+ */
+export function resetFormatting(view: EditorView, pos: number): boolean {
+  const { state } = view;
+  const { doc } = state;
+
+  if (pos < 0 || pos >= doc.content.size) return false;
+  const node = doc.nodeAt(pos);
+  if (!node) return false;
+
+  const tr = state.tr;
+  const from = pos;
+  const to = pos + node.nodeSize;
+
+  tr.removeMark(from, to);
+  try {
+    view.dispatch(tr);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Applies text color or highlight background color to the block at `pos`.
+ */
+export function setBlockColor(
+  view: EditorView,
+  pos: number,
+  color: string | null,
+  isBackground = false,
+): boolean {
+  const { state } = view;
+  const { doc, schema } = state;
+
+  if (pos < 0 || pos >= doc.content.size) return false;
+  const node = doc.nodeAt(pos);
+  if (!node) return false;
+
+  const tr = state.tr;
+  const from = pos;
+  const to = pos + node.nodeSize;
+
+  const markType = isBackground
+    ? schema.marks.highlight
+    : schema.marks.textStyle;
+  if (!markType) return false;
+
+  if (!color) {
+    tr.removeMark(from, to, markType);
+  } else {
+    const mark = markType.create({ color });
+    tr.addMark(from, to, mark);
+  }
+
+  try {
+    view.dispatch(tr);
+    return true;
+  } catch {
+    return false;
+  }
+}

@@ -176,9 +176,48 @@ Icons must be built with inline SVG wrappers (`src/components/ui/icon.tsx`).
 ## 8. Anti-Slop Rejection List
 
 The following anti-patterns are strictly rejected:
-1. ❌ **No dark mode backgrounds** (`#0E1117`, `#161B22`) in authenticated app screens.
-2. ❌ **No purple, neon, or gradient backgrounds/borders**.
+1. ❌ **No un-themed dark mode backgrounds** (`#0E1117`) in standard app screens without proper semantic tokens.
+2. ❌ **No purple, neon, or gradient backgrounds/borders** outside explicit atmospheric page covers.
 3. ❌ **No generic icon dumps** without explicit 1.5-1.75px stroke & `currentColor` styling.
 4. ❌ **No unstyled third-party UI components** or un-themed component libraries.
 5. ❌ **No raw hex codes in JSX** (always use CSS variables/Tailwind semantic utility classes).
 6. ❌ **No blurry glassmorphism floating cards** or arbitrary deep drop-shadows.
+
+---
+
+## 9. Notion-Style Document Editor System
+
+The document editing surface in LiveFlows adopts an intentional, utilitarian Notion-like design system matching the Tiptap Notion reference specifications for both light and dark modes.
+
+### 9.1 Layout & Canvas
+- **Centered Document Container**: Maximum width `max-w-4xl` (`896px`) centered with responsive horizontal margins (`px-6 sm:px-12 md:px-16`) and generous top/bottom breathing room (`pt-4 pb-36`).
+- **Page Header**:
+  - **Atmospheric Cover Banner**: Optional `160px`-`192px` header banner with curated gradient presets (Nordic Slate, Sunset Rose, Ocean Breeze, Emerald Forest, Cosmic Violet, Warm Amber).
+  - **Emoji Icon Badge**: 56-64px rounded-2xl icon badge with one-click emoji selector popover.
+  - **Document Title**: Large unbordered `36px` (`2.25rem`) bold typography input with seamless placeholder.
+
+### 9.2 Typography & Block Styling
+- **Heading 1**: `1.875rem` (30px), 700 bold, `1.25` line height, `-0.02em` letter spacing.
+- **Heading 2**: `1.4rem` (22px), 600 semibold, `1.3` line height, `-0.01em` letter spacing.
+- **Heading 3**: `1.15rem` (18px), 600 semibold, `1.35` line height.
+- **Body / Paragraph**: `0.9375rem` (15px), 400 regular, `1.65` line height for maximum reading comfort.
+- **Blockquote**: Left border 3px solid `--ink`, indented padding `0.875rem`, normal style.
+- **Task List (Checklist)**: Interactive rounded square checkboxes with animated checkmarks and line-through strike for completed items.
+- **Inline Code**: Rounded `4px`, 1px border `--line`, monospace `0.85em`, colored `--accent`.
+- **Code Block**: Terminal aesthetic with language selector dropdown and copy feedback.
+- **Callout**: Container with variant backgrounds (`info`, `warning`, `success`, `danger`), custom leading emoji, and multiline body.
+- **Table**: 1px border grid, tinted header row, active cell selection outline, and floating table controls.
+
+### 9.3 Notion Color Tokens (Light & Dark)
+Both light mode and dark mode (`.dark`, `[data-theme="dark"]`, `.doc-dark`) support the 10 Notion semantic colors for text and background highlights:
+- **Text**: `Default`, `Gray`, `Brown`, `Orange`, `Yellow`, `Green`, `Blue`, `Purple`, `Pink`, `Red`.
+- **Highlight / Background**: Matching pastel soft backgrounds in light mode, and deep muted tints in dark mode.
+
+### 9.4 Floating Menus & Micro-Interactions
+- **Gutter Block Handle (`⠿`)**: Hover handle in the left margin with drag-and-drop block reordering and context menu (Ask AI, Duplicate, Turn into, Copy block link, Delete).
+- **Floating Bubble Toolbar**: Appears on text selection with typography marks, link editing, and 2-row Notion color swatch popover.
+- **Slash Menu (`/`)**: Grouped command palette (Basic blocks, Layout, Technical content) with icon badges and keyboard navigation.
+- **Table Floating Controls**: Row/column manipulation, cell merging, splitting, and deletion.
+- **Find in Document (`Cmd+F`)**: Match counter, next/previous navigation, and highlight scrolling.
+- **Theme Switcher**: Instant toggle between Light Mode and Notion Dark Mode (`mode=dark`).
+
