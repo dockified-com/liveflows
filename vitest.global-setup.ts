@@ -15,7 +15,7 @@ export async function setup() {
   // Push the schema to the test database (no migrations, just sync).
   // Timeout after 60 s — the schema engine hangs forever against a
   // transaction-mode pooler; fail fast rather than burn the budget.
-  execSync("pnpm exec prisma db push --skip-generate", {
+  execSync(`pnpm exec prisma db push --url "${testDatabaseUrl}"`, {
     stdio: "inherit",
     timeout: 60_000,
     env: {

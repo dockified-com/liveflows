@@ -8,6 +8,10 @@ export default defineConfig({
     },
   },
   test: {
+    // Starts the disposable test Postgres and pushes the schema.
+    // Root level, not per-project: a project-level globalSetup is legal but
+    // would run docker compose and prisma db push once per project.
+    globalSetup: ["./vitest.global-setup.ts"],
     projects: [
       {
         resolve: {
