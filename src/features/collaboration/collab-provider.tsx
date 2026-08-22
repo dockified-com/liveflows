@@ -71,8 +71,10 @@ export function CollabRoomProvider({
   // biome-ignore lint/correctness/useExhaustiveDependencies: new Doc per roomId
   const doc = useMemo(() => new Y.Doc(), [roomId]);
 
-  const provider = useMemo(() => {
-    if (typeof window === "undefined") return null;
+  const [provider, setProvider] = useState<HocuspocusProvider | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
 
     const url =
       process.env.NEXT_PUBLIC_COLLAB_URL ||
@@ -113,7 +115,13 @@ export function CollabRoomProvider({
       },
     });
 
-    return p;
+    setProvider(p);
+
+    return () => {
+      p.destroy();
+      doc.destroy();
+      setProvider(null);
+    };
   }, [roomId, doc, getToken]);
 
   useEffect(() => {
@@ -126,13 +134,6 @@ export function CollabRoomProvider({
       color: colorForUserId(userId),
     });
   }, [provider, userId, user]);
-
-  useEffect(() => {
-    return () => {
-      provider?.destroy();
-      doc.destroy();
-    };
-  }, [provider, doc]);
 
   const value = useMemo(
     () => ({ provider, doc, status, others }),
