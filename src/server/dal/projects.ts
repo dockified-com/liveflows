@@ -1,7 +1,10 @@
 import { auth } from "@clerk/nextjs/server";
 import { notFound } from "next/navigation";
+import { principalFromSession } from "../authz/principal";
+import { requireProjectPermission } from "../authz/service";
 import { db } from "../db";
 import { decommissionRoom } from "../liveblocks";
+import { ForbiddenError, NotFoundError } from "./errors";
 import { requireWorkspace } from "./workspaces";
 
 export type ProjectListItem = {
@@ -39,6 +42,18 @@ export async function getProject(
   projectId: string,
 ): Promise<ProjectDetail> {
   const workspace = await requireWorkspace(workspaceSlug);
+  const principal = await principalFromSession(workspace.id);
+
+  try {
+    await requireProjectPermission(principal, projectId, "project.read");
+  } catch (error) {
+    // Read path: both denials render a 404. We never disclose that a project
+    // exists to someone who cannot open it.
+    if (error instanceof NotFoundError || error instanceof ForbiddenError) {
+      notFound();
+    }
+    throw error;
+  }
 
   const project = await db.project.findFirst({
     where: { id: projectId, workspaceId: workspace.id },
@@ -66,13 +81,24 @@ export async function createProject(
     notFound();
   }
 
-  const project = await db.project.create({
-    data: {
-      name,
-      workspaceId: workspace.id,
-      createdById: userId,
-    },
-    select: { id: true, name: true, updatedAt: true },
+  const project = await db.$transaction(async (tx) => {
+    const created = await tx.project.create({
+      data: {
+        name,
+        workspaceId: workspace.id,
+        createdById: userId,
+      },
+      select: { id: true, name: true, updatedAt: true },
+    });
+
+    // An explicit owner row makes the creator's ownership durable. Without it
+    // they would lose member.manage and project.delete the moment the project
+    // is made private.
+    await tx.projectMember.create({
+      data: { projectId: created.id, userId, role: "owner" },
+    });
+
+    return created;
   });
 
   return project;
@@ -87,6 +113,19 @@ export async function deleteProject(
   projectId: string,
 ): Promise<void> {
   const workspace = await requireWorkspace(workspaceSlug);
+  const principal = await principalFromSession(workspace.id);
+
+  try {
+    await requireProjectPermission(principal, projectId, "project.delete");
+  } catch (error) {
+    // Mutation path: NotFound becomes a 404, but ForbiddenError propagates so
+    // the server action can report "you cannot delete this" rather than a
+    // misleading 404 for a project the caller can plainly see.
+    if (error instanceof NotFoundError) {
+      notFound();
+    }
+    throw error;
+  }
 
   const project = await db.project.findFirst({
     where: { id: projectId, workspaceId: workspace.id },
@@ -139,6 +178,16 @@ export async function listProjectContents(
   projectId: string,
 ): Promise<ProjectContents> {
   const workspace = await requireWorkspace(workspaceSlug);
+  const principal = await principalFromSession(workspace.id);
+
+  try {
+    await requireProjectPermission(principal, projectId, "project.read");
+  } catch (error) {
+    if (error instanceof NotFoundError || error instanceof ForbiddenError) {
+      notFound();
+    }
+    throw error;
+  }
 
   const project = await db.project.findFirst({
     where: { id: projectId, workspaceId: workspace.id },

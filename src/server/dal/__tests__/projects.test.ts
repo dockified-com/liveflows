@@ -16,8 +16,8 @@ vi.mock("next/navigation", () => ({
 }));
 
 // Mock the db module
-vi.mock("../../db", () => ({
-  db: {
+vi.mock("../../db", () => {
+  const mockDb: any = {
     workspace: { upsert: vi.fn() },
     project: {
       findMany: vi.fn(),
@@ -26,9 +26,15 @@ vi.mock("../../db", () => ({
       update: vi.fn(),
       delete: vi.fn(),
     },
+    projectMember: {
+      create: vi.fn(),
+      findMany: vi.fn(),
+    },
     file: { findMany: vi.fn() },
-  },
-}));
+    $transaction: vi.fn(async (cb: (tx: any) => any) => cb(mockDb)),
+  };
+  return { db: mockDb };
+});
 
 // Mock liveblocks
 vi.mock("../../liveblocks", () => ({
@@ -110,7 +116,13 @@ describe("getProject", () => {
   });
 
   it("returns the project when it exists in the workspace", async () => {
-    const project = { id: "p1", name: "A", updatedAt: new Date() };
+    const project = {
+      id: "p1",
+      name: "A",
+      visibility: "workspace",
+      members: [{ role: "owner" }],
+      updatedAt: new Date(),
+    };
     mockFindFirst.mockResolvedValue(project as any);
 
     const result = await getProject("my-org", "p1");
@@ -165,6 +177,8 @@ describe("deleteProject", () => {
   it("decommissions rooms for all files then deletes project", async () => {
     mockFindFirst.mockResolvedValue({
       id: "p1",
+      visibility: "workspace",
+      members: [{ role: "owner" }],
     } as any);
     mockFileFindMany.mockResolvedValue([
       { liveblocksRoomId: "room_f1" },
@@ -183,6 +197,8 @@ describe("deleteProject", () => {
   it("proceeds with delete even when decommissionRoom fails (best-effort)", async () => {
     mockFindFirst.mockResolvedValue({
       id: "p1",
+      visibility: "workspace",
+      members: [{ role: "owner" }],
     } as any);
     mockFileFindMany.mockResolvedValue([
       { liveblocksRoomId: "room_f1" },
