@@ -1,11 +1,16 @@
 @import "tailwindcss";
+@import "katex/dist/katex.min.css";
 
 :root {
+  --background: #ffffff;
+  --foreground: #171717;
   --bg: #f8fafc;
   --bg-2: #f1f5f9;
   --card: #ffffff;
   --line: #e2e8f0;
   --ink: #1e293b;
+  --ink-secondary: #64748b;
+  --ink-tertiary: #94a3b8;
   --ink-soft: #64748b;
   --ink-faint: #94a3b8;
   --accent: #2563eb;
@@ -17,51 +22,119 @@
   --warn-soft: #fffbeb;
   --destructive: #dc2626;
   --destructive-soft: #fef2f2;
-
-  /* Legacy variable mappings to maintain backward compatibility during transition */
-  --background: var(--bg);
-  --foreground: var(--ink);
-  --surface: var(--card);
-  --surface-border: var(--line);
-  --steel: var(--ink-soft);
-  --amber: var(--warn);
-  --emerald: var(--success);
-}
-
-@theme inline {
-  --color-bg: var(--bg);
-  --color-bg-2: var(--bg-2);
-  --color-card: var(--card);
-  --color-line: var(--line);
-  --color-ink: var(--ink);
-  --color-ink-soft: var(--ink-soft);
-  --color-ink-faint: var(--ink-faint);
-  --color-accent: var(--accent);
-  --color-accent-hover: var(--accent-hover);
-  --color-accent-soft: var(--accent-soft);
-  --color-success: var(--success);
-  --color-success-soft: var(--success-soft);
-  --color-warn: var(--warn);
-  --color-warn-soft: var(--warn-soft);
-  --color-destructive: var(--destructive);
-  --color-destructive-soft: var(--destructive-soft);
-
-  /* Legacy themes */
-  --color-background: var(--bg);
-  --color-foreground: var(--ink);
-  --color-surface: var(--card);
-  --color-surface-border: var(--line);
-  --color-steel: var(--ink-soft);
-  --color-amber: var(--warn);
-  --color-emerald: var(--success);
-
-  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), monospace;
 }
 
 body {
   background-color: var(--bg);
   color: var(--ink);
-  font-family: var(--font-sans);
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
+
+/* Scoped Landing Page DeepSeek Dark Theme */
+.landing-dark {
+  background-color: #030305 !important;
+  color: #f4f4f5 !important;
+}
+
+/* DeepSeek Glass Design System */
+.glass-header {
+  background-color: rgba(7, 9, 14, 0.8) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow:
+    0 8px 32px 0 rgba(0, 0, 0, 0.6),
+    0 0 20px rgba(45, 95, 158, 0.18),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.15) !important;
+}
+
+.glass-card {
+  background-color: rgba(8, 11, 18, 0.8) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+.glass-card:hover {
+  border-color: rgba(103, 158, 254, 0.4) !important;
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.7),
+    0 0 25px rgba(103, 158, 254, 0.15) !important;
+}
+
+.glass-card-active {
+  background-color: rgba(12, 18, 32, 0.9) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid #679efe !important;
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.7),
+    0 0 35px rgba(103, 158, 254, 0.25) !important;
+}
+
+.glass-dropdown {
+  background-color: rgba(8, 11, 18, 0.95) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow:
+    0 25px 60px rgba(0, 0, 0, 0.85),
+    0 0 40px rgba(45, 95, 158, 0.25) !important;
+}
+
+.glass-terminal {
+  background-color: rgba(8, 11, 18, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.8),
+    inset 0 1px 1px rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Highlight.js syntax highlighting mapped to DESIGN.md tokens */
+.hljs {
+  color: var(--ink);
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in,
+.hljs-name,
+.hljs-tag {
+  color: var(--accent);
+}
+.hljs-string,
+.hljs-title,
+.hljs-section,
+.hljs-attribute,
+.hljs-literal,
+.hljs-template-tag,
+.hljs-template-variable,
+.hljs-type,
+.hljs-addition {
+  color: var(--success);
+}
+.hljs-comment,
+.hljs-quote,
+.hljs-deletion,
+.hljs-meta {
+  color: var(--ink-soft);
+}
+.hljs-number,
+.hljs-symbol,
+.hljs-bullet {
+  color: var(--warn);
+}
+.hljs-function {
+  color: var(--ink);
+  font-weight: 600;
+}
+.hljs-emphasis {
+  font-style: italic;
+}
+.hljs-strong {
+  font-weight: 700;
+}
+
