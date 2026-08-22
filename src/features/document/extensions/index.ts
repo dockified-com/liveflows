@@ -2,6 +2,8 @@ import UniqueID from "@tiptap/extension-unique-id";
 import type { Extension } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { PROVIDER_MANAGES_HISTORY } from "../collaboration-provider";
+import { blockExtensions } from "./blocks";
+import { formattingExtensions } from "./formatting";
 
 /**
  * Node types that carry a stable ID.
@@ -69,8 +71,8 @@ export function buildExtensions(opts: {
 
     opts.collaboration,
 
-    // task-03: ...formattingExtensions,
-    // task-04: ...blockExtensions,
+    ...formattingExtensions,
+    ...blockExtensions,
     // task-09: ...tableExtensions,
     // task-10: ...technicalContentExtensions,
   ]);
