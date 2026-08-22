@@ -5,6 +5,8 @@ import { PROVIDER_MANAGES_HISTORY } from "../collaboration-provider";
 import { blockExtensions } from "./blocks";
 import { formattingExtensions } from "./formatting";
 import { slashSuggestionExtension } from "./slash-suggestion";
+import { tableExtensions } from "./tables";
+import { technicalContentExtensions } from "./technical-content";
 
 /**
  * Node types that carry a stable ID.
@@ -75,8 +77,8 @@ export function buildExtensions(opts: {
     ...formattingExtensions,
     ...blockExtensions,
     slashSuggestionExtension,
-    // task-09: ...tableExtensions,
-    // task-10: ...technicalContentExtensions,
+    ...tableExtensions,
+    ...technicalContentExtensions,
   ]);
 }
 
