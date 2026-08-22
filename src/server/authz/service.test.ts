@@ -1,6 +1,8 @@
 import { afterAll, describe, expect, it, vi } from "vitest";
 import { testDb } from "./test-support/db";
 import {
+  makeFile,
+  makeFolder,
   makeProject,
   makeProjectMember,
   makeUser,
@@ -14,7 +16,11 @@ vi.mock("../db", async () => {
   return { db: testDb };
 });
 
-const { requireProjectPermission } = await import("./service");
+const {
+  requireFilePermission,
+  requireFolderPermission,
+  requireProjectPermission,
+} = await import("./service");
 const { ForbiddenError, NotFoundError } = await import("../dal/errors");
 
 function principal(
@@ -354,6 +360,334 @@ describe("requireProjectPermission — tenant isolation (AC-7)", () => {
         principal(admin.id, ownWs.id, "org:admin"),
         project.id,
         "project.read",
+      ),
+    ).rejects.toThrow(NotFoundError);
+  });
+});
+
+describe("requireFilePermission", () => {
+  it("lets an editor update a file in a workspace-visible project", async () => {
+    const user = await makeUser();
+    const ws = await makeWorkspace();
+    const project = await makeProject({
+      workspaceId: ws.id,
+      createdById: user.id,
+    });
+    const file = await makeFile({
+      projectId: project.id,
+      createdById: user.id,
+      name: "architecture",
+    });
+
+    const result = await requireFilePermission(
+      principal(user.id, ws.id),
+      file.id,
+      "file.update",
+    );
+
+    expect(result.id).toBe(file.id);
+    expect(result.name).toBe("architecture");
+    expect(result.projectId).toBe(project.id);
+    expect(result.type).toBe("canvas");
+    expect(result.role).toBe("editor");
+  });
+
+  it("reports the containing folder", async () => {
+    const user = await makeUser();
+    const ws = await makeWorkspace();
+    const project = await makeProject({
+      workspaceId: ws.id,
+      createdById: user.id,
+    });
+    const folder = await makeFolder({ projectId: project.id });
+    const file = await makeFile({
+      projectId: project.id,
+      createdById: user.id,
+      folderId: folder.id,
+    });
+
+    const result = await requireFilePermission(
+      principal(user.id, ws.id),
+      file.id,
+      "file.read",
+    );
+
+    expect(result.folderId).toBe(folder.id);
+  });
+
+  it("reports null for a file at the project root", async () => {
+    const user = await makeUser();
+    const ws = await makeWorkspace();
+    const project = await makeProject({
+      workspaceId: ws.id,
+      createdById: user.id,
+    });
+    const file = await makeFile({
+      projectId: project.id,
+      createdById: user.id,
+    });
+
+    const result = await requireFilePermission(
+      principal(user.id, ws.id),
+      file.id,
+      "file.read",
+    );
+
+    expect(result.folderId).toBeNull();
+  });
+
+  it("lets a viewer read a file but not update it", async () => {
+    const user = await makeUser();
+    const ws = await makeWorkspace();
+    const project = await makeProject({
+      workspaceId: ws.id,
+      createdById: user.id,
+    });
+    await makeProjectMember({
+      projectId: project.id,
+      userId: user.id,
+      role: "viewer",
+    });
+    const file = await makeFile({
+      projectId: project.id,
+      createdById: user.id,
+    });
+
+    await expect(
+      requireFilePermission(principal(user.id, ws.id), file.id, "file.read"),
+    ).resolves.toMatchObject({ role: "viewer" });
+
+    await expect(
+      requireFilePermission(principal(user.id, ws.id), file.id, "file.update"),
+    ).rejects.toThrow(ForbiddenError);
+  });
+
+  it("denies a viewer file.delete", async () => {
+    const user = await makeUser();
+    const ws = await makeWorkspace();
+    const project = await makeProject({
+      workspaceId: ws.id,
+      createdById: user.id,
+    });
+    await makeProjectMember({
+      projectId: project.id,
+      userId: user.id,
+      role: "viewer",
+    });
+    const file = await makeFile({
+      projectId: project.id,
+      createdById: user.id,
+    });
+
+    await expect(
+      requireFilePermission(principal(user.id, ws.id), file.id, "file.delete"),
+    ).rejects.toThrow(ForbiddenError);
+  });
+
+  it("hides a file in a private project from a non-member", async () => {
+    const owner = await makeUser();
+    const outsider = await makeUser();
+    const ws = await makeWorkspace();
+    const project = await makeProject({
+      workspaceId: ws.id,
+      createdById: owner.id,
+      visibility: "private",
+    });
+    const file = await makeFile({
+      projectId: project.id,
+      createdById: owner.id,
+    });
+
+    await expect(
+      requireFilePermission(
+        principal(outsider.id, ws.id),
+        file.id,
+        "file.read",
+      ),
+    ).rejects.toThrow(NotFoundError);
+  });
+
+  it("lets an org admin update a file in a private project", async () => {
+    const owner = await makeUser();
+    const admin = await makeUser();
+    const ws = await makeWorkspace();
+    const project = await makeProject({
+      workspaceId: ws.id,
+      createdById: owner.id,
+      visibility: "private",
+    });
+    const file = await makeFile({
+      projectId: project.id,
+      createdById: owner.id,
+    });
+
+    const result = await requireFilePermission(
+      principal(admin.id, ws.id, "org:admin"),
+      file.id,
+      "file.update",
+    );
+
+    expect(result.role).toBe("owner");
+  });
+
+  it("throws NotFoundError for a file in another workspace", async () => {
+    const user = await makeUser();
+    const ownWs = await makeWorkspace();
+    const otherWs = await makeWorkspace();
+    const project = await makeProject({
+      workspaceId: otherWs.id,
+      createdById: user.id,
+    });
+    const file = await makeFile({
+      projectId: project.id,
+      createdById: user.id,
+    });
+
+    await expect(
+      requireFilePermission(principal(user.id, ownWs.id), file.id, "file.read"),
+    ).rejects.toThrow(NotFoundError);
+  });
+
+  it("throws NotFoundError for an id that does not exist", async () => {
+    const user = await makeUser();
+    const ws = await makeWorkspace();
+
+    await expect(
+      requireFilePermission(
+        principal(user.id, ws.id),
+        "file_does_not_exist",
+        "file.read",
+      ),
+    ).rejects.toThrow(NotFoundError);
+  });
+});
+
+describe("requireFolderPermission", () => {
+  it("lets an editor update a folder", async () => {
+    const user = await makeUser();
+    const ws = await makeWorkspace();
+    const project = await makeProject({
+      workspaceId: ws.id,
+      createdById: user.id,
+    });
+    const folder = await makeFolder({ projectId: project.id, name: "infra" });
+
+    const result = await requireFolderPermission(
+      principal(user.id, ws.id),
+      folder.id,
+      "folder.update",
+    );
+
+    expect(result.id).toBe(folder.id);
+    expect(result.name).toBe("infra");
+    expect(result.projectId).toBe(project.id);
+    expect(result.parentId).toBeNull();
+    expect(result.role).toBe("editor");
+  });
+
+  it("reports the parent folder for a nested folder", async () => {
+    const user = await makeUser();
+    const ws = await makeWorkspace();
+    const project = await makeProject({
+      workspaceId: ws.id,
+      createdById: user.id,
+    });
+    const parent = await makeFolder({ projectId: project.id });
+    const child = await makeFolder({
+      projectId: project.id,
+      parentId: parent.id,
+    });
+
+    const result = await requireFolderPermission(
+      principal(user.id, ws.id),
+      child.id,
+      "folder.read",
+    );
+
+    expect(result.parentId).toBe(parent.id);
+  });
+
+  it("denies a viewer folder.delete", async () => {
+    const user = await makeUser();
+    const ws = await makeWorkspace();
+    const project = await makeProject({
+      workspaceId: ws.id,
+      createdById: user.id,
+    });
+    await makeProjectMember({
+      projectId: project.id,
+      userId: user.id,
+      role: "viewer",
+    });
+    const folder = await makeFolder({ projectId: project.id });
+
+    await expect(
+      requireFolderPermission(
+        principal(user.id, ws.id),
+        folder.id,
+        "folder.delete",
+      ),
+    ).rejects.toThrow(ForbiddenError);
+  });
+
+  it("still lets a viewer read a folder", async () => {
+    const user = await makeUser();
+    const ws = await makeWorkspace();
+    const project = await makeProject({
+      workspaceId: ws.id,
+      createdById: user.id,
+    });
+    await makeProjectMember({
+      projectId: project.id,
+      userId: user.id,
+      role: "viewer",
+    });
+    const folder = await makeFolder({ projectId: project.id });
+
+    const result = await requireFolderPermission(
+      principal(user.id, ws.id),
+      folder.id,
+      "folder.read",
+    );
+
+    expect(result.role).toBe("viewer");
+  });
+
+  it("hides a folder in a private project from a non-member", async () => {
+    const owner = await makeUser();
+    const outsider = await makeUser();
+    const ws = await makeWorkspace();
+    const project = await makeProject({
+      workspaceId: ws.id,
+      createdById: owner.id,
+      visibility: "private",
+    });
+    const folder = await makeFolder({ projectId: project.id });
+
+    await expect(
+      requireFolderPermission(
+        principal(outsider.id, ws.id),
+        folder.id,
+        "folder.read",
+      ),
+    ).rejects.toThrow(NotFoundError);
+  });
+
+  it("throws NotFoundError for a folder in another workspace", async () => {
+    const user = await makeUser();
+    const ownWs = await makeWorkspace();
+    const otherWs = await makeWorkspace();
+    const project = await makeProject({
+      workspaceId: otherWs.id,
+      createdById: user.id,
+    });
+    const folder = await makeFolder({ projectId: project.id });
+
+    await expect(
+      requireFolderPermission(
+        principal(user.id, ownWs.id),
+        folder.id,
+        "folder.read",
       ),
     ).rejects.toThrow(NotFoundError);
   });

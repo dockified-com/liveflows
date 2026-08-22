@@ -68,3 +68,123 @@ export async function requireProjectPermission(
     role,
   };
 }
+
+export type AuthorizedFile = {
+  id: string;
+  name: string;
+  type: string;
+  projectId: string;
+  folderId: string | null;
+  role: ProjectRole;
+};
+
+/**
+ * Files inherit their project's permissions — there is no per-file ACL.
+ *
+ * The nested `project: { workspaceId }` predicate is the tenant boundary. That
+ * exact shape already appears throughout src/server/dal/files.ts.
+ */
+export async function requireFilePermission(
+  principal: Principal,
+  fileId: string,
+  permission: ProjectPermission,
+): Promise<AuthorizedFile> {
+  const file = await db.file.findFirst({
+    where: { id: fileId, project: { workspaceId: principal.workspaceId } },
+    select: {
+      id: true,
+      name: true,
+      type: true,
+      projectId: true,
+      folderId: true,
+      project: {
+        select: {
+          visibility: true,
+          members: {
+            where: { userId: principal.userId },
+            select: { role: true },
+          },
+        },
+      },
+    },
+  });
+
+  if (!file) {
+    throw new NotFoundError();
+  }
+
+  const role = resolveEffectiveRole(principal, file.project);
+
+  if (role === null) {
+    throw new NotFoundError();
+  }
+
+  if (!can(role, permission)) {
+    throw new ForbiddenError(`Missing permission: ${permission}`);
+  }
+
+  return {
+    id: file.id,
+    name: file.name,
+    type: file.type,
+    projectId: file.projectId,
+    folderId: file.folderId,
+    role,
+  };
+}
+
+export type AuthorizedFolder = {
+  id: string;
+  name: string;
+  projectId: string;
+  parentId: string | null;
+  role: ProjectRole;
+};
+
+/** Folders inherit their project's permissions — there is no per-folder ACL. */
+export async function requireFolderPermission(
+  principal: Principal,
+  folderId: string,
+  permission: ProjectPermission,
+): Promise<AuthorizedFolder> {
+  const folder = await db.folder.findFirst({
+    where: { id: folderId, project: { workspaceId: principal.workspaceId } },
+    select: {
+      id: true,
+      name: true,
+      projectId: true,
+      parentId: true,
+      project: {
+        select: {
+          visibility: true,
+          members: {
+            where: { userId: principal.userId },
+            select: { role: true },
+          },
+        },
+      },
+    },
+  });
+
+  if (!folder) {
+    throw new NotFoundError();
+  }
+
+  const role = resolveEffectiveRole(principal, folder.project);
+
+  if (role === null) {
+    throw new NotFoundError();
+  }
+
+  if (!can(role, permission)) {
+    throw new ForbiddenError(`Missing permission: ${permission}`);
+  }
+
+  return {
+    id: folder.id,
+    name: folder.name,
+    projectId: folder.projectId,
+    parentId: folder.parentId,
+    role,
+  };
+}
