@@ -1,6 +1,12 @@
 import { notFound } from "next/navigation";
+import { principalFromSession } from "../authz/principal";
+import {
+  requireFolderPermission,
+  requireProjectPermission,
+} from "../authz/service";
 import { db } from "../db";
 import { decommissionRoom, roomIdForFile } from "../liveblocks";
+import { NotFoundError } from "./errors";
 import { requireWorkspace } from "./workspaces";
 
 export type FolderDetail = {
@@ -31,6 +37,17 @@ export async function createFolder(
     where: { id: projectId, workspaceId: workspace.id },
   });
   if (!project) notFound();
+
+  const principal = await principalFromSession(workspace.id);
+
+  try {
+    await requireProjectPermission(principal, projectId, "folder.create");
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      notFound();
+    }
+    throw error;
+  }
 
   if (parentId) {
     const parentFolder = await db.folder.findFirst({
@@ -66,6 +83,16 @@ export async function renameFolder(
   newName: string,
 ): Promise<FolderDetail> {
   const workspace = await requireWorkspace(workspaceSlug);
+  const principal = await principalFromSession(workspace.id);
+
+  try {
+    await requireFolderPermission(principal, folderId, "folder.update");
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      notFound();
+    }
+    throw error;
+  }
 
   const folder = await db.folder.findFirst({
     where: { id: folderId, project: { workspaceId: workspace.id } },
@@ -106,6 +133,17 @@ export async function moveFolder(
       where: { id: newParentId, projectId: folder.projectId },
     });
     if (!destFolder) notFound();
+  }
+
+  const principal = await principalFromSession(workspace.id);
+
+  try {
+    await requireFolderPermission(principal, folderId, "folder.update");
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      notFound();
+    }
+    throw error;
   }
 
   // D43: Postgres advisory lock scoped to the project to prevent concurrent
@@ -158,6 +196,16 @@ export async function deleteFolder(
   folderId: string,
 ): Promise<void> {
   const workspace = await requireWorkspace(workspaceSlug);
+  const principal = await principalFromSession(workspace.id);
+
+  try {
+    await requireFolderPermission(principal, folderId, "folder.delete");
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      notFound();
+    }
+    throw error;
+  }
 
   const folder = await db.folder.findFirst({
     where: { id: folderId, project: { workspaceId: workspace.id } },

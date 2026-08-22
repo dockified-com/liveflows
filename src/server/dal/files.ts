@@ -1,7 +1,13 @@
 import { auth } from "@clerk/nextjs/server";
 import { notFound } from "next/navigation";
+import { principalFromSession } from "../authz/principal";
+import {
+  requireFilePermission,
+  requireProjectPermission,
+} from "../authz/service";
 import { db } from "../db";
 import { decommissionRoom, provisionRoom, roomIdForFile } from "../liveblocks";
+import { ForbiddenError, NotFoundError } from "./errors";
 import { requireWorkspace } from "./workspaces";
 
 export type FileDetail = {
@@ -37,6 +43,17 @@ export async function createFile(
     where: { id: projectId, workspaceId: workspace.id },
   });
   if (!project) notFound();
+
+  const principal = await principalFromSession(workspace.id);
+
+  try {
+    await requireProjectPermission(principal, projectId, "file.create");
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      notFound();
+    }
+    throw error;
+  }
 
   const normalizedName = name.trim().toLowerCase();
   const directoryKey = fileDirectoryKey(projectId, folderId);
@@ -111,6 +128,18 @@ export async function renameFile(
   newName: string,
 ): Promise<FileDetail> {
   const workspace = await requireWorkspace(workspaceSlug);
+  const principal = await principalFromSession(workspace.id);
+
+  try {
+    await requireFilePermission(principal, fileId, "file.update");
+  } catch (error) {
+    // Mutation: NotFound becomes a 404, but ForbiddenError propagates so the
+    // server action can report why.
+    if (error instanceof NotFoundError) {
+      notFound();
+    }
+    throw error;
+  }
 
   const file = await db.file.findFirst({
     where: { id: fileId, project: { workspaceId: workspace.id } },
@@ -151,6 +180,16 @@ export async function moveFile(
   newFolderId: string | null,
 ): Promise<FileDetail> {
   const workspace = await requireWorkspace(workspaceSlug);
+  const principal = await principalFromSession(workspace.id);
+
+  try {
+    await requireFilePermission(principal, fileId, "file.update");
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      notFound();
+    }
+    throw error;
+  }
 
   const file = await db.file.findFirst({
     where: { id: fileId, project: { workspaceId: workspace.id } },
@@ -196,6 +235,16 @@ export async function deleteFile(
   fileId: string,
 ): Promise<void> {
   const workspace = await requireWorkspace(workspaceSlug);
+  const principal = await principalFromSession(workspace.id);
+
+  try {
+    await requireFilePermission(principal, fileId, "file.delete");
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      notFound();
+    }
+    throw error;
+  }
 
   const file = await db.file.findFirst({
     where: { id: fileId, project: { workspaceId: workspace.id } },
@@ -225,6 +274,17 @@ export async function getFileWithSnapshot(
   fileId: string,
 ): Promise<FileWithSnapshot> {
   const workspace = await requireWorkspace(workspaceSlug);
+  const principal = await principalFromSession(workspace.id);
+
+  try {
+    await requireFilePermission(principal, fileId, "file.read");
+  } catch (error) {
+    // Read path rendering a page: both denials render a 404.
+    if (error instanceof NotFoundError || error instanceof ForbiddenError) {
+      notFound();
+    }
+    throw error;
+  }
 
   const file = await db.file.findFirst({
     where: {
