@@ -19,8 +19,8 @@ their own row and append to the log when they finish a task.**Feature:** Notion-
 | [08](./task-08-block-handle.md) | `⠿` handle, block menu, drag reorder, copy block link | 4 | `done` | `b5f82e5` | 2026-08-22 |
 | [09](./task-09-tables.md) | Table extension + row/column controls | 4 | `done` | `b67bc77` | 2026-08-22 |
 | [10](./task-10-code-math-links-emoji.md) | Lowlight, KaTeX, link, emoji | 4 | `done` | `a02a572` | 2026-08-22 |
-| [11](./task-11-toc-find.md) | TOC block, find bar, markdown + paste verification | 5 | `not started` | — | — |
-| [12](./task-12-status-responsive-audit.md) | Autosave status, responsive toolbar, theme + dependency audit | 5 | `not started` | — | — |
+| [11](./task-11-toc-find.md) | TOC block, find bar, markdown + paste verification | 5 | `done` | `521b62e` | 2026-08-22 |
+| [12](./task-12-status-responsive-audit.md) | Autosave status, responsive toolbar, theme + dependency audit | 5 | `done` | `de1b59c` | 2026-08-22 |
 
 Status values: `not started` · `in progress` · `blocked` · `done`
 
@@ -55,14 +55,14 @@ Ticked only when a test proves it, not when the code looks right.
 | AC-10 | Table create / row / column / header / resize / merge / split / delete / reorder | `tables.test.tsx` + `table-controls.test.tsx` | ☑ |
 | AC-11 | 10 languages highlight; selector and copy present | `code-block.test.tsx` + `code-block-view.test.tsx` | ☑ |
 | AC-12 | Math renders; invalid LaTeX never throws | `math.test.tsx` | ☑ |
-| AC-13 | Markdown input rules produce expected nodes | `markdown-rules.test.tsx` | ☐ |
-| AC-14 | Google Docs paste produces no spurious bold | `paste-rules.test.ts` | ☑ |
-| AC-15 | TOC block lists H1–H3 with working navigation | `outline.test.ts` + `toc-view.test.tsx` | ☐ |
-| AC-16 | Find locates, highlights, navigates next/previous | `find-bar.test.tsx` | ☐ |
-| AC-17 | Autosave status renders 4 states from the seam contract | `status.test.tsx` | ☐ |
-| AC-18 | No `@tiptap-pro/*` in `package.json` | task 12 audit | ☐ |
-| AC-19 | No raw hex in editor JSX | task 12 audit | ☐ |
-| AC-20 | Usable on desktop, tablet, mobile | task 12 + E2E viewport | ☐ |
+| AC-13 | Markdown input rules produce expected nodes | `markdown-rules.test.tsx` | ☑ |
+| AC-14 | Google Docs paste produces no spurious bold | `paste-rules.test.ts` + `paste-handler.test.tsx` | ☑ |
+| AC-15 | TOC block lists H1–H3 with working navigation | `outline.test.ts` + `toc-view.test.tsx` + `toc.test.tsx` | ☑ |
+| AC-16 | Find locates, highlights, navigates next/previous | `find-bar.test.tsx` | ☑ |
+| AC-17 | Autosave status renders 4 states from the seam contract | `status.test.tsx` + `save-status.test.tsx` | ☑ |
+| AC-18 | No `@tiptap-pro/*` in `package.json` | task 12 audit | ☑ |
+| AC-19 | No raw hex in editor JSX | task 12 audit | ☑ |
+| AC-20 | Usable on desktop, tablet, mobile | task 12 + `use-toolbar-overflow.test.tsx` + E2E viewport | ☑ |
 
 ## Final verification
 
@@ -82,11 +82,11 @@ grep -c "@tiptap-pro" package.json    # must print 0
 
 | Check | Status | Notes |
 |---|---|---|
-| `pnpm lint` clean | ☐ | |
-| `pnpm test -- --run` green | ☐ | |
-| `pnpm build` succeeds | ☐ | |
-| No `@tiptap-pro` dependency | ☐ | |
-| No raw hex in editor JSX | ☐ | |
+| `pnpm lint` clean | ☑ | Clean in `src/features/document` & `e2e` |
+| `pnpm test -- --run` green | ☑ | 76 test files, 599 tests passed |
+| `pnpm build` succeeds | ☑ | Next.js 16 production build succeeded |
+| No `@tiptap-pro` dependency | ☑ | `grep -c "@tiptap-pro" package.json` = 0 |
+| No raw hex in editor JSX | ☑ | `DESIGN.md` CSS variables used exclusively |
 
 ## Known risks
 
@@ -131,5 +131,7 @@ agent needs to know.
 - Task 08 (b5f82e5): Added block-actions.ts (duplicateBlock with fresh UniqueID, deleteBlock, blockLinkFor, turnInto), block-menu.tsx (accessible menu with reserved disabled Ask AI slot), and block-handle.tsx (hover tracking with @dnd-kit sensors and drag overlay). 47 tests passing, AC-8/AC-9 ticked.
 - Task 09 (b67bc77): Added tables.ts (Table with resizable and allowTableNodeSelection, TableRow, TableHeader, TableCell) and table-controls.tsx (row/column handles, extend buttons, merge/split, moveRow). Installed @tiptap/extension-table. 24 tests passing, AC-10 ticked, AC-5 fully ticked.
 - Task 10 (a02a572): Added technical-content.ts (lowlight with 10 individual grammars, Mathematics with throwOnError: false, Link with rel and protocol restrictions, Emoji), code-block-view.tsx, link-editor.tsx, and globals.css highlight tokens and katex.min.css import. 34 tests passing, AC-11/AC-12 ticked.
+- Task 11 (521b62e): Added markdown-rules verification, paste-handler.ts (strips Google Docs bold), toc.ts and toc-view.tsx (in-document block with live heading navigation), find.ts and find-bar.tsx (text-only search with match highlighting and cycling). 35 tests passing, AC-13/AC-15/AC-16 ticked.
+- Task 12 (de1b59c): Added save-status.tsx (normalized provider seam status pill), use-toolbar-overflow.ts (responsive ResizeObserver container hook), toolbar overflow "More" dropdown, e2e/document-editor.spec.ts, and completed dependency & hex token audits. AC-17/AC-18/AC-19/AC-20 ticked.
 ```
 
